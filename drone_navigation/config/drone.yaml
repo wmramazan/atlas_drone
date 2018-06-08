@@ -1,0 +1,7 @@
+#
+# Atlas Drone Configuration
+#
+
+frame_id: "map"
+resolution: 0.1
+costmap_radius 15

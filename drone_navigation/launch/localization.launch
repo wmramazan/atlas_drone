@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<launch>
+
+	<arg name="resolution" default="0.1"/>
+	<arg name="map_path" default="$(env HOME)/octomap/lab_full.ot"/>
+
+	<node pkg="rosbag" type="play" name="rosbag2" args="--clock /home/ground/bag_files/pointcloud_6.bag" />
+
+	<node pkg="pointcloud_to_laserscan" type="pointcloud_to_laserscan_node" name="pointcloud_to_laserscan_node">
+		<remap from="cloud_in" to="/camera/depth/points"/>
+		<param name="target_frame" value="map" />
+		<param name="range_min" value="0.2" />
+		<param name="range_max" value="15" />
+	</node>
+
+	<node pkg="octomap_server" type="octomap_server_node" name="octomap_server" output="screen" args="'$(arg map_path)'" />
+
+	<node name="rviz" pkg="rviz" type="rviz" args="-d $(find drone_navigation)/rviz/localization.rviz" output="screen" />
+
+</launch>

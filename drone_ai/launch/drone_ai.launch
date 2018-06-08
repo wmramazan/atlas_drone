@@ -1,0 +1,6 @@
+<launch>
+
+<node pkg="drone_ai" type="drone_terminal" name="drone_terminal"
+	output="screen" launch-prefix="xterm -e"/>
+
+</launch>
