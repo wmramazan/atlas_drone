@@ -167,9 +167,6 @@ add_library(commander src/DroneAI/Commander.cpp)
 add_library(djidrone src/DroneAI/DJIDrone.cpp)
 add_library(behaviourmanager src/DroneAI/BehaviourManager.cpp)
 
-add_library(blockallocator src/BlockAllocator.cpp)
-add_library(pathfinder src/Pathfinder.cpp)
-
 ## AI Behaviours
 add_library(commandedbehaviour src/DroneAI/AIBehaviours/CommandedBehaviour.cpp)
 add_library(idlebehaviour src/DroneAI/AIBehaviours/IdleBehaviour.cpp)
@@ -190,10 +187,7 @@ target_link_libraries(drone_ai
 	idlebehaviour
 	takecontroltask
 	takeofftask
-	movetask
-
-	blockallocator
-	pathfinder
+        movetask
 	)
 
 add_executable(drone_terminal src/DroneTerminal/DroneTerminal.cpp)
