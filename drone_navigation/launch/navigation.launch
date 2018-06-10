@@ -4,7 +4,7 @@
 
     <node pkg="drone_navigation" name="drone_marker" type="drone_marker.py" output="screen" />
 
-    <node pkg="drone_navigation" name="drone_navigation" type="drone_navigation">
+    <node pkg="drone_navigation" name="drone_navigation" type="drone_navigation" output="screen">
         <rosparam file="$(find drone_navigation)/config/navigation.yaml" command="load" />
     </node>
 

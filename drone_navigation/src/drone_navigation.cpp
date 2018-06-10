@@ -14,6 +14,7 @@
 #define FEEDBACK_TOPIC "/drone_marker/feedback"
 #define MARKER_ARRAY_TOPIC "markers"
 #define SERVICE_NAME "go_to_target"
+#define DURATION 0.5
 
 ros::Subscriber drone_marker_sub;
 ros::Publisher marker_array_pub;
@@ -28,6 +29,9 @@ visualization_msgs::MarkerArray marker_array;
 visualization_msgs::Marker path_marker;
 visualization_msgs::Marker costmap_marker;
 visualization_msgs::Marker delete_marker;
+
+ros::Time last_pose_update;
+ros::Duration duration(DURATION);
 
 PathPlanner* path_planner;
 Vec3 goal_vector, temp_vector;
@@ -54,6 +58,38 @@ void addCostmapMarker()
     marker_array.markers.push_back(costmap_marker);
 }
 
+void findPath()
+{
+    marker_array.markers.clear();
+    marker_array.markers.push_back(delete_marker);
+
+    //TODO: Read transform of drone instead of start pose.
+    path_planner->SetCurrentPose(start_pose);
+    path_planner->SetTargetPose(goal_pose);
+
+    path = path_planner->GeneratePath();
+
+    if (path != NULL)
+    {
+        ROS_INFO("Path Size: %lu", path->poses.size());
+
+        for (i = 0; i < path->poses.size(); i++)
+        {
+            marker_pose.position.x = path->poses[i].pose.position.x;
+            marker_pose.position.y = path->poses[i].pose.position.y;
+            marker_pose.position.z = path->poses[i].pose.position.z;
+
+            addPathMarker();
+        }
+
+        marker_array_pub.publish(marker_array);
+    }
+    else
+    {
+        ROS_INFO("The path couldn't find.");
+    }
+}
+
 void markerFeedbackCallback(const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback)
 {
 
@@ -77,6 +113,12 @@ void markerFeedbackCallback(const visualization_msgs::InteractiveMarkerFeedbackC
 
         case visualization_msgs::InteractiveMarkerFeedback::POSE_UPDATE:
             //ROS_INFO_STREAM( "pose update." );
+            if (ros::Time::now() - last_pose_update > duration)
+            {
+                last_pose_update = ros::Time::now();
+                findPath();
+            }
+
             goal_pose = feedback->pose;
             break;
 
@@ -88,32 +130,7 @@ void markerFeedbackCallback(const visualization_msgs::InteractiveMarkerFeedbackC
             ROS_INFO_STREAM( "mouse up." );
             //ROS_INFO("Goal Pose: %lf %lf %lf", goal_pose.position.x, goal_pose.position.y, goal_pose.position.z);
 
-            marker_array.markers.clear();
-            marker_array.markers.push_back(delete_marker);
-
-            //TODO: Read transform of drone instead of start pose.
-            path_planner->SetCurrentPose(start_pose);
-            path_planner->SetTargetPose(goal_pose);
-
-            path = path_planner->GeneratePath();
-
-            if (path != NULL)
-            {
-                ROS_INFO("Path Size: %lu", path->poses.size());
-
-                for (i = 0; i < path->poses.size(); i++)
-                {
-                    marker_pose.position.x = path->poses[i].pose.position.x;
-                    marker_pose.position.y = path->poses[i].pose.position.y;
-                    marker_pose.position.z = path->poses[i].pose.position.z;
-
-                    addPathMarker();
-                }
-            }
-            else
-            {
-                ROS_INFO("The path couldn't find.");
-            }
+            findPath();
 
             goal_vector = Vec3(
                         path_planner->costmap->ToIndex(goal_pose.position.x),
@@ -200,6 +217,7 @@ int main(int argc, char **argv)
     marker_pose.orientation.w = 1.0;
 
     path_planner = new PathPlanner(nh, PathPlanner::GLOBAL_MODE);
+    last_pose_update = ros::Time::now();
 
     ros::spin();
 

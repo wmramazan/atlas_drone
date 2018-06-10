@@ -5,8 +5,8 @@ atlas_drone
 - [x] Configuration file
 - [x] Trigger service to start navigation
 - [x] Publish path in PathPlanner
+- [x] Find a new path during updating pose
 - [ ] Ground and Robot modes for PathPlanner
-- [ ] Find a new path during updating pose
 - [ ] Add other project files
 
 - [ ] Process path (Navigation Behaviour)
