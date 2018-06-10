@@ -12,19 +12,15 @@ find_package(catkin REQUIRED COMPONENTS
     nav_msgs
     std_msgs
     std_srvs
-    octomap_ros
-    octomap_msgs
     message_generation
 )
 
 find_package(PCL REQUIRED)
-find_package(octomap REQUIRED)
 
 include_directories(
     include
     ${catkin_INCLUDE_DIRS}
     ${PCL_INCLUDE_DIRS}
-    ${OCTOMAP_INCLUDE_DIRS}
 )
 
 add_message_files(
@@ -54,4 +50,4 @@ add_executable(drone_odom src/drone_odom.cpp)
 target_link_libraries(drone_odom ${catkin_LIBRARIES})
 
 add_executable(nav_visualization src/nav_visualization.cpp)
-target_link_libraries(nav_visualization path_planner pathfinder block_allocator costmap ${catkin_LIBRARIES} ${OCTOMAP_LIBRARIES})
+target_link_libraries(nav_visualization path_planner pathfinder block_allocator costmap ${catkin_LIBRARIES})

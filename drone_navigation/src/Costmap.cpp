@@ -7,6 +7,7 @@ Costmap::Costmap(uint size, double resolution)
     this->size_cube = size_square * size;
     this->origin = size / 2;
     this->resolution = resolution;
+    this->offset = resolution / 2;
 
     data.layout.dim.resize(3);
 
@@ -53,18 +54,18 @@ uint8_t& Costmap::Get(double x, double y, double z)
 
 int Costmap::ToIndex(double value)
 {
-    return ((int) (value / resolution)) + origin;
+    return ((int) ((value + offset) / resolution)) + origin;
 }
 
 double Costmap::ToPosition(int value)
 {
-    return (double) (value - origin) * resolution;
+    return (double) (value - origin) * resolution - offset;
 }
 
 void Costmap::Merge(Costmap& costmap)
 {
     for (int i = 0; i < size_cube; i++)
-        data.data[i] |= costmap.data.data[i++];
+        data.data[i] |= costmap.data.data[i];
 }
 
 void Costmap::Clear()

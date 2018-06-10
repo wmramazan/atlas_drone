@@ -9,14 +9,14 @@
 
 #define FRAME_ID "map"
 #define RESOLUTION 0.1
-#define COSTMAP_RADIUS 15
+#define COSTMAP_RADIUS 3
 #define FEEDBACK_TOPIC "/drone_marker/feedback"
 #define MARKER_ARRAY_TOPIC "markers"
 
 ros::Subscriber drone_marker_sub;
 ros::Publisher marker_array_pub;
 
-geometry_msgs::Pose pose;
+geometry_msgs::Pose marker_pose;
 geometry_msgs::Pose start_pose;
 geometry_msgs::Pose goal_pose;
 nav_msgs::Path* path;
@@ -26,11 +26,10 @@ visualization_msgs::Marker costmap_marker;
 visualization_msgs::Marker delete_marker;
 
 PathPlanner* path_planner;
-Vec3 goal_vector;
+Vec3 goal_vector, temp_vector;
 
 std::string frame_id;
 double resolution;
-double offset;
 int costmap_radius;
 
 int id;
@@ -39,14 +38,14 @@ int i, j, k;
 void addPathMarker()
 {
     path_marker.id = id++;
-    path_marker.pose = pose;
+    path_marker.pose = marker_pose;
     marker_array.markers.push_back(path_marker);
 }
 
 void addCostmapMarker()
 {
     costmap_marker.id = id++;
-    costmap_marker.pose = pose;
+    costmap_marker.pose = marker_pose;
     marker_array.markers.push_back(costmap_marker);
 }
 
@@ -87,9 +86,9 @@ void markerFeedbackCallback(const visualization_msgs::InteractiveMarkerFeedbackC
 
                 for (i = 0; i < path->poses.size(); i++)
                 {
-                    pose.position.x = path->poses[i].pose.position.x;
-                    pose.position.y = path->poses[i].pose.position.y;
-                    pose.position.z = path->poses[i].pose.position.z;
+                    marker_pose.position.x = path->poses[i].pose.position.x;
+                    marker_pose.position.y = path->poses[i].pose.position.y;
+                    marker_pose.position.z = path->poses[i].pose.position.z;
 
                     addPathMarker();
                 }
@@ -111,12 +110,13 @@ void markerFeedbackCallback(const visualization_msgs::InteractiveMarkerFeedbackC
                 {
                     for (k = -costmap_radius; k < costmap_radius; k++)
                     {
-                        if (path_planner->costmap->Get(goal_vector + Vec3(i, j, k)))
+                        temp_vector = goal_vector + Vec3(i, j, k);
+                        if (path_planner->costmap->Get(temp_vector))
                         {
-                            pose.position.x = path_planner->costmap->ToPosition(goal_vector.x + i) + offset;
-                            pose.position.y = path_planner->costmap->ToPosition(goal_vector.y + j) + offset;
-                            pose.position.z = path_planner->costmap->ToPosition(goal_vector.z + k) + offset;
-                            //ROS_INFO("Pose: %lf %lf %lf", pose.position.x, pose.position.y, pose.position.z);
+                            marker_pose.position.x = path_planner->costmap->ToPosition(temp_vector.x);
+                            marker_pose.position.y = path_planner->costmap->ToPosition(temp_vector.y);
+                            marker_pose.position.z = path_planner->costmap->ToPosition(temp_vector.z);
+                            //ROS_INFO("Marker Pose: %lf %lf %lf", marker_pose.position.x, marker_pose.position.y, marker_pose.position.z);
                             addCostmapMarker();
                         }
 
@@ -143,7 +143,6 @@ int main(int argc, char **argv)
     marker_array_pub = nh.advertise<visualization_msgs::MarkerArray>( MARKER_ARRAY_TOPIC, 1 );
 
     id = 0;
-    offset = resolution / 2;
 
     path_marker.header.frame_id = frame_id;
     path_marker.header.stamp = ros::Time();
@@ -169,17 +168,16 @@ int main(int argc, char **argv)
     costmap_marker.scale.y = resolution;
     costmap_marker.scale.z = resolution;
     costmap_marker.color.a = 0.5;
-    costmap_marker.color.r = 0;
-    costmap_marker.color.g = 0;
-    costmap_marker.color.b = 1;
+    costmap_marker.color.r = 1;
+    costmap_marker.color.g = 1;
+    costmap_marker.color.b = 0;
 
     delete_marker.header.frame_id = frame_id;
     delete_marker.header.stamp = ros::Time();
-    //delete_marker.ns = "path";
     delete_marker.type = visualization_msgs::Marker::SPHERE;
     delete_marker.action = visualization_msgs::Marker::DELETEALL;
 
-    pose.orientation.w = 1.0;
+    marker_pose.orientation.w = 1.0;
 
     path_planner = new PathPlanner(nh, PathPlanner::GLOBAL_MODE);
 

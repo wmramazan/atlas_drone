@@ -5,6 +5,7 @@
 #include <boost/foreach.hpp>
 
 #include <nav_msgs/Path.h>
+#include <visualization_msgs/MarkerArray.h>
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/PoseStamped.h>
 
@@ -12,18 +13,12 @@
 #include <pcl/point_types.h>
 #include <pcl/filters/voxel_grid.h>
 
-#include <octomap/octomap.h>
-#include <octomap/OcTree.h>
-#include <octomap_msgs/Octomap.h>
-#include <octomap_msgs/conversions.h>
-
 #include "Costmap.h"
 #include "Pathfinder.h"
 
 using namespace ros;
-using namespace octomap;
-using namespace octomap_msgs;
 using namespace nav_msgs;
+using namespace visualization_msgs;
 using namespace geometry_msgs;
 
 typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
@@ -42,7 +37,7 @@ public:
     PathPlanner(NodeHandle& nh, Mode mode);
 
     void GenerateLocalCostmap(const PointCloud::ConstPtr& point_cloud);
-    void GenerateGlobalCostmap(const Octomap::ConstPtr& octomap);
+    void GenerateGlobalCostmap(const MarkerArray::ConstPtr& marker_array);
     Path* GeneratePath();
     Pose GetNextPathNode();
     void SetCurrentPose(Pose current_pose);
@@ -55,13 +50,13 @@ private:
     NodeHandle* nh;
 
     void pointcloud_callback(const PointCloud::ConstPtr& msg);
-    void octomap_callback(const Octomap::ConstPtr& msg);
+    void occupied_cells_callback(const MarkerArray::ConstPtr& msg);
     void local_costmap_callback(const UInt8MultiArray::ConstPtr& msg);
     void global_costmap_callback(const UInt8MultiArray::ConstPtr& msg);
 
     Subscriber local_costmap_sub;
     Subscriber global_costmap_sub;
-    Subscriber octomap_sub;
+    Subscriber occupied_cells_sub;
     Subscriber pointcloud_sub;
 
     Publisher  local_costmap_pub;
@@ -78,9 +73,6 @@ private:
     Pathfinder* pathfinder;
     VoxelGrid voxel_grid;
     PointCloud* cloud_filtered;
-    OcTree* octree;
-    OcTreeNode* octree_node;
-    double occupancy_threshold;
 
     uint radius;
     uint i, j, k;

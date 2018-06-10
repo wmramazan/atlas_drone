@@ -5,7 +5,7 @@
 
     <node pkg="octomap_server" type="octomap_server_node" name="octomap_server" args="$(find drone_navigation)/map/lab.ot">
           <param name="resolution" value="0.5" />
-</node>
+    </node>
 <!--
     <node pkg="drone_navigation" name="path_planner" type="path_planner" />
 -->

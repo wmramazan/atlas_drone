@@ -1,7 +1,7 @@
 atlas_drone
 
 # To-Do List
-- [ ] Costmap Fix
+- [x] Costmap Fix
 - [ ] Trigger service to start navigation
 - [ ] Publish path in PathPlanner
 - [ ] Process path (Navigation Behaviour)

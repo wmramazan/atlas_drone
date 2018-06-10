@@ -25,6 +25,7 @@ public:
     uint size_square;
     uint size_cube;
     int origin;
+    double offset;
 
 private:
     double resolution;

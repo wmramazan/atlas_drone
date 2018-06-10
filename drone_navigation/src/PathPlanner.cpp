@@ -26,7 +26,7 @@ PathPlanner::PathPlanner(NodeHandle& nh, Mode mode)
     if (mode | GLOBAL_MODE)
     {
         global_costmap_pub   = nh.advertise<std_msgs::UInt8MultiArray>("drone_ai/global_costmap", 1000);
-        octomap_sub          = nh.subscribe("/octomap_full", 5, &PathPlanner::octomap_callback, this);
+        occupied_cells_sub   = nh.subscribe("/occupied_cells_vis_array", 5, &PathPlanner::occupied_cells_callback, this);
     }
     else
     {
@@ -61,32 +61,34 @@ void PathPlanner::GenerateLocalCostmap(const PointCloud::ConstPtr& point_cloud)
     local_costmap_pub.publish(local_costmap->data);
 }
 
-void PathPlanner::GenerateGlobalCostmap(const Octomap::ConstPtr& octomap)
+void PathPlanner::GenerateGlobalCostmap(const MarkerArray::ConstPtr& marker_array)
 {
     global_costmap->Clear();
-    octree = dynamic_cast<OcTree*>(fullMsgToMap(*octomap));
 
-    occupancy_threshold = octree->getOccupancyThres();
-
-    for (OcTree::leaf_iterator it = octree->begin_leafs(), end = octree->end_leafs(); it != end; ++it)
+    BOOST_FOREACH (const Marker& marker, marker_array->markers)
     {
-        octree_node = octree->search(it.getKey());
-        if (NULL != octree_node && octree_node->getOccupancy() > occupancy_threshold)
+        BOOST_FOREACH(const Point& point, marker.points)
         {
-            //ROS_INFO("Full Node: %d %d %d %d", x, y, z, inflation_radius);
+            x = global_costmap->ToIndex(point.x);
+            y = global_costmap->ToIndex(point.y);
+            z = global_costmap->ToIndex(point.z);
 
-            x = global_costmap->ToIndex(it.getX());
-            y = global_costmap->ToIndex(it.getY());
-            z = global_costmap->ToIndex(it.getZ());
+            /*
+            if (point.x == 1.35 && point.y == 0.05)
+            {
+              ROS_INFO("Occupied Cell: %lf %lf %lf", point.x, point.y, point.z);
+              ROS_INFO("Occupied Cell: %d %d %d", x, y, z);
+            }
+            */
 
             global_costmap->Get(x, y, z) = 1;
 
-            /*for (i = x - radius; i < x + radius; i++)
+            // Inflation
+            for (i = x - radius; i < x + radius; i++)
                 for (j = y - radius; j < y + radius; j++)
                     for (k = z - radius; k < z + radius; k++)
-                        global_costmap->Get(i, j, k) = 1;*/
+                        global_costmap->Get(i, j, k) = 1;
         }
-
     }
 
     global_costmap_pub.publish(global_costmap->data);
@@ -97,13 +99,14 @@ Path* PathPlanner::GeneratePath()
     path.poses.clear();
 
     costmap->Clear();
+
     costmap->Merge(*global_costmap);
     //costmap->Merge(*local_costmap);
 
     Vec3 start;
-    start.x = costmap->origin;
-    start.y = costmap->origin;
-    start.z = costmap->origin;
+    start.x = costmap->origin + costmap->offset;
+    start.y = costmap->origin + costmap->offset;
+    start.z = costmap->origin + costmap->offset;
 
     Vec3 end;
     end.x = costmap->ToIndex(target_pose.position.x);
@@ -154,9 +157,9 @@ void PathPlanner::pointcloud_callback(const PointCloud::ConstPtr& msg)
     GenerateLocalCostmap(msg);
 }
 
-void PathPlanner::octomap_callback(const Octomap::ConstPtr& msg)
+void PathPlanner::occupied_cells_callback(const MarkerArray::ConstPtr& msg)
 {
-    ROS_INFO("octomapCallback");
+    ROS_INFO("occupiedCellsCallback");
     GenerateGlobalCostmap(msg);
 }
 
