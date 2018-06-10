@@ -11,7 +11,6 @@ DJIDrone::DJIDrone(ros::NodeHandle& nh)
     gpsHealth_sub         = nh.subscribe("dji_sdk/gps_health",        10, &DJIDrone::gps_health_callback,       this);
     battery_state_sub      = nh.subscribe("dji_sdk/battery_state",     10, &DJIDrone::battery_state_callback,    this);
 
-
     sdk_ctrl_authority_service = nh.serviceClient<dji_sdk::SDKControlAuthority> ("dji_sdk/sdk_control_authority");
     drone_task_service         = nh.serviceClient<dji_sdk::DroneTaskControl>    ("dji_sdk/drone_task_control");
     query_version_service      = nh.serviceClient<dji_sdk::QueryDroneVersion>   ("dji_sdk/query_drone_version");

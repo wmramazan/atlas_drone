@@ -4,6 +4,7 @@
 #include <visualization_msgs/InteractiveMarkerFeedback.h>
 #include <visualization_msgs/MarkerArray.h>
 #include <nav_msgs/Path.h>
+#include <std_srvs/Trigger.h>
 
 #include "PathPlanner.h"
 
@@ -12,10 +13,13 @@
 #define COSTMAP_RADIUS 3
 #define FEEDBACK_TOPIC "/drone_marker/feedback"
 #define MARKER_ARRAY_TOPIC "markers"
+#define SERVICE_NAME "go_to_target"
 
 ros::Subscriber drone_marker_sub;
 ros::Publisher marker_array_pub;
+ros::ServiceClient trigger_service_client;
 
+std_srvs::Trigger trigger_srv;
 geometry_msgs::Pose marker_pose;
 geometry_msgs::Pose start_pose;
 geometry_msgs::Pose goal_pose;
@@ -56,6 +60,18 @@ void markerFeedbackCallback(const visualization_msgs::InteractiveMarkerFeedbackC
     {
         case visualization_msgs::InteractiveMarkerFeedback::MENU_SELECT:
             ROS_INFO_STREAM( "menu item " << feedback->menu_entry_id << " clicked." );
+
+            if (feedback->menu_entry_id == 5)
+            {
+                if (trigger_service_client.call(trigger_srv))
+                {
+                    ROS_INFO("Going to target..");
+                }
+                else
+                {
+                    ROS_ERROR("Failed to call service go_to_path");
+                }
+            }
             break;
 
         case visualization_msgs::InteractiveMarkerFeedback::POSE_UPDATE:
@@ -141,6 +157,8 @@ int main(int argc, char **argv)
 
     drone_marker_sub = nh.subscribe<visualization_msgs::InteractiveMarkerFeedback>( FEEDBACK_TOPIC, 10, markerFeedbackCallback );
     marker_array_pub = nh.advertise<visualization_msgs::MarkerArray>( MARKER_ARRAY_TOPIC, 1 );
+
+    trigger_service_client = nh.serviceClient<std_srvs::Trigger>( SERVICE_NAME );
 
     id = 0;
 

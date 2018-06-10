@@ -3,6 +3,7 @@
 
 #include <ros/ros.h>
 #include <DroneAI/Commander.h>
+#include <std_srvs/Trigger.h>
 
 #define LOG DroneAI::Instance->commander->SendMessage
 #define DRONE DroneAI::Instance->Drone
@@ -32,6 +33,9 @@ class DroneAI
     ros::NodeHandle nh;
 
     ros::Publisher ai_state_pub;
+    ros::ServiceServer trigger_service;
+
+    bool triggerServiceCallback(std_srvs::TriggerRequest& request, std_srvs::TriggerResponse& response);
 };
 
 #endif // DRONEAI_H

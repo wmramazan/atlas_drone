@@ -22,6 +22,7 @@ DroneAI::DroneAI()
         Instance = this;
 
     ai_state_pub = nh.advertise<drone_ai::AIState>("/drone_ai/ai_state", 10);
+    trigger_service = nh.advertiseService("go_to_target", &DroneAI::triggerServiceCallback, this);
 
     commander = new Commander(nh);
     Drone = new DJIDrone(nh);
@@ -62,4 +63,14 @@ void DroneAI::UpdateAI()
     }
 
     ai_state_pub.publish(aiState);
+}
+
+bool DroneAI::triggerServiceCallback(std_srvs::TriggerRequest& request, std_srvs::TriggerResponse& response) {
+    ROS_INFO("triggerServiceCallback");
+
+    // TODO: Go to target
+
+    response.success = true;
+    response.message = "Following the path..";
+    return true;
 }
