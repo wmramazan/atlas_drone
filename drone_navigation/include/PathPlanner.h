@@ -48,6 +48,7 @@ public:
 
 private:
     NodeHandle* nh;
+    Mode mode;
 
     void pointcloud_callback(const PointCloud::ConstPtr& msg);
     void occupied_cells_callback(const MarkerArray::ConstPtr& msg);
@@ -61,6 +62,7 @@ private:
 
     Publisher  local_costmap_pub;
     Publisher  global_costmap_pub;
+    Publisher  path_pub;
 
     uint size;
     double resolution;
@@ -74,8 +76,11 @@ private:
     VoxelGrid voxel_grid;
     PointCloud* cloud_filtered;
 
+    std::string frame_id;
+
     std::string local_costmap_topic;
     std::string pointcloud_topic;
+    std::string path_topic;
 
     std::string global_costmap_topic;
     std::string occupied_cells_topic;

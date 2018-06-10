@@ -3,16 +3,20 @@
 PathPlanner::PathPlanner(NodeHandle& nh, Mode mode)
 {
     this->nh = &nh;
+    this->mode = mode;
 
     this->size = nh.param("size", 200);
     this->resolution = nh.param("resolution", 0.1);
     this->inflation_radius = nh.param("inflation_radius", 0.5);
     this->radius = (int) (inflation_radius / resolution);
 
-    nh.param<std::string>("local_costmap_topic", local_costmap_topic ,"drone_ai/local_costmap");
-    nh.param<std::string>("pointcloud_topic", pointcloud_topic, "/camera/depth/points");
+    nh.param<std::string>("frame_id", frame_id, "map");
 
-    nh.param<std::string>("global_costmap_topic", global_costmap_topic, "drone_ai/global_costmap");
+    nh.param<std::string>("local_costmap_topic", local_costmap_topic ,"/local_costmap");
+    nh.param<std::string>("pointcloud_topic", pointcloud_topic, "/camera/depth/points");
+    nh.param<std::string>("path_topic", path_topic, "path");
+
+    nh.param<std::string>("global_costmap_topic", global_costmap_topic, "/global_costmap");
     nh.param<std::string>("occupied_cells_topic", occupied_cells_topic, "/occupied_cells_vis_array");
 
     this->costmap = new Costmap(size, resolution);
@@ -22,8 +26,9 @@ PathPlanner::PathPlanner(NodeHandle& nh, Mode mode)
 
     if (mode | LOCAL_MODE)
     {
-        local_costmap_pub   = nh.advertise<std_msgs::UInt8MultiArray>(local_costmap_topic, 1000);
+        local_costmap_pub   = nh.advertise<std_msgs::UInt8MultiArray>(local_costmap_topic, 10);
         pointcloud_sub      = nh.subscribe(pointcloud_topic, 5, &PathPlanner::pointcloud_callback, this);
+        path_pub            = nh.advertise<Path>(path_topic, 20);
     }
     else
     {
@@ -32,7 +37,7 @@ PathPlanner::PathPlanner(NodeHandle& nh, Mode mode)
 
     if (mode | GLOBAL_MODE)
     {
-        global_costmap_pub   = nh.advertise<std_msgs::UInt8MultiArray>(global_costmap_topic, 1000);
+        global_costmap_pub   = nh.advertise<std_msgs::UInt8MultiArray>(global_costmap_topic, 10);
         occupied_cells_sub   = nh.subscribe(occupied_cells_topic, 5, &PathPlanner::occupied_cells_callback, this);
     }
     else
@@ -124,7 +129,7 @@ Path* PathPlanner::GeneratePath()
     if (found_path.size())
     {
         path.poses.resize(found_path.size());
-        path.header.frame_id = "map";
+        path.header.frame_id = frame_id;
 
         PoseStamped pose;
 
@@ -136,7 +141,9 @@ Path* PathPlanner::GeneratePath()
             path.poses.push_back(pose);
         }
 
-        //TODO: Publish path.
+        if (mode | LOCAL_MODE)
+            path_pub.publish(path);
+
         return &path;
     }
     else

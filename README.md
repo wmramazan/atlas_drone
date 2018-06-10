@@ -4,9 +4,10 @@ atlas_drone
 - [x] Costmap Fix
 - [x] Configuration file
 - [x] Trigger service to start navigation
-- [ ] Publish path in PathPlanner
+- [x] Publish path in PathPlanner
+- [ ] Ground and Robot modes for PathPlanner
 - [ ] Find a new path during updating pose
-- [ ] Add other project files.
+- [ ] Add other project files
 
 - [ ] Process path (Navigation Behaviour)
 - [ ] Check Local Costmap whether path is correct or not

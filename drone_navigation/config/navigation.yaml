@@ -9,6 +9,7 @@ inflation_radius:       0.5
 
 local_costmap_topic:    "/local_costmap"
 pointcloud_topic:       "/camera/depth/points"
+path_topic:             "path"
 
 global_costmap_topic:   "/global_costmap"
 occupied_cells_topic:   "/occupied_cells_vis_array"
