@@ -1,0 +1,17 @@
+#
+# Configuration of Drone Navigation
+#
+
+frame_id:               "map"
+size:                   200
+resolution:             0.1
+inflation_radius:       0.5
+
+local_costmap_topic:    "/local_costmap"
+pointcloud_topic:       "/camera/depth/points"
+
+global_costmap_topic:   "/global_costmap"
+occupied_cells_topic:   "/occupied_cells_vis_array"
+
+# Visualization
+costmap_radius:         0.5

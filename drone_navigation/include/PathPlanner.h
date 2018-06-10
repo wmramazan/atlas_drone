@@ -74,6 +74,12 @@ private:
     VoxelGrid voxel_grid;
     PointCloud* cloud_filtered;
 
+    std::string local_costmap_topic;
+    std::string pointcloud_topic;
+
+    std::string global_costmap_topic;
+    std::string occupied_cells_topic;
+
     uint radius;
     uint i, j, k;
     uint x, y, z;

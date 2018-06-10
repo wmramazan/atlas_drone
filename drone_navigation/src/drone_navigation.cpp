@@ -10,7 +10,7 @@
 
 #define FRAME_ID "map"
 #define RESOLUTION 0.1
-#define COSTMAP_RADIUS 3
+#define COSTMAP_RADIUS 0.3
 #define FEEDBACK_TOPIC "/drone_marker/feedback"
 #define MARKER_ARRAY_TOPIC "markers"
 #define SERVICE_NAME "go_to_target"
@@ -34,7 +34,8 @@ Vec3 goal_vector, temp_vector;
 
 std::string frame_id;
 double resolution;
-int costmap_radius;
+double costmap_radius;
+int radius;
 
 int id;
 int i, j, k;
@@ -120,11 +121,11 @@ void markerFeedbackCallback(const visualization_msgs::InteractiveMarkerFeedbackC
                         path_planner->costmap->ToIndex(goal_pose.position.z)
                         );
 
-            for (i = -costmap_radius; i < costmap_radius; i++)
+            for (i = -radius; i < radius; i++)
             {
-                for (j = -costmap_radius; j < costmap_radius; j++)
+                for (j = -radius; j < radius; j++)
                 {
-                    for (k = -costmap_radius; k < costmap_radius; k++)
+                    for (k = -radius; k < radius; k++)
                     {
                         temp_vector = goal_vector + Vec3(i, j, k);
                         if (path_planner->costmap->Get(temp_vector))
@@ -148,12 +149,12 @@ void markerFeedbackCallback(const visualization_msgs::InteractiveMarkerFeedbackC
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "nav_visualization");
+    ros::init(argc, argv, "drone_navigation");
     ros::NodeHandle nh("~");
 
     nh.param<std::string>("/frame_id", frame_id, FRAME_ID);
     nh.param<double>("/resolution", resolution, RESOLUTION);
-    nh.param<int>("/costmap_radius", costmap_radius, COSTMAP_RADIUS);
+    nh.param<double>("/costmap_radius", costmap_radius, COSTMAP_RADIUS);
 
     drone_marker_sub = nh.subscribe<visualization_msgs::InteractiveMarkerFeedback>( FEEDBACK_TOPIC, 10, markerFeedbackCallback );
     marker_array_pub = nh.advertise<visualization_msgs::MarkerArray>( MARKER_ARRAY_TOPIC, 1 );
@@ -161,6 +162,7 @@ int main(int argc, char **argv)
     trigger_service_client = nh.serviceClient<std_srvs::Trigger>( SERVICE_NAME );
 
     id = 0;
+    radius = costmap_radius / resolution;
 
     path_marker.header.frame_id = frame_id;
     path_marker.header.stamp = ros::Time();

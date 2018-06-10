@@ -3,10 +3,17 @@
 PathPlanner::PathPlanner(NodeHandle& nh, Mode mode)
 {
     this->nh = &nh;
+
     this->size = nh.param("size", 200);
     this->resolution = nh.param("resolution", 0.1);
     this->inflation_radius = nh.param("inflation_radius", 0.5);
     this->radius = (int) (inflation_radius / resolution);
+
+    nh.param<std::string>("local_costmap_topic", local_costmap_topic ,"drone_ai/local_costmap");
+    nh.param<std::string>("pointcloud_topic", pointcloud_topic, "/camera/depth/points");
+
+    nh.param<std::string>("global_costmap_topic", global_costmap_topic, "drone_ai/global_costmap");
+    nh.param<std::string>("occupied_cells_topic", occupied_cells_topic, "/occupied_cells_vis_array");
 
     this->costmap = new Costmap(size, resolution);
     this->local_costmap = new Costmap(size, resolution);
@@ -15,22 +22,22 @@ PathPlanner::PathPlanner(NodeHandle& nh, Mode mode)
 
     if (mode | LOCAL_MODE)
     {
-        local_costmap_pub   = nh.advertise<std_msgs::UInt8MultiArray>("drone_ai/local_costmap", 1000);
-        pointcloud_sub      = nh.subscribe("/camera/depth/points", 5, &PathPlanner::pointcloud_callback, this);
+        local_costmap_pub   = nh.advertise<std_msgs::UInt8MultiArray>(local_costmap_topic, 1000);
+        pointcloud_sub      = nh.subscribe(pointcloud_topic, 5, &PathPlanner::pointcloud_callback, this);
     }
     else
     {
-        local_costmap_sub   = nh.subscribe("drone_ai/local_costmap", 5, &PathPlanner::local_costmap_callback, this);
+        local_costmap_sub   = nh.subscribe(local_costmap_topic, 5, &PathPlanner::local_costmap_callback, this);
     }
 
     if (mode | GLOBAL_MODE)
     {
-        global_costmap_pub   = nh.advertise<std_msgs::UInt8MultiArray>("drone_ai/global_costmap", 1000);
-        occupied_cells_sub   = nh.subscribe("/occupied_cells_vis_array", 5, &PathPlanner::occupied_cells_callback, this);
+        global_costmap_pub   = nh.advertise<std_msgs::UInt8MultiArray>(global_costmap_topic, 1000);
+        occupied_cells_sub   = nh.subscribe(occupied_cells_topic, 5, &PathPlanner::occupied_cells_callback, this);
     }
     else
     {
-        global_costmap_sub   = nh.subscribe("drone_ai/global_costmap", 5, &PathPlanner::global_costmap_callback, this);
+        global_costmap_sub   = nh.subscribe(global_costmap_topic, 5, &PathPlanner::global_costmap_callback, this);
     }
 }
 

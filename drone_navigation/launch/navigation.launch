@@ -1,17 +1,13 @@
+<?xml version="1.0"?>
+
 <launch>
-  <master auto="start"/>
 
-  <!-- Run octomap_server with rotors simulation -->
-  <include file="$(find drone_navigation)/launch/octomap_simulation.launch" />
+    <node pkg="drone_navigation" name="drone_marker" type="drone_marker.py" output="screen" />
 
-  <!--- Run AMCL -->
-  <include file="$(find amcl)/examples/amcl_omni.launch" />
+    <node pkg="drone_navigation" name="drone_navigation" type="drone_navigation">
+        <rosparam file="$(find drone_navigation)/config/navigation.yaml" command="load" />
+    </node>
 
-  <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
-    <rosparam file="$(find drone_navigation)/costmap_common_params.yaml" command="load" ns="global_costmap" />
-    <rosparam file="$(find drone_navigation)/costmap_common_params.yaml" command="load" ns="local_costmap" />
-    <rosparam file="$(find drone_navigation)/local_costmap_params.yaml" command="load" />
-    <rosparam file="$(find drone_navigation)/global_costmap_params.yaml" command="load" />
-    <rosparam file="$(find drone_navigation)/base_local_planner_params.yaml" command="load" />
-  </node>
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find drone_navigation)/rviz/octomap.rviz" output="screen" />
+
 </launch>

@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+
+<launch>
+
+    <node pkg="octomap_server" type="octomap_server_node" name="octomap_server" args="$(find drone_navigation)/map/lab.ot">
+          <param name="resolution" value="0.5" />
+    </node>
+
+    <include file="$(find drone_navigation)/launch/navigation.launch" />
+
+</launch>
