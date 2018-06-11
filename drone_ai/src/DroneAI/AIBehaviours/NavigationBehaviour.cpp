@@ -1,12 +1,13 @@
 #include "DroneAI/AIBehaviour.h"
 #include "DroneAI/DJIDrone.h"
 #include "DroneAI/AITask.h"
+#include "drone_navigation/PathPlanner.h"
 
 NavigationBehaviour::NavigationBehaviour()
 {
     LOG("||-> Initializing Navigation Behaviour.");
     name = "Navigation Behaviour";
-	this->nh = &nh;
+  //this->nh = &nh;
     LOG("||-< Navigation Behaviour Initialization Complete.");
 }
 

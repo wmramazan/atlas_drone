@@ -10,6 +10,7 @@ project(drone_ai)
 find_package(catkin REQUIRED COMPONENTS
 	roscpp
 	dji_sdk
+        drone_navigation
 	sensor_msgs
 	pcl_ros
 	pcl_conversions
@@ -17,10 +18,8 @@ find_package(catkin REQUIRED COMPONENTS
 	std_msgs
 	std_srvs
 	message_generation
-        drone_navigation
 )
 
-find_package(drone_navigation REQUIRED)
 find_package(DJIOSDK REQUIRED)
 find_package(Curses REQUIRED)
 find_package(PCL REQUIRED)
@@ -127,9 +126,9 @@ CATKIN_DEPENDS dji_sdk message_runtime drone_navigation
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-	include
+        include
         ${drone_navigation_INCLUDE_DIRS}
-	${catkin_INCLUDE_DIRS}
+        ${catkin_INCLUDE_DIRS}
 	${CURSES_INCLUDE_DIR}
 	${PCL_INCLUDE_DIRS}
 )
@@ -172,6 +171,7 @@ add_library(behaviourmanager src/DroneAI/BehaviourManager.cpp)
 ## AI Behaviours
 add_library(commandedbehaviour src/DroneAI/AIBehaviours/CommandedBehaviour.cpp)
 add_library(idlebehaviour src/DroneAI/AIBehaviours/IdleBehaviour.cpp)
+add_library(navigationbehaviour src/DroneAI/AIBehaviours/NavigationBehaviour.cpp)
 
 ## AI TASKS
 add_library(takecontroltask src/DroneAI/AITasks/TakeControlTask.cpp)
@@ -179,7 +179,6 @@ add_library(takeofftask src/DroneAI/AITasks/TakeOffTask.cpp)
 add_library(movetask src/DroneAI/AITasks/MoveTask.cpp)
 
 target_link_libraries(drone_ai
-        ${drone_navigation_LIBRARIES}
 	${catkin_LIBRARIES}
 	${DJIOSDK_LIBRARIES}
 	${PCL_LIBRARIES}
@@ -188,6 +187,7 @@ target_link_libraries(drone_ai
 	behaviourmanager
 	commandedbehaviour
 	idlebehaviour
+        navigationbehaviour
 	takecontroltask
 	takeofftask
         movetask

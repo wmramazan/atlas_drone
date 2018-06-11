@@ -60,7 +60,6 @@
   <exec_depend>message_runtime</exec_depend>
 
   <build_depend>drone_navigation</build_depend>
-  <build_export_depend>drone_navigation</build_export_depend>
   <exec_depend>drone_navigation</exec_depend>
 
   <!-- The export tag contains other, unspecified, tags -->

@@ -40,5 +40,4 @@ target_link_libraries(drone_navigation path_planner pathfinder block_allocator c
 
 install(DIRECTORY include/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-  FILES_MATCHING PATTERN "*.h"
-  PATTERN ".svn" EXCLUDE)
+)
