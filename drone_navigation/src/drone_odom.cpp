@@ -5,8 +5,8 @@
 #include <std_srvs/Empty.h>
 #include <geometry_msgs/Pose.h>
 #include <tf/transform_datatypes.h>
-#include <PublisherSubscriber.h>
-#include <Vec3.h>
+#include <drone_navigation/PublisherSubscriber.h>
+#include <drone_navigation/Vec3.h>
 //#include <boost/foreach.hpp>
 
 #define TOPIC "/zed/odom"

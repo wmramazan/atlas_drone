@@ -6,7 +6,7 @@
 #include <nav_msgs/Path.h>
 #include <std_srvs/Trigger.h>
 
-#include "PathPlanner.h"
+#include "drone_navigation/PathPlanner.h"
 
 #define FRAME_ID "map"
 #define RESOLUTION 0.1

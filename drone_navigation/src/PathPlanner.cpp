@@ -1,4 +1,4 @@
-#include "PathPlanner.h"
+#include "drone_navigation/PathPlanner.h"
 
 PathPlanner::PathPlanner(NodeHandle& nh, Mode mode)
 {
@@ -70,11 +70,13 @@ void PathPlanner::GenerateLocalCostmap(const PointCloud::ConstPtr& point_cloud)
 
     delete cloud_filtered;
 
+    costmap->Merge(*local_costmap);
     local_costmap_pub.publish(local_costmap->data);
 }
 
 void PathPlanner::GenerateGlobalCostmap(const MarkerArray::ConstPtr& marker_array)
 {
+    costmap->Clear();
     global_costmap->Clear();
 
     BOOST_FOREACH (const Marker& marker, marker_array->markers)
@@ -103,17 +105,13 @@ void PathPlanner::GenerateGlobalCostmap(const MarkerArray::ConstPtr& marker_arra
         }
     }
 
+    costmap->Merge(*global_costmap);
     global_costmap_pub.publish(global_costmap->data);
 }
 
 Path* PathPlanner::GeneratePath()
 {
     path.poses.clear();
-
-    costmap->Clear();
-
-    costmap->Merge(*global_costmap);
-    //costmap->Merge(*local_costmap);
 
     Vec3 start;
     start.x = costmap->origin + costmap->offset;

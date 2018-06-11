@@ -68,4 +68,10 @@ class CommandedBehaviour : public AIBehaviour
     virtual void Update();
 };
 
+class NavigationBehaviour : public AIBehaviour
+{
+  public:
+    NavigationBehaviour();
+    virtual void Update();
+};
 #endif // AIBEHAVIOUR_H

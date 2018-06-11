@@ -16,6 +16,8 @@ find_package(catkin REQUIRED COMPONENTS
 
 find_package(PCL REQUIRED)
 
+catkin_package(INCLUDE_DIRS include)
+
 include_directories(
     include
     ${catkin_INCLUDE_DIRS}
@@ -30,10 +32,13 @@ add_library(costmap src/Costmap.cpp)
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
-catkin_package( )
-
 add_executable(drone_odom src/drone_odom.cpp)
 target_link_libraries(drone_odom ${catkin_LIBRARIES})
 
 add_executable(drone_navigation src/drone_navigation.cpp)
 target_link_libraries(drone_navigation path_planner pathfinder block_allocator costmap ${catkin_LIBRARIES})
+
+install(DIRECTORY include/${PROJECT_NAME}/
+  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+  FILES_MATCHING PATTERN "*.h"
+  PATTERN ".svn" EXCLUDE)
