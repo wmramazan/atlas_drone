@@ -32,9 +32,6 @@ add_definitions(${PCL_DEFINITIONS})
 
 catkin_package( )
 
-add_executable(obstacle src/obstacle.cpp)
-target_link_libraries(obstacle ${PCL_LIBRARIES} ${catkin_LIBRARIES})
-
 add_executable(drone_odom src/drone_odom.cpp)
 target_link_libraries(drone_odom ${catkin_LIBRARIES})
 
