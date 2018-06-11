@@ -17,8 +17,10 @@ find_package(catkin REQUIRED COMPONENTS
 	std_msgs
 	std_srvs
 	message_generation
+        drone_navigation
 )
 
+find_package(drone_navigation REQUIRED)
 find_package(DJIOSDK REQUIRED)
 find_package(Curses REQUIRED)
 find_package(PCL REQUIRED)
@@ -114,8 +116,7 @@ generate_messages(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 INCLUDE_DIRS include
-#  LIBRARIES drone_ai
-CATKIN_DEPENDS dji_sdk message_runtime
+CATKIN_DEPENDS dji_sdk message_runtime drone_navigation
 #  DEPENDS system_lib
 )
 
@@ -127,6 +128,7 @@ CATKIN_DEPENDS dji_sdk message_runtime
 ## Your package locations should be listed before other locations
 include_directories(
 	include
+        ${drone_navigation_INCLUDE_DIRS}
 	${catkin_INCLUDE_DIRS}
 	${CURSES_INCLUDE_DIR}
 	${PCL_INCLUDE_DIRS}
@@ -177,6 +179,7 @@ add_library(takeofftask src/DroneAI/AITasks/TakeOffTask.cpp)
 add_library(movetask src/DroneAI/AITasks/MoveTask.cpp)
 
 target_link_libraries(drone_ai
+        ${drone_navigation_LIBRARIES}
 	${catkin_LIBRARIES}
 	${DJIOSDK_LIBRARIES}
 	${PCL_LIBRARIES}

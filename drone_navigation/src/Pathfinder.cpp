@@ -1,4 +1,4 @@
-#include "Pathfinder.h"
+#include "drone_navigation/Pathfinder.h"
 
 Pathfinder::Pathfinder(Costmap* costmap)
 {
