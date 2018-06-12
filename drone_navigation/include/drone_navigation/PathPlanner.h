@@ -30,8 +30,9 @@ class PathPlanner
 public:
     enum Mode
     {
-        LOCAL_MODE = 0x01,
-        GLOBAL_MODE = 0x02
+        LOCAL_COSTMAP  = 0x01,
+        GLOBAL_COSTMAP = 0x02,
+        PATH           = 0x04
     };
 
     PathPlanner(NodeHandle& nh, Mode mode);
