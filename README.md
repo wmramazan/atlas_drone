@@ -7,7 +7,7 @@ atlas_drone
 - [x] Publish path in PathPlanner
 - [x] Find a new path during updating pose
 - [ ] Path mode for PathPlanner
-- [ ] Add other project files
+- [x] Add other project files
 
 - [ ] Process path (Navigation Behaviour)
 - [ ] Check Local Costmap whether path is correct or not
