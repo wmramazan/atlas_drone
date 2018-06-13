@@ -24,7 +24,7 @@ PathPlanner::PathPlanner(NodeHandle& nh, int mode)
     this->global_costmap = new Costmap(size, resolution);
     this->pathfinder = new Pathfinder(costmap);
 
-    if (mode | LOCAL_COSTMAP)
+    if (mode & LOCAL_COSTMAP)
     {
         local_costmap_pub   = nh.advertise<std_msgs::UInt8MultiArray>(local_costmap_topic, 10);
         pointcloud_sub      = nh.subscribe(pointcloud_topic, 5, &PathPlanner::pointcloud_callback, this);
@@ -35,7 +35,7 @@ PathPlanner::PathPlanner(NodeHandle& nh, int mode)
         local_costmap_sub   = nh.subscribe(local_costmap_topic, 5, &PathPlanner::local_costmap_callback, this);
     }
 
-    if (mode | GLOBAL_COSTMAP)
+    if (mode & GLOBAL_COSTMAP)
     {
         global_costmap_pub   = nh.advertise<std_msgs::UInt8MultiArray>(global_costmap_topic, 10);
         occupied_cells_sub   = nh.subscribe(occupied_cells_topic, 5, &PathPlanner::occupied_cells_callback, this);
@@ -139,7 +139,7 @@ Path* PathPlanner::GeneratePath()
             path.poses.push_back(pose);
         }
 
-        if (mode | PATH)
+        if (mode & PATH)
             path_pub.publish(path);
 
         return &path;
