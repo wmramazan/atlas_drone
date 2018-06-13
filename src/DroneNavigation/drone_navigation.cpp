@@ -10,7 +10,7 @@
 
 #define FRAME_ID "map"
 #define RESOLUTION 0.1
-#define COSTMAP_RADIUS 0.3
+#define COSTMAP_RADIUS 2.0
 #define FEEDBACK_TOPIC "/drone_marker/feedback"
 #define MARKER_ARRAY_TOPIC "markers"
 #define SERVICE_NAME "go_to_target"
@@ -138,6 +138,16 @@ void markerFeedbackCallback(const visualization_msgs::InteractiveMarkerFeedbackC
                         path_planner->costmap->ToIndex(goal_pose.position.z)
                         );
 
+            /*
+            j = 0;
+            for (i = 0; i < path_planner->costmap->size_cube; i++)
+            {
+                if (path_planner->costmap->data.data[i])
+                   j++;
+            }
+            ROS_INFO("Occupied cells: %d", j);
+            */
+
             for (i = -radius; i < radius; i++)
             {
                 for (j = -radius; j < radius; j++)
@@ -150,7 +160,7 @@ void markerFeedbackCallback(const visualization_msgs::InteractiveMarkerFeedbackC
                             marker_pose.position.x = path_planner->costmap->ToPosition(temp_vector.x);
                             marker_pose.position.y = path_planner->costmap->ToPosition(temp_vector.y);
                             marker_pose.position.z = path_planner->costmap->ToPosition(temp_vector.z);
-                            //ROS_INFO("Marker Pose: %lf %lf %lf", marker_pose.position.x, marker_pose.position.y, marker_pose.position.z);
+                            ROS_INFO("Marker Pose: %lf %lf %lf", marker_pose.position.x, marker_pose.position.y, marker_pose.position.z);
                             addCostmapMarker();
                         }
 

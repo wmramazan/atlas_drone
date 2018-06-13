@@ -3,7 +3,7 @@
 #include "DroneAI/BehaviourManager.h"
 #include "DroneAI/AIBehaviour.h"
 #include "DroneAI/AITask.h"
-#include "drone_ai/AIState.h"
+#include "atlas_drone/AIState.h"
 
 int main(int argc, char **argv)
 {
@@ -21,7 +21,7 @@ DroneAI::DroneAI()
     if (Instance == NULL)
         Instance = this;
 
-    ai_state_pub = nh.advertise<drone_ai::AIState>("/drone_ai/ai_state", 10);
+    ai_state_pub = nh.advertise<atlas_drone::AIState>("/drone_ai/ai_state", 10);
     trigger_service = nh.advertiseService("go_to_target", &DroneAI::triggerServiceCallback, this);
 
     commander = new Commander(nh);
@@ -45,7 +45,7 @@ void DroneAI::UpdateAI()
     ros::spinOnce();
     behaviourManager->Update();
 
-    drone_ai::AIState aiState;
+    atlas_drone::AIState aiState;
 
     if (behaviourManager->currentBehaviour != NULL)
     {

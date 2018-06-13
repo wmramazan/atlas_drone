@@ -57,15 +57,17 @@ void PathPlanner::GenerateLocalCostmap(const PointCloud::ConstPtr& point_cloud)
     voxel_grid.filter(*cloud_filtered);
 
     BOOST_FOREACH (const pcl::PointXYZ& pt, cloud_filtered->points)
-    {
-        x = global_costmap->ToIndex(pt.x);
-        y = global_costmap->ToIndex(pt.y);
-        z = global_costmap->ToIndex(pt.z);
+    {   
+        x = local_costmap->ToIndex(pt.x);
+        y = local_costmap->ToIndex(pt.y);
+        z = local_costmap->ToIndex(pt.z);
+
+        //ROS_INFO("%d %d %d", x, y, z);
 
         for (i = x - radius; i < x + radius; i++)
             for (j = y - radius; j < y + radius; j++)
                 for (k = z - radius; k < z + radius; k++)
-                    local_costmap->Get(i, j, k) = 1;
+                    local_costmap->Get(z, 200 - x, 200 - y) = 1;
     }
 
     delete cloud_filtered;
@@ -95,7 +97,7 @@ void PathPlanner::GenerateGlobalCostmap(const MarkerArray::ConstPtr& marker_arra
             }
             */
 
-            global_costmap->Get(x, y, z) = 1;
+            //global_costmap->Get(x, y, z) = 1;
 
             // Inflation
             for (i = x - radius; i < x + radius; i++)
