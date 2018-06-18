@@ -2,9 +2,11 @@
 #define COSTMAP_H
 
 #include <std_msgs/UInt8MultiArray.h>
+#include <nav_msgs/Path.h>
 #include "Vec3Int.h"
 
 using namespace std_msgs;
+using namespace nav_msgs;
 
 class Costmap
 {
@@ -19,6 +21,7 @@ public:
     double ToPosition(int value);
     void Merge(Costmap& costmap);
     void Clear();
+    bool CanPathPass(Path* path);
 
     UInt8MultiArray data;
     uint size;

@@ -6,7 +6,7 @@
 #include <geometry_msgs/Pose.h>
 #include <tf/transform_datatypes.h>
 #include <DroneNavigation/PublisherSubscriber.h>
-#include <DroneNavigation/Vec3Int.h>
+#include <DroneNavigation/Vec3.h>
 //#include <boost/foreach.hpp>
 
 #define TOPIC "/zed/odom"
@@ -23,7 +23,7 @@ void PublisherSubscriber<nav_msgs::Odometry, nav_msgs::Odometry>::callback(const
 {
   if (initialized)
   {
-      Vec3Int deltaPos = Vec3Int(old_pose.position.x - msg->pose.pose.position.x,
+      Vec3 deltaPos = Vec3(old_pose.position.x - msg->pose.pose.position.x,
                            old_pose.position.y - msg->pose.pose.position.y,
                            old_pose.position.z - msg->pose.pose.position.z);
 
@@ -43,6 +43,7 @@ void PublisherSubscriber<nav_msgs::Odometry, nav_msgs::Odometry>::callback(const
 
       new_odom = *msg;
       new_odom.pose.pose = drone_pose;
+      new_odom.header.frame_id = "map";
       publisher.publish(new_odom);
   }
   else

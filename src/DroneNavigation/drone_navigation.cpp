@@ -18,6 +18,7 @@
 
 ros::Subscriber drone_marker_sub;
 ros::Publisher marker_array_pub;
+ros::Publisher navigation_pose_pub;
 ros::ServiceClient trigger_service_client;
 
 std_srvs::Trigger trigger_srv;
@@ -130,6 +131,8 @@ void markerFeedbackCallback(const visualization_msgs::InteractiveMarkerFeedbackC
             ROS_INFO_STREAM( "mouse up." );
             //ROS_INFO("Goal Pose: %lf %lf %lf", goal_pose.position.x, goal_pose.position.y, goal_pose.position.z);
 
+            navigation_pose_pub.publish(goal_pose);
+
             findPath();
 
             goal_vector = Vec3Int(
@@ -185,6 +188,7 @@ int main(int argc, char **argv)
 
     drone_marker_sub = nh.subscribe<visualization_msgs::InteractiveMarkerFeedback>( FEEDBACK_TOPIC, 10, markerFeedbackCallback );
     marker_array_pub = nh.advertise<visualization_msgs::MarkerArray>( MARKER_ARRAY_TOPIC, 1 );
+    navigation_pose_pub = nh.advertise<geometry_msgs::Pose> ( "navigation_target", 10 );
 
     trigger_service_client = nh.serviceClient<std_srvs::Trigger>( SERVICE_NAME );
 
@@ -214,7 +218,7 @@ int main(int argc, char **argv)
     costmap_marker.scale.x = resolution;
     costmap_marker.scale.y = resolution;
     costmap_marker.scale.z = resolution;
-    costmap_marker.color.a = 0.5;
+    costmap_marker.color.a = 0.1;
     costmap_marker.color.r = 1;
     costmap_marker.color.g = 1;
     costmap_marker.color.b = 0;
@@ -226,7 +230,7 @@ int main(int argc, char **argv)
 
     marker_pose.orientation.w = 1.0;
 
-    path_planner = new PathPlanner(nh, PathPlanner::LOCAL_COSTMAP);
+    path_planner = new PathPlanner(nh, PathPlanner::GLOBAL_COSTMAP);
     last_pose_update = ros::Time::now();
 
     ros::spin();

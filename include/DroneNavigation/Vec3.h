@@ -2,6 +2,7 @@
 #define VEC3_H
 
 #include <math.h>
+#include <geometry_msgs/Point.h>
 
 struct Vec3
 {
@@ -53,6 +54,11 @@ struct Vec3
     bool operator !=(const Vec3 &vector) const
     {
         return x != vector.x || y != vector.y || z != vector.z;
+    }
+
+    static Vec3 FromPoint(const geometry_msgs::Point &point)
+    {
+        return Vec3(point.x, point.y, point.z);
     }
 };
 

@@ -1,8 +1,0 @@
-<launch>
-
-<include file="$(find dji_sdk)/launch/sdk.launch" />
-
-<node pkg="atlas_drone" type="drone_terminal" name="drone_terminal" output="screen"/>
-<node pkg="atlas_drone" type="drone_ai" name="drone_ai"/>
-
-</launch>

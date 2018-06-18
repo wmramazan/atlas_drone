@@ -38,6 +38,7 @@ class AIBehaviour
 
         next_task();
     }
+
     void next_task()
     {
         if (CurrentTask != NULL)
@@ -86,7 +87,8 @@ class NavigationBehaviour : public AIBehaviour
   private:
     Subscriber navigation_target_sub;
     Pose navigation_target;
-    Path path;
+    Path* path;
+    bool on_task;
 
     PathPlanner* pathPlanner;
 };

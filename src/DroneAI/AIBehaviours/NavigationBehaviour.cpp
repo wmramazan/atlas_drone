@@ -2,6 +2,7 @@
 #include "DroneAI/DJIDrone.h"
 #include "DroneAI/AITask.h"
 #include "DroneNavigation/PathPlanner.h"
+#include "DroneNavigation/Vec3.h"
 
 NavigationBehaviour::NavigationBehaviour(NodeHandle& nh)
 {
@@ -14,13 +15,23 @@ NavigationBehaviour::NavigationBehaviour(NodeHandle& nh)
 
 void NavigationBehaviour::Update()
 {
-    //pathPlanner->SetCurrentPose(DRONE->LocalPosition);
-    //path = pathPlanner->GeneratePath();
+    Pose pose;
+    pose.position = DRONE->LocalPosition.point;
+    pathPlanner->SetCurrentPose(pose);
+    path = pathPlanner->GeneratePath();
 
-    if (path.poses.size() > 0)
+    if (path->poses.size() > 0)
     {
-        //Pose next_pose = path.poses[0];
+        PoseStamped next_pose = path->poses[0];
 
+        Vec3 target_position = Vec3::FromPoint(next_pose.pose.position);
+        Vec3 current_position = Vec3::FromPoint(DRONE->LocalPosition.point);
+
+        if (current_position.Distance(target_position) > 1.0f && !on_task)
+        {
+            on_task = true;
+            AddTask(new MoveTask(next_pose.pose));
+        }
     }
 
     if (CurrentTask == NULL)

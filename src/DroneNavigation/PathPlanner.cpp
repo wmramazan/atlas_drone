@@ -67,7 +67,7 @@ void PathPlanner::GenerateLocalCostmap(const PointCloud::ConstPtr& point_cloud)
         for (i = x - radius; i < x + radius; i++)
             for (j = y - radius; j < y + radius; j++)
                 for (k = z - radius; k < z + radius; k++)
-                    local_costmap->Get(z, 200 - x, 200 - y) = 1;
+                    local_costmap->Get(k, 200 - i, 200 - j) = 1;
     }
 
     delete cloud_filtered;

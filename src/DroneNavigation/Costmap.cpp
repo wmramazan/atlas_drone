@@ -74,3 +74,15 @@ void Costmap::Clear()
     data.data.resize(size_cube);
 }
 
+bool Costmap::CanPathPass(Path* path)
+{
+  for (int i = 0; i < path->poses.size(); i++)
+  {
+    Vec3Int position(ToIndex(path->poses[i].pose.position.x), ToIndex(path->poses[i].pose.position.y), ToIndex(path->poses[i].pose.position.z));
+    if (Get(position) != 0)
+      return false;
+  }
+
+  return true;
+}
+
