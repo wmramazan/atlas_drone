@@ -28,7 +28,7 @@ DroneAI::DroneAI()
     Drone = new DJIDrone(nh);
     behaviourManager = new BehaviourManager(nh);
 
-    behaviourManager->SetBehaviour("Idle Behaviour", true);
+    behaviourManager->SetBehaviour("Commanded Behaviour", true);
 
     LOG("Drone AI Initialized. Beginning AI cycle.");
 

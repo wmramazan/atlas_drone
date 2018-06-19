@@ -5,13 +5,13 @@
 BehaviourManager::BehaviourManager(NodeHandle& nh)
 {
     LOG("|-> Initializing Behaviour Manager.");
-    CommandedBehaviour commandedBehaviour(nh);
-    IdleBehaviour idleBehaviour(nh);
-    NavigationBehaviour navigationBehaviour(nh);
+    CommandedBehaviour *commandedBehaviour = new CommandedBehaviour(nh);
+    IdleBehaviour *idleBehaviour = new IdleBehaviour(nh);
+    NavigationBehaviour *navigationBehaviour = new NavigationBehaviour(nh);
 
-    behaviourMap[commandedBehaviour.name] = &commandedBehaviour;
-    behaviourMap[idleBehaviour.name] = &idleBehaviour;
-    behaviourMap[navigationBehaviour.name] = &navigationBehaviour;
+    behaviourMap[commandedBehaviour->name] = commandedBehaviour;
+    behaviourMap[idleBehaviour->name] = idleBehaviour;
+    behaviourMap[navigationBehaviour->name] = navigationBehaviour;
     LOG("|-< Behaviour Manager Initialization Complete." );
 }
 

@@ -16,13 +16,16 @@ find_package(catkin REQUIRED COMPONENTS
 	nav_msgs
 	std_msgs
 	std_srvs
-        message_generation
         visualization_msgs
+        octomap_ros
+        octomap_msgs
+        message_generation
 )
 
 find_package(DJIOSDK REQUIRED)
 find_package(Curses REQUIRED)
 find_package(PCL REQUIRED)
+find_package(octomap REQUIRED)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -130,6 +133,7 @@ include_directories(
         ${catkin_INCLUDE_DIRS}
         ${CURSES_INCLUDE_DIR}
         ${PCL_INCLUDE_DIRS}
+        ${OCTOMAP_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
@@ -173,7 +177,7 @@ add_library(pathfinder src/DroneNavigation/Pathfinder.cpp)
 add_library(block_allocator src/DroneNavigation/BlockAllocator.cpp)
 add_library(costmap src/DroneNavigation/Costmap.cpp)
 
-target_link_libraries(path_planner ${PCL_LIBRARIES} pathfinder block_allocator costmap)
+target_link_libraries(path_planner ${PCL_LIBRARIES} ${OCTOMAP_LIBRARIES} pathfinder block_allocator costmap)
 target_link_libraries(drone_odom ${catkin_LIBRARIES})
 target_link_libraries(drone_navigation ${catkin_LIBRARIES} path_planner)
 

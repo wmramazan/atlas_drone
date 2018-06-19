@@ -12,7 +12,7 @@ pointcloud_topic:       "/camera/depth/points"
 path_topic:             "path"
 
 global_costmap_topic:   "/global_costmap"
-occupied_cells_topic:   "/occupied_cells_vis_array"
+octomap_topic:   "/rtabmap/octomap_full"
 
 # Visualization
 costmap_radius:         0.5

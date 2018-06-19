@@ -17,7 +17,7 @@ PathPlanner::PathPlanner(NodeHandle& nh, int mode)
     nh.param<std::string>("path_topic", path_topic, "path");
 
     nh.param<std::string>("global_costmap_topic", global_costmap_topic, "/global_costmap");
-    nh.param<std::string>("occupied_cells_topic", occupied_cells_topic, "/occupied_cells_vis_array");
+    nh.param<std::string>("octomap_topic", octomap_topic, "/rtabmap/octomap_full");
 
     this->costmap = new Costmap(size, resolution);
     this->local_costmap = new Costmap(size, resolution);
@@ -38,7 +38,7 @@ PathPlanner::PathPlanner(NodeHandle& nh, int mode)
     if (mode & GLOBAL_COSTMAP)
     {
         global_costmap_pub   = nh.advertise<std_msgs::UInt8MultiArray>(global_costmap_topic, 10);
-        occupied_cells_sub   = nh.subscribe(occupied_cells_topic, 5, &PathPlanner::occupied_cells_callback, this);
+        octomap_sub   = nh.subscribe(octomap_topic, 5, &PathPlanner::octomap_callback, this);
     }
     else
     {
@@ -76,35 +76,28 @@ void PathPlanner::GenerateLocalCostmap(const PointCloud::ConstPtr& point_cloud)
     local_costmap_pub.publish(local_costmap->data);
 }
 
-void PathPlanner::GenerateGlobalCostmap(const MarkerArray::ConstPtr& marker_array)
+void PathPlanner::GenerateGlobalCostmap(const Octomap::ConstPtr& octomap)
 {
     costmap->Clear();
     global_costmap->Clear();
 
-    BOOST_FOREACH (const Marker& marker, marker_array->markers)
+    octree = dynamic_cast<OcTree*>(fullMsgToMap(*octomap));
+    occupancy_threshold = octree->getOccupancyThres();
+
+    for (OcTree::leaf_iterator it = octree->begin_leafs(), end = octree->end_leafs(); it != end; ++it)
     {
-        BOOST_FOREACH(const Point& point, marker.points)
+        octree_node = octree->search(it.getKey());
+        if (NULL != octree_node && octree_node->getOccupancy() > occupancy_threshold)
         {
-            x = global_costmap->ToIndex(point.x);
-            y = global_costmap->ToIndex(point.y);
-            z = global_costmap->ToIndex(point.z);
+          //global_costmap->Get(x, y, z) = 1;
 
-            /*
-            if (point.x == 1.35 && point.y == 0.05)
-            {
-              ROS_INFO("Occupied Cell: %lf %lf %lf", point.x, point.y, point.z);
-              ROS_INFO("Occupied Cell: %d %d %d", x, y, z);
-            }
-            */
-
-            //global_costmap->Get(x, y, z) = 1;
-
-            // Inflation
-            for (i = x - radius; i < x + radius; i++)
-                for (j = y - radius; j < y + radius; j++)
-                    for (k = z - radius; k < z + radius; k++)
-                        global_costmap->Get(i, j, k) = 1;
+          // Inflation
+          for (i = x - radius; i < x + radius; i++)
+              for (j = y - radius; j < y + radius; j++)
+                  for (k = z - radius; k < z + radius; k++)
+                      global_costmap->Get(i, j, k) = 1;
         }
+
     }
 
     costmap->Merge(*global_costmap);
@@ -171,20 +164,23 @@ void PathPlanner::pointcloud_callback(const PointCloud::ConstPtr& msg)
     GenerateLocalCostmap(msg);
 }
 
-void PathPlanner::occupied_cells_callback(const MarkerArray::ConstPtr& msg)
+void PathPlanner::octomap_callback(const Octomap::ConstPtr& msg)
 {
-    ROS_INFO("occupiedCellsCallback");
+    ROS_INFO("octomapCallback");
     GenerateGlobalCostmap(msg);
 }
 
 void PathPlanner::local_costmap_callback(const UInt8MultiArray::ConstPtr& msg)
 {
     local_costmap->data = *msg;
+    costmap->Merge(*local_costmap);
 }
 
 void PathPlanner::global_costmap_callback(const UInt8MultiArray::ConstPtr& msg)
 {
+    costmap->Clear();
     global_costmap->data = *msg;
+    costmap->Merge(*global_costmap);
 }
 
 
