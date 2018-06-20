@@ -67,7 +67,7 @@ void DroneAI::UpdateAI()
 
 bool DroneAI::triggerServiceCallback(std_srvs::TriggerRequest& request, std_srvs::TriggerResponse& response)
 {
-    ROS_INFO("triggerServiceCallback");
+    //LOG("Trigger Service Callback");
 
     // TODO: Go to target
 
