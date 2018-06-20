@@ -1,6 +1,8 @@
 <launch>
 
+<!--
 <node pkg="atlas_drone" type="drone_odom" name="drone_odom"/>
+-->
 
 <include file="$(find rtabmap_ros)/launch/rtabmap.launch">
    <arg name="rgb_topic" value="/camera/data_throttled_image" />
@@ -13,6 +15,11 @@
    <arg name="odom_topic" value="/zed/odom" />
    <arg name="rviz" value="false" />
    <arg name="rtabmapviz" value="false" />
+
+<!--
+   <arg name="odom_frame_id" value="odom"/>
+   <arg name="frame_id" value="base_link"/>
+-->
 </include>
 
 <!--

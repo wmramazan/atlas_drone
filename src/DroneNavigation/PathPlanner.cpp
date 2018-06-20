@@ -119,9 +119,8 @@ Path* PathPlanner::GeneratePath()
     end.z = costmap->ToIndex(target_pose.position.z);
 
     vector<Vec3Int> found_path = pathfinder->Find(start, end);
-    if (found_path.size())
+    if (found_path.size() > 1)
     {
-        path.poses.resize(found_path.size());
         path.header.frame_id = frame_id;
 
         PoseStamped pose;
@@ -131,6 +130,7 @@ Path* PathPlanner::GeneratePath()
             pose.pose.position.x = costmap->ToPosition(coordinate.x);
             pose.pose.position.y = costmap->ToPosition(coordinate.y);
             pose.pose.position.z = costmap->ToPosition(coordinate.z);
+            ROS_INFO("Coordinate: %lf %lf %lf", pose.pose.position.x, pose.pose.position.y, pose.pose.position.z);
             path.poses.push_back(pose);
         }
 

@@ -249,9 +249,9 @@ Visualization Manager:
       Value: true
     - Class: octomap_rviz_plugin/ColorOccupancyGrid
       Enabled: true
-      Max. Height Display: inf
+      Max. Height Display: 3.40282347e+38
       Max. Octree Depth: 16
-      Min. Height Display: -inf
+      Min. Height Display: -3.40282347e+38
       Name: ColorOccupancyGrid
       Octomap Topic: /rtabmap/octomap_full
       Queue Size: 5
@@ -263,7 +263,7 @@ Visualization Manager:
   Global Options:
     Background Color: 48; 48; 48
     Default Light: true
-    Fixed Frame: map
+    Fixed Frame: map_zed
     Frame Rate: 30
   Name: root
   Tools:
@@ -284,25 +284,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 9.1885891
+      Distance: 9.79977131
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 2.18858862
-        Y: -0.436414272
-        Z: -0.309988171
+        X: 0.0368489213
+        Y: 0.62863493
+        Z: 0.637915432
       Focal Shape Fixed Size: false
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.469797105
+      Pitch: 0.599796772
       Target Frame: zed_left_camera
       Value: Orbit (rviz)
-      Yaw: 3.00918293
+      Yaw: 5.45233297
     Saved: ~
 Window Geometry:
   Displays:
@@ -322,5 +322,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 1855
-  X: 65
+  X: 1985
   Y: 24

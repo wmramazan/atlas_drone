@@ -30,4 +30,12 @@
   <node pkg="tf" type="static_transform_publisher" name="static_transform_publisher_" args="0.14 0 -0.23 0 0 0 /base_link /camera_link 100" />
   <node pkg="tf" type="static_transform_publisher" name="static_transform_publisher__" args="0 0 0 0 0 0 /map /map_zed 100" />
 
+<!--
+<node pkg="tf" type="static_transform_publisher" name="static_transform_publisher1" args="0.14 0 -0.2 0 0 0 /base_link /zed_center 200" />
+<node pkg="tf" type="static_transform_publisher" name="static_transform_publisher2" args="0.14 0 -0.23 0 0 0 /base_footprint /camera_link 200" />
+<node pkg="tf" type="static_transform_publisher" name="static_transform_publisher3" args="0 0 0 0 0 0 /odom /base_footprint 200" />
+<node pkg="tf" type="static_transform_publisher" name="static_transform_publisher4" args="0 0 0 0 0 0 /map /map_zed 200" />
+<node pkg="tf" type="static_transform_publisher" name="static_transform_publisher5" args="0 0 0 0 0 0 /map_zed /odom 200" />
+-->
+
 </launch>

@@ -13,7 +13,7 @@
 #define COSTMAP_RADIUS 2.0
 #define FEEDBACK_TOPIC "/drone_marker/feedback"
 #define MARKER_ARRAY_TOPIC "markers"
-#define SERVICE_NAME "go_to_target"
+#define SERVICE_NAME "/drone_ai/go_to_target"
 #define DURATION 0.5
 
 ros::Subscriber drone_marker_sub;
@@ -107,7 +107,7 @@ void markerFeedbackCallback(const visualization_msgs::InteractiveMarkerFeedbackC
                 }
                 else
                 {
-                    ROS_ERROR("Failed to call service go_to_path");
+                    ROS_ERROR("Failed to call service go_to_target");
                 }
             }
             break;

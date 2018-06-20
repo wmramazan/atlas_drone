@@ -22,7 +22,7 @@ DroneAI::DroneAI()
         Instance = this;
 
     ai_state_pub = nh.advertise<atlas_drone::AIState>("/drone_ai/ai_state", 10);
-    trigger_service = nh.advertiseService("go_to_target", &DroneAI::triggerServiceCallback, this);
+    trigger_service = nh.advertiseService("/drone_ai/go_to_target", &DroneAI::triggerServiceCallback, this);
 
     commander = new Commander(nh);
     Drone = new DJIDrone(nh);
@@ -71,7 +71,7 @@ bool DroneAI::triggerServiceCallback(std_srvs::TriggerRequest& request, std_srvs
 
     // TODO: Go to target
 
-    behaviourManager->SetBehaviour("Navigation", true);
+    behaviourManager->SetBehaviour("Navigation Behaviour", true);
 
     response.success = true;
     response.message = "Following the path..";
