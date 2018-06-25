@@ -230,7 +230,7 @@ int main(int argc, char **argv)
 
     marker_pose.orientation.w = 1.0;
 
-    path_planner = new PathPlanner(nh, PathPlanner::GLOBAL_COSTMAP);
+    path_planner = new PathPlanner(nh, PathPlanner::Mode::GROUND);
     last_pose_update = ros::Time::now();
 
     ros::spin();

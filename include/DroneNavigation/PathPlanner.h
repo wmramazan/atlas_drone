@@ -33,12 +33,9 @@ class PathPlanner
 {
 
 public:
+    enum Mode { GROUND, VEHICLE };
 
-    static const int LOCAL_COSTMAP  = 0x01;
-    static const int GLOBAL_COSTMAP = 0x02;
-    static const int PATH           = 0x04;
-
-    PathPlanner(NodeHandle& nh, int mode);
+    PathPlanner(NodeHandle& nh, Mode mode);
 
     void GenerateLocalCostmap(const PointCloud::ConstPtr& point_cloud);
     void GenerateGlobalCostmap(const Octomap::ConstPtr& octomap);

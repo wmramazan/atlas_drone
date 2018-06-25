@@ -1,6 +1,6 @@
 #include "DroneNavigation/PathPlanner.h"
 
-PathPlanner::PathPlanner(NodeHandle& nh, int mode)
+PathPlanner::PathPlanner(NodeHandle& nh, Mode mode)
 {
     this->nh = &nh;
     this->mode = mode;
@@ -14,7 +14,6 @@ PathPlanner::PathPlanner(NodeHandle& nh, int mode)
 
     nh.param<std::string>("local_costmap_topic", local_costmap_topic ,"/local_costmap");
     nh.param<std::string>("pointcloud_topic", pointcloud_topic, "/camera/depth/points");
-    nh.param<std::string>("path_topic", path_topic, "path");
 
     nh.param<std::string>("global_costmap_topic", global_costmap_topic, "/global_costmap");
     nh.param<std::string>("octomap_topic", octomap_topic, "/rtabmap/octomap_full");
@@ -24,26 +23,22 @@ PathPlanner::PathPlanner(NodeHandle& nh, int mode)
     this->global_costmap = new Costmap(size, resolution);
     this->pathfinder = new Pathfinder(costmap);
 
-    if (mode & LOCAL_COSTMAP)
+    switch (mode)
     {
-        local_costmap_pub   = nh.advertise<std_msgs::UInt8MultiArray>(local_costmap_topic, 10);
-        pointcloud_sub      = nh.subscribe(pointcloud_topic, 5, &PathPlanner::pointcloud_callback, this);
-        path_pub            = nh.advertise<Path>(path_topic, 20);
-    }
-    else
-    {
-        local_costmap_sub   = nh.subscribe(local_costmap_topic, 5, &PathPlanner::local_costmap_callback, this);
+        case Mode::GROUND:
+            global_costmap_pub  = nh.advertise<std_msgs::UInt8MultiArray>(global_costmap_topic, 10);
+            octomap_sub         = nh.subscribe(octomap_topic, 5, &PathPlanner::octomap_callback, this);
+            nh.param<std::string>("ground_path_topic", path_topic, "ground_path");
+            break;
+        case Mode::VEHICLE:
+            local_costmap_pub   = nh.advertise<std_msgs::UInt8MultiArray>(local_costmap_topic, 10);
+            global_costmap_sub  = nh.subscribe(global_costmap_topic, 5, &PathPlanner::global_costmap_callback, this);
+            pointcloud_sub      = nh.subscribe(pointcloud_topic, 5, &PathPlanner::pointcloud_callback, this);
+            nh.param<std::string>("drone_path_topic", path_topic, "drone_path");
+            break;
     }
 
-    if (mode & GLOBAL_COSTMAP)
-    {
-        global_costmap_pub   = nh.advertise<std_msgs::UInt8MultiArray>(global_costmap_topic, 10);
-        octomap_sub   = nh.subscribe(octomap_topic, 5, &PathPlanner::octomap_callback, this);
-    }
-    else
-    {
-        global_costmap_sub   = nh.subscribe(global_costmap_topic, 5, &PathPlanner::global_costmap_callback, this);
-    }
+    path_pub = nh.advertise<Path>(path_topic, 5);
 }
 
 void PathPlanner::GenerateLocalCostmap(const PointCloud::ConstPtr& point_cloud)
@@ -134,8 +129,7 @@ Path* PathPlanner::GeneratePath()
             path.poses.push_back(pose);
         }
 
-        if (mode & PATH)
-            path_pub.publish(path);
+        path_pub.publish(path);
 
         return &path;
     }

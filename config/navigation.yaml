@@ -9,10 +9,11 @@ inflation_radius:       0.5
 
 local_costmap_topic:    "/local_costmap"
 pointcloud_topic:       "/camera/depth/points"
-path_topic:             "path"
+ground_path_topic:      "ground_path"
+drone_path_topic:       "drone_path"
 
 global_costmap_topic:   "/global_costmap"
-octomap_topic:   "/rtabmap/octomap_full"
+octomap_topic:          "/rtabmap/octomap_full"
 
 # Visualization
 costmap_radius:         0.5
