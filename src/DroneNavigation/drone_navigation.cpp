@@ -13,10 +13,12 @@
 #define COSTMAP_RADIUS 2.0
 #define FEEDBACK_TOPIC "/drone_marker/feedback"
 #define MARKER_ARRAY_TOPIC "markers"
+#define DRONE_PATH_TOPIC "/drone_path"
 #define SERVICE_NAME "/drone_ai/go_to_target"
 #define DURATION 0.5
 
 ros::Subscriber drone_marker_sub;
+ros::Subscriber drone_path_sub;
 ros::Publisher marker_array_pub;
 ros::Publisher navigation_pose_pub;
 ros::ServiceClient trigger_service_client;
@@ -27,7 +29,8 @@ geometry_msgs::Pose start_pose;
 geometry_msgs::Pose goal_pose;
 nav_msgs::Path* path;
 visualization_msgs::MarkerArray marker_array;
-visualization_msgs::Marker path_marker;
+visualization_msgs::Marker drone_path_marker;
+visualization_msgs::Marker ground_path_marker;
 visualization_msgs::Marker costmap_marker;
 visualization_msgs::Marker delete_marker;
 
@@ -45,11 +48,18 @@ int radius;
 int id;
 int i, j, k;
 
-void addPathMarker()
+void addDronePathMarker()
 {
-    path_marker.id = id++;
-    path_marker.pose = marker_pose;
-    marker_array.markers.push_back(path_marker);
+    drone_path_marker.id = id++;
+    drone_path_marker.pose = marker_pose;
+    marker_array.markers.push_back(drone_path_marker);
+}
+
+void addGroundPathMarker()
+{
+    ground_path_marker.id = id++;
+    ground_path_marker.pose = marker_pose;
+    marker_array.markers.push_back(ground_path_marker);
 }
 
 void addCostmapMarker()
@@ -80,7 +90,7 @@ void findPath()
             marker_pose.position.y = path->poses[i].pose.position.y;
             marker_pose.position.z = path->poses[i].pose.position.z;
 
-            addPathMarker();
+            addGroundPathMarker();
         }
 
         marker_array_pub.publish(marker_array);
@@ -88,6 +98,18 @@ void findPath()
     else
     {
         ROS_INFO("The path couldn't find.");
+    }
+}
+
+void dronePathCallback(const nav_msgs::PathConstPtr &path)
+{
+    for (i = 0; i < path->poses.size(); i++)
+    {
+        marker_pose.position.x = path->poses[i].pose.position.x;
+        marker_pose.position.y = path->poses[i].pose.position.y;
+        marker_pose.position.z = path->poses[i].pose.position.z;
+
+        addDronePathMarker();
     }
 }
 
@@ -186,6 +208,7 @@ int main(int argc, char **argv)
     nh.param<double>("/resolution", resolution, RESOLUTION);
     nh.param<double>("/costmap_radius", costmap_radius, COSTMAP_RADIUS);
 
+    drone_path_sub = nh.subscribe<nav_msgs::Path>( DRONE_PATH_TOPIC, 10, dronePathCallback );
     drone_marker_sub = nh.subscribe<visualization_msgs::InteractiveMarkerFeedback>( FEEDBACK_TOPIC, 10, markerFeedbackCallback );
     marker_array_pub = nh.advertise<visualization_msgs::MarkerArray>( MARKER_ARRAY_TOPIC, 1 );
     navigation_pose_pub = nh.advertise<geometry_msgs::Pose> ( "navigation_target", 10 );
@@ -195,19 +218,23 @@ int main(int argc, char **argv)
     id = 0;
     radius = costmap_radius / resolution;
 
-    path_marker.header.frame_id = frame_id;
-    path_marker.header.stamp = ros::Time();
-    path_marker.ns = "path";
-    path_marker.type = visualization_msgs::Marker::SPHERE;
-    path_marker.action = visualization_msgs::Marker::ADD;
+    ground_path_marker.header.frame_id = frame_id;
+    ground_path_marker.header.stamp = ros::Time();
+    ground_path_marker.ns = "path";
+    ground_path_marker.type = visualization_msgs::Marker::SPHERE;
+    ground_path_marker.action = visualization_msgs::Marker::ADD;
 
-    path_marker.scale.x = resolution;
-    path_marker.scale.y = resolution;
-    path_marker.scale.z = resolution;
-    path_marker.color.a = 1.0;
-    path_marker.color.r = 1;
-    path_marker.color.g = 0;
-    path_marker.color.b = 0;
+    ground_path_marker.scale.x = resolution;
+    ground_path_marker.scale.y = resolution;
+    ground_path_marker.scale.z = resolution;
+    ground_path_marker.color.a = 1.0;
+    ground_path_marker.color.r = 1;
+    ground_path_marker.color.g = 0;
+    ground_path_marker.color.b = 0;
+
+    drone_path_marker = ground_path_marker;
+    drone_path_marker.color.r = 0;
+    drone_path_marker.color.b = 1;
 
     costmap_marker.header.frame_id = frame_id;
     costmap_marker.header.stamp = ros::Time();
