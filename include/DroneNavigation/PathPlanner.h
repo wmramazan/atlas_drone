@@ -61,12 +61,12 @@ private:
     Subscriber octomap_sub;
     Subscriber pointcloud_sub;
 
-    Publisher  local_costmap_pub;
-    Publisher  global_costmap_pub;
-    Publisher  path_pub;
+    Publisher local_costmap_pub;
+    Publisher global_costmap_pub;
+    Publisher path_pub;
 
-    OcTree* octree;
-    OcTreeNode* octree_node;
+    ColorOcTree* octree;
+    ColorOcTreeNode* octree_node;
     double occupancy_threshold;
 
     uint size;
@@ -91,8 +91,6 @@ private:
     std::string octomap_topic;
 
     uint radius;
-    uint i, j, k;
-    uint x, y, z;
 };
 
 #endif // PATHPLANNER_H

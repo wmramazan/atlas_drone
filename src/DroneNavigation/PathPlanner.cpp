@@ -1,4 +1,5 @@
 #include "DroneNavigation/PathPlanner.h"
+#include "ros/ros.h"
 
 PathPlanner::PathPlanner(NodeHandle& nh, Mode mode)
 {
@@ -51,6 +52,9 @@ void PathPlanner::GenerateLocalCostmap(const PointCloud::ConstPtr& point_cloud)
     voxel_grid.setLeafSize(resolution, resolution, resolution);
     voxel_grid.filter(*cloud_filtered);
 
+    uint x, y, z;
+    uint i, j, k;
+
     BOOST_FOREACH (const pcl::PointXYZ& pt, cloud_filtered->points)
     {   
         x = local_costmap->ToIndex(pt.x);
@@ -62,7 +66,7 @@ void PathPlanner::GenerateLocalCostmap(const PointCloud::ConstPtr& point_cloud)
         for (i = x - radius; i < x + radius; i++)
             for (j = y - radius; j < y + radius; j++)
                 for (k = z - radius; k < z + radius; k++)
-                    local_costmap->Get(k, 200 - i, 200 - j) = 1;
+                    local_costmap->Get(k, size - i, size - j) = 1;
     }
 
     delete cloud_filtered;
@@ -76,21 +80,28 @@ void PathPlanner::GenerateGlobalCostmap(const Octomap::ConstPtr& octomap)
     costmap->Clear();
     global_costmap->Clear();
 
-    octree = dynamic_cast<OcTree*>(fullMsgToMap(*octomap));
+    octree = dynamic_cast<ColorOcTree*>(fullMsgToMap(*octomap));
     occupancy_threshold = octree->getOccupancyThres();
 
-    for (OcTree::leaf_iterator it = octree->begin_leafs(), end = octree->end_leafs(); it != end; ++it)
+    uint x, y, z;
+    uint i, j, k;
+
+    for (ColorOcTree::leaf_iterator it = octree->begin_leafs(), end = octree->end_leafs(); it != end; ++it)
     {
         octree_node = octree->search(it.getKey());
         if (NULL != octree_node && octree_node->getOccupancy() > occupancy_threshold)
         {
           //global_costmap->Get(x, y, z) = 1;
 
+          x = it.getX();
+          y = it.getY();
+          z = it.getZ();
+
           // Inflation
           for (i = x - radius; i < x + radius; i++)
               for (j = y - radius; j < y + radius; j++)
                   for (k = z - radius; k < z + radius; k++)
-                      global_costmap->Get(i, j, k) = 1;
+                      global_costmap->Get(k, size - i, size - j) = 1;
         }
 
     }
@@ -114,7 +125,7 @@ Path* PathPlanner::GeneratePath()
     end.z = costmap->ToIndex(target_pose.position.z);
 
     vector<Vec3Int> found_path = pathfinder->Find(start, end);
-    if (found_path.size() > 1)
+    if (found_path.size())
     {
         path.header.frame_id = frame_id;
 
@@ -154,13 +165,13 @@ void PathPlanner::SetTargetPose(Pose target_pose)
 
 void PathPlanner::pointcloud_callback(const PointCloud::ConstPtr& msg)
 {
-    ROS_INFO("pointCloudCallback");
+    //ROS_INFO("pointCloudCallback");
     GenerateLocalCostmap(msg);
 }
 
 void PathPlanner::octomap_callback(const Octomap::ConstPtr& msg)
 {
-    ROS_INFO("octomapCallback");
+    //ROS_INFO("octomapCallback");
     GenerateGlobalCostmap(msg);
 }
 
