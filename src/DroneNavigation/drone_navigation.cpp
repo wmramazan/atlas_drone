@@ -14,6 +14,7 @@
 #define FEEDBACK_TOPIC "/drone_marker/feedback"
 #define MARKER_ARRAY_TOPIC "markers"
 #define DRONE_PATH_TOPIC "/drone_path"
+#define NAVIGATION_TARGET_TOPIC "navigation_target"
 #define SERVICE_NAME "/drone_ai/go_to_target"
 #define DURATION 0.5
 
@@ -29,8 +30,8 @@ geometry_msgs::Pose start_pose;
 geometry_msgs::Pose goal_pose;
 nav_msgs::Path* path;
 visualization_msgs::MarkerArray marker_array;
-visualization_msgs::Marker drone_path_marker;
 visualization_msgs::Marker ground_path_marker;
+visualization_msgs::Marker drone_path_marker;
 visualization_msgs::Marker costmap_marker;
 visualization_msgs::Marker delete_marker;
 
@@ -211,7 +212,7 @@ int main(int argc, char **argv)
     drone_path_sub = nh.subscribe<nav_msgs::Path>( DRONE_PATH_TOPIC, 10, dronePathCallback );
     drone_marker_sub = nh.subscribe<visualization_msgs::InteractiveMarkerFeedback>( FEEDBACK_TOPIC, 10, markerFeedbackCallback );
     marker_array_pub = nh.advertise<visualization_msgs::MarkerArray>( MARKER_ARRAY_TOPIC, 1 );
-    navigation_pose_pub = nh.advertise<geometry_msgs::Pose> ( "navigation_target", 10 );
+    navigation_pose_pub = nh.advertise<geometry_msgs::Pose> ( NAVIGATION_TARGET_TOPIC, 10 );
 
     trigger_service_client = nh.serviceClient<std_srvs::Trigger>( SERVICE_NAME );
 
@@ -232,8 +233,18 @@ int main(int argc, char **argv)
     ground_path_marker.color.g = 0;
     ground_path_marker.color.b = 0;
 
-    drone_path_marker = ground_path_marker;
+    drone_path_marker.header.frame_id = frame_id;
+    drone_path_marker.header.stamp = ros::Time();
+    drone_path_marker.ns = "path";
+    drone_path_marker.type = visualization_msgs::Marker::SPHERE;
+    drone_path_marker.action = visualization_msgs::Marker::ADD;
+
+    drone_path_marker.scale.x = resolution;
+    drone_path_marker.scale.y = resolution;
+    drone_path_marker.scale.z = resolution;
+    drone_path_marker.color.a = 1.0;
     drone_path_marker.color.r = 0;
+    drone_path_marker.color.g = 0;
     drone_path_marker.color.b = 1;
 
     costmap_marker.header.frame_id = frame_id;
