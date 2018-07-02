@@ -9,7 +9,7 @@ void TakeOffTask::Start()
     if (DRONE->FlightStatus == FlightStatus::InAir)
     {
         LOG("||- Take Off Failed. Drone is already in air!");
-        terminate_task(false);
+        Terminate();
     }
     else
     {
@@ -21,7 +21,7 @@ void TakeOffTask::Start()
 void TakeOffTask::Update()
 {
     if (ros::Time::now() - task_start_time > ros::Duration(10.0))
-        terminate_task(false);
+        Terminate();
 
     if (DRONE->FlightStatus == FlightStatus::InAir)
     {
@@ -30,7 +30,8 @@ void TakeOffTask::Update()
         if (ros::Time::now() - in_air_time > ros::Duration(5.0))
         {
             LOG("Take off succesfull, terminating task");
-            terminate_task(true);
+            task_completed = true;
+            Terminate();
         }
     }
 }

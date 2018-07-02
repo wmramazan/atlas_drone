@@ -31,7 +31,7 @@ struct Vec3
         this->z = z;
     }
 
-    int Distance(const Vec3 &vector) const
+    double Distance(const Vec3 &vector) const
     {
         return sqrt(pow(vector.x - x, 2) + pow(vector.y - y, 2) + pow(vector.z - z, 2));
     }

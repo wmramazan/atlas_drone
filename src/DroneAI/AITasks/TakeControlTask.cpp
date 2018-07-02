@@ -17,12 +17,13 @@ void TakeControlTask::Update()
             break;
         case WAITING_TO_TRY_AGAIN:
             if (ros::Time::now() - task_start_time > ros::Duration(10.0))
-              terminate_task(false);
+              Terminate();
             else if (ros::Time::now() - last_try_time > ros::Duration(5.0))
               control_state = NO_CONTROL;
             break;
         case HAVE_CONTROL:
-            terminate_task(true);
+            task_completed = true;
+            Terminate();
             break;
     }
 }

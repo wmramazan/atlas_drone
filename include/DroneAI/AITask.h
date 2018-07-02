@@ -33,19 +33,21 @@ class AITask
         this->taskCompleteCallback = taskCompleteCallback;
     }
 
-    string name;
+    void Terminate()
+    {
+        AITaskResult taskResult;
+        taskResult.result = task_completed;
+        taskResult.completation_time = ros::Time::now() - task_start_time;
+        taskCompleteCallback(taskResult);
+    }
+
+  public:
+    string Name;
 
   protected:
     ros::Time task_start_time;
     function<void(AITaskResult&)> taskCompleteCallback;
-
-    void terminate_task(bool result)
-    {
-        AITaskResult taskResult;
-        taskResult.result = result;
-        taskResult.completation_time = ros::Time::now() - task_start_time;
-        taskCompleteCallback(taskResult);
-    }
+    bool task_completed;
 };
 
 class TakeControlTask : public AITask
@@ -61,7 +63,7 @@ class TakeControlTask : public AITask
     TakeControlTask()
     {
         LOG("|-> Initializing Take Control Task.");
-        name = "Take Control Task";
+        Name = "Take Control Task";
         LOG("|-< Take Control Task Initialization Complete.");
     }
 
@@ -89,7 +91,7 @@ class TakeOffTask : public AITask
     TakeOffTask()
     {
         LOG("|-> Initializing Take Off Task.");
-        name = "Take-Off Task";
+        Name = "Take Off Task";
         LOG("|-< Take Off Task Initialization Complete.");
     }
 
@@ -120,7 +122,7 @@ class MoveTask : public AITask
     MoveTask(Pose move_target)
     {
         LOG("|-> Initializing Move Task.");
-        name = "Move Task";
+        Name = "Move Task";
         this->move_target = move_target;
         LOG("|-< Move Task Initialization Complete.");
     }

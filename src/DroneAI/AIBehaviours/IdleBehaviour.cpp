@@ -18,7 +18,12 @@ void IdleBehaviour::Update()
     }
     else
     {
-        ROS_INFO("Updating %s.", CurrentTask->name.c_str());
+        ROS_INFO("Updating %s.", CurrentTask->Name.c_str());
         CurrentTask->Update();
     }
+}
+
+void IdleBehaviour::task_complete_callback(AITaskResult &result)
+{
+    AIBehaviour::task_complete_callback(result);
 }

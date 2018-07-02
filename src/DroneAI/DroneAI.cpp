@@ -52,7 +52,7 @@ void DroneAI::UpdateAI()
         aiState.current_behaviour = behaviourManager->currentBehaviour->name.c_str();
 
         if (behaviourManager->currentBehaviour->CurrentTask != NULL)
-          aiState.current_task = behaviourManager->currentBehaviour->CurrentTask->name;
+          aiState.current_task = behaviourManager->currentBehaviour->CurrentTask->Name;
         else
           aiState.current_task = "NULL";
     }

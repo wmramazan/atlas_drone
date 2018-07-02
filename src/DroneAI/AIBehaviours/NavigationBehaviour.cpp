@@ -9,7 +9,7 @@ NavigationBehaviour::NavigationBehaviour(NodeHandle& nh)
     LOG("||-> Initializing Navigation Behaviour.");
     name = "Navigation Behaviour";
     navigation_target_sub = nh.subscribe("/drone_navigation/navigation_target",  10, &NavigationBehaviour::navigation_target_callback,  this);
-    pathPlanner = new PathPlanner(nh, PathPlanner::Mode::VEHICLE);
+    pathPlanner = new PathPlanner(nh, PathPlanner::LOCAL_COSTMAP | PathPlanner::PATH);
     LOG("||-< Navigation Behaviour Initialization Complete.");
 }
 
@@ -18,15 +18,15 @@ void NavigationBehaviour::Update()
     Pose pose;
     pose.position = DRONE->LocalPosition.point;
     pathPlanner->SetCurrentPose(pose);
-    //ROS_INFO("Calculating path between %f - %f - %f and %f - %f - %f", pose.position.x, pose.position.y, pose.position.z, navigation_target.position.x, navigation_target.position.y, navigation_target.position.z);
+
     path = pathPlanner->GeneratePath();
 
     if (path != NULL)
     {
         PoseStamped next_pose = path->poses[1];
 
-        Vec3 target_position = Vec3::FromPoint(next_pose.pose.position);
         Vec3 current_position = Vec3::FromPoint(DRONE->LocalPosition.point);
+        Vec3 target_position = Vec3::FromPoint(next_pose.pose.position);
 
         ROS_INFO("Next delta is from %f - %f - %f to %f - %f - %f", current_position.x, current_position.y, current_position.z, target_position.x, target_position.y, target_position.z);
 
@@ -48,9 +48,17 @@ void NavigationBehaviour::Update()
     }
     else
     {
-        ROS_INFO("Updating %s.", CurrentTask->name.c_str());
+        ROS_INFO("Updating %s.", CurrentTask->Name.c_str());
         CurrentTask->Update();
     }
+}
+
+
+
+void NavigationBehaviour::task_complete_callback(AITaskResult &result)
+{
+    on_task = false;
+    AIBehaviour::task_complete_callback(result);
 }
 
 void NavigationBehaviour::navigation_target_callback(const Pose::ConstPtr &msg)

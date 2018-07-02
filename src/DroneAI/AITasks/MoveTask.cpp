@@ -25,7 +25,8 @@ void MoveTask::Update()
     else
     {
         LOG("||- Move Task completed, terminating task.");
-        terminate_task(true);
+        task_completed = true;
+        Terminate();
     }
 }
 

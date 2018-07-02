@@ -22,19 +22,18 @@ class AIBehaviour
     AIBehaviour() { }
     virtual void Update() = 0;
 
-    void AddTask(AITask* task)
+    virtual void AddTask(AITask* task)
     {
         task_queue.push(task);
-        task->SetCallback(bind(&AIBehaviour::task_complete_callback, this, placeholders::_1));
     }
 
   protected:
-    void task_complete_callback(AITaskResult& result)
+    virtual void task_complete_callback(AITaskResult& result)
     {
         if (result.result)
-            LOG("||- %s completed in %d seconds.", CurrentTask->name.c_str(), result.completation_time.sec);
+            LOG("||- %s completed in %d seconds.", CurrentTask->Name.c_str(), result.completation_time.sec);
         else
-            LOG("||- %s failed to complete in %d seconds.", CurrentTask->name.c_str(), result.completation_time.sec);
+            LOG("||- %s failed to complete in %d seconds.", CurrentTask->Name.c_str(), result.completation_time.sec);
 
         next_task();
     }
@@ -68,6 +67,13 @@ class IdleBehaviour : public AIBehaviour
   public:
     IdleBehaviour(NodeHandle& nh);
     virtual void Update();
+    virtual void AddTask(AITask* task)
+    {
+        task->SetCallback(bind(&IdleBehaviour::task_complete_callback, this, placeholders::_1));
+        AIBehaviour::AddTask(task);
+    }
+  private:
+    virtual void task_complete_callback(AITaskResult& result);
 };
 
 class CommandedBehaviour : public AIBehaviour
@@ -75,6 +81,13 @@ class CommandedBehaviour : public AIBehaviour
   public:
     CommandedBehaviour(NodeHandle& nh);
     virtual void Update();
+    virtual void AddTask(AITask* task)
+    {
+        task->SetCallback(bind(&CommandedBehaviour::task_complete_callback, this, placeholders::_1));
+        AIBehaviour::AddTask(task);
+    }
+  private:
+    virtual void task_complete_callback(AITaskResult& result);
 };
 
 class NavigationBehaviour : public AIBehaviour
@@ -82,8 +95,15 @@ class NavigationBehaviour : public AIBehaviour
   public:
     NavigationBehaviour(NodeHandle& nh);
     virtual void Update();
+    virtual void AddTask(AITask* task)
+    {
+        task->SetCallback(bind(&NavigationBehaviour::task_complete_callback, this, placeholders::_1));
+        AIBehaviour::AddTask(task);
+    }
   private:
+    virtual void task_complete_callback(AITaskResult& result);
     void navigation_target_callback(const geometry_msgs::Pose::ConstPtr& msg);
+
   private:
     Subscriber navigation_target_sub;
     Pose navigation_target;
