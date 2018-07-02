@@ -9,7 +9,7 @@ NavigationBehaviour::NavigationBehaviour(NodeHandle& nh)
     LOG("||-> Initializing Navigation Behaviour.");
     name = "Navigation Behaviour";
     navigation_target_sub = nh.subscribe("/drone_navigation/navigation_target",  10, &NavigationBehaviour::navigation_target_callback,  this);
-    pathPlanner = new PathPlanner(nh, PathPlanner::LOCAL_COSTMAP | PathPlanner::PATH);
+    pathPlanner = new PathPlanner(nh, PathPlanner::Mode::VEHICLE);
     LOG("||-< Navigation Behaviour Initialization Complete.");
 }
 
