@@ -19,19 +19,19 @@ void NavigationBehaviour::Update()
     pose.position = DRONE->LocalPosition.point;
     pathPlanner->SetCurrentPose(pose);
 
-    if (path != NULL)
+    if (!on_task && path != NULL)
     {
-        PoseStamped next_pose = path->poses[1];
+        PoseStamped next_pose = path->poses[2];
 
         Vec3 current_position = Vec3::FromPoint(DRONE->LocalPosition.point);
         Vec3 target_position = Vec3::FromPoint(next_pose.pose.position);
 
-        ROS_INFO("Next delta is from %f - %f - %f to %f - %f - %f", current_position.x, current_position.y, current_position.z, target_position.x, target_position.y, target_position.z);
+        ROS_INFO("Next position is from %f - %f - %f to %f - %f - %f", current_position.x, current_position.y, current_position.z, target_position.x, target_position.y, target_position.z);
 
         double distance = current_position.Distance(target_position);
 
-        ROS_INFO("Delta is: %lf", distance);
-        if (distance > 0.1f && !on_task)
+        ROS_INFO("Distance is: %lf", distance);
+        if (distance > 0.1f)
         {
             on_task = true;
             LOG("||-> Adding task with pose: %f - %f - %f", next_pose.pose.position.x, next_pose.pose.position.y, next_pose.pose.position.z);

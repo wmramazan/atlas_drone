@@ -120,10 +120,14 @@ Path* PathPlanner::GeneratePath()
     start.y = costmap->ToIndex(current_pose.position.y);
     start.z = costmap->ToIndex(current_pose.position.z);
 
+    ROS_INFO("Generating path from %d %d %d %lf %lf %lf", start.x, start.y, start.z, current_pose.position.x, current_pose.position.y, current_pose.position.z);
+
     Vec3Int end;
     end.x = costmap->ToIndex(target_pose.position.x);
     end.y = costmap->ToIndex(target_pose.position.y);
     end.z = costmap->ToIndex(target_pose.position.z);
+
+    ROS_INFO("to %d %d %d %lf %lf %lf", end.x, end.y, end.z, target_pose.position.x, target_pose.position.y, target_pose.position.z);
 
     vector<Vec3Int> found_path = pathfinder->Find(start, end);
     if (found_path.size())
@@ -137,7 +141,7 @@ Path* PathPlanner::GeneratePath()
             pose.pose.position.x = costmap->ToPosition(coordinate.x);
             pose.pose.position.y = costmap->ToPosition(coordinate.y);
             pose.pose.position.z = costmap->ToPosition(coordinate.z);
-            ROS_INFO("Coordinate: %lf %lf %lf", pose.pose.position.x, pose.pose.position.y, pose.pose.position.z);
+            ROS_INFO("Coordinate: %d %d %d  %lf %lf %lf", coordinate.x, coordinate.y, coordinate.z, pose.pose.position.x, pose.pose.position.y, pose.pose.position.z);
             path.poses.push_back(pose);
         }
 

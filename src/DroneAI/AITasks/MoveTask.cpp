@@ -20,7 +20,7 @@ void MoveTask::Update()
         tf::Matrix3x3 m(q);
         double roll, pitch, yaw;
         m.getRPY(roll, pitch, yaw);
-        DRONE->Move(delta_x, delta_y, delta_z, yaw);
+        DRONE->Move(delta_x, delta_y, delta_z, 0);
     }
     else
     {
