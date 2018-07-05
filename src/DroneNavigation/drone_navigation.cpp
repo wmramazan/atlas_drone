@@ -7,6 +7,7 @@
 #include <std_srvs/Trigger.h>
 
 #include "DroneNavigation/PathPlanner.h"
+#include "DroneNavigation/Vec3.h"
 
 #define FRAME_ID "map"
 #define RESOLUTION 0.1
@@ -29,6 +30,7 @@ geometry_msgs::Pose marker_pose;
 geometry_msgs::Pose start_pose;
 geometry_msgs::Pose goal_pose;
 nav_msgs::Path* path;
+nav_msgs::Path* drone_path;
 visualization_msgs::MarkerArray marker_array;
 visualization_msgs::Marker ground_path_marker;
 visualization_msgs::Marker drone_path_marker;
@@ -72,9 +74,6 @@ void addCostmapMarker()
 
 void findPath()
 {
-    marker_array.markers.clear();
-    marker_array.markers.push_back(delete_marker);
-
     //TODO: Read transform of drone instead of start pose.
     path_planner->SetCurrentPose(start_pose);
     path_planner->SetTargetPose(goal_pose);
@@ -94,7 +93,7 @@ void findPath()
             addGroundPathMarker();
         }
 
-        marker_array_pub.publish(marker_array);
+        //marker_array_pub.publish(marker_array);
     }
     else
     {
@@ -104,18 +103,14 @@ void findPath()
 
 void dronePathCallback(const nav_msgs::PathConstPtr &path)
 {
-    for (i = 0; i < path->poses.size(); i++)
-    {
-        marker_pose.position.x = path->poses[i].pose.position.x;
-        marker_pose.position.y = path->poses[i].pose.position.y;
-        marker_pose.position.z = path->poses[i].pose.position.z;
-
-        addDronePathMarker();
-    }
+    *drone_path = *path;
+    //ROS_INFO("dronePathCallback %d", path->poses.size());
 }
 
 void markerFeedbackCallback(const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback)
 {
+    marker_array.markers.clear();
+    marker_array.markers.push_back(delete_marker);
 
     switch ( feedback->event_type )
     {
@@ -136,14 +131,22 @@ void markerFeedbackCallback(const visualization_msgs::InteractiveMarkerFeedbackC
             break;
 
         case visualization_msgs::InteractiveMarkerFeedback::POSE_UPDATE:
+        {
             //ROS_INFO_STREAM( "pose update." );
-            if (ros::Time::now() - last_pose_update > duration)
+            Vec3 a = Vec3::FromPoint(goal_pose.position);
+            Vec3 b = Vec3::FromPoint(feedback->pose.position);
+            a = a * 10;
+            b = b * 10;
+            Vec3Int c = Vec3Int(a.x, a.y, a.z);
+            Vec3Int d = Vec3Int(b.x, b.y, b.z);
+            if (c != d)
             {
                 last_pose_update = ros::Time::now();
                 findPath();
             }
 
             goal_pose = feedback->pose;
+        }
             break;
 
         case visualization_msgs::InteractiveMarkerFeedback::MOUSE_DOWN:
@@ -156,7 +159,7 @@ void markerFeedbackCallback(const visualization_msgs::InteractiveMarkerFeedbackC
 
             navigation_pose_pub.publish(goal_pose);
 
-            findPath();
+            //findPath();
 
             goal_vector = Vec3Int(
                         path_planner->costmap->ToIndex(goal_pose.position.x),
@@ -194,10 +197,19 @@ void markerFeedbackCallback(const visualization_msgs::InteractiveMarkerFeedbackC
                 }
             }
 
-            marker_array_pub.publish(marker_array);
             break;
     }
 
+    for (i = 0; i < drone_path->poses.size(); i++)
+    {
+        marker_pose.position.x = drone_path->poses[i].pose.position.x;
+        marker_pose.position.y = drone_path->poses[i].pose.position.y;
+        marker_pose.position.z = drone_path->poses[i].pose.position.z;
+
+        addDronePathMarker();
+    }
+
+    marker_array_pub.publish(marker_array);
 }
 
 int main(int argc, char **argv)
@@ -270,6 +282,8 @@ int main(int argc, char **argv)
 
     path_planner = new PathPlanner(nh, PathPlanner::Mode::GROUND);
     last_pose_update = ros::Time::now();
+
+    drone_path = new nav_msgs::Path();
 
     ros::spin();
 

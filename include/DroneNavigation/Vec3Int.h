@@ -52,6 +52,15 @@ struct Vec3Int
     {
         return x != vector.x || y != vector.y || z != vector.z;
     }
+
+    bool operator <(const Vec3Int &vector) const
+    {
+        if ((z < vector.z)                                      ) {return true;}
+        if ((z == vector.z) && (y < vector.y)                   ) {return true;}
+        if ((z == vector.z) && (y == vector.y) && (x < vector.x)) {return true;}
+
+        return false;
+    }
 };
 
 #endif // VEC3INT_H

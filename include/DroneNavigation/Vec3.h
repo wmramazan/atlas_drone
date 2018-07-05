@@ -46,6 +46,11 @@ struct Vec3
         return Vec3(x - vector.x, y - vector.y, z - vector.z);
     }
 
+    Vec3 operator *(const double &value) const
+    {
+        return Vec3(x * value, y * value, z * value);
+    }
+
     bool operator ==(const Vec3 &vector) const
     {
         return x == vector.x && y == vector.y && z == vector.z;

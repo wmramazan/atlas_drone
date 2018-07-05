@@ -119,11 +119,11 @@ private:
 
 
 private:
-    std::vector<Vec3Int>       directions;
+    std::vector<Vec3Int>    directions;
     std::vector<Node*>      mapping;
     std::vector<Node*>      open_list;
     BlockAllocator*         allocator;
-    Vec3Int                    last_direction;
+    Vec3Int                 last_direction;
     std::clock_t            execution_time;
 
     Costmap*                costmap;

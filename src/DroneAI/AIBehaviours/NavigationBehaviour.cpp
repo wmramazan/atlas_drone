@@ -19,8 +19,6 @@ void NavigationBehaviour::Update()
     pose.position = DRONE->LocalPosition.point;
     pathPlanner->SetCurrentPose(pose);
 
-    path = pathPlanner->GeneratePath();
-
     if (path != NULL)
     {
         PoseStamped next_pose = path->poses[1];
@@ -58,6 +56,7 @@ void NavigationBehaviour::Update()
 void NavigationBehaviour::task_complete_callback(AITaskResult &result)
 {
     on_task = false;
+    path = pathPlanner->GeneratePath();
     AIBehaviour::task_complete_callback(result);
 }
 

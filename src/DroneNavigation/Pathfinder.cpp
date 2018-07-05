@@ -96,8 +96,7 @@ inline uint16_t Pathfinder::calculate_g_value(Node *parent, const Vec3Int &curre
 
 inline uint16_t Pathfinder::calculate_h_value(const Vec3Int &current, const Vec3Int &end)
 {
-    unsigned int h_value = end.Distance(current);
-    return h_value * StepValue;
+    return end.Distance(current) * StepValue;
 }
 
 inline bool Pathfinder::in_open_list(const Vec3Int &pos, Node *&out_node)

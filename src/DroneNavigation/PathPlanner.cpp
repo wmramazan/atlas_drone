@@ -28,6 +28,7 @@ PathPlanner::PathPlanner(NodeHandle& nh, Mode mode)
     {
         case Mode::GROUND:
             global_costmap_pub  = nh.advertise<std_msgs::UInt8MultiArray>(global_costmap_topic, 10);
+            local_costmap_sub  = nh.subscribe(local_costmap_topic, 5, &PathPlanner::local_costmap_callback, this);
             octomap_sub         = nh.subscribe(octomap_topic, 5, &PathPlanner::octomap_callback, this);
             nh.param<std::string>("ground_path_topic", path_topic, "ground_path");
             break;
@@ -115,9 +116,9 @@ Path* PathPlanner::GeneratePath()
     path.poses.clear();
 
     Vec3Int start;
-    start.x = costmap->origin + costmap->offset;
-    start.y = costmap->origin + costmap->offset;
-    start.z = costmap->origin + costmap->offset;
+    start.x = costmap->ToIndex(current_pose.position.x);
+    start.y = costmap->ToIndex(current_pose.position.y);
+    start.z = costmap->ToIndex(current_pose.position.z);
 
     Vec3Int end;
     end.x = costmap->ToIndex(target_pose.position.x);

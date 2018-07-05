@@ -15,6 +15,7 @@ Panels:
         - /MarkerArray1/Namespaces1
         - /MarkerArray2
         - /ColorOccupancyGrid1
+        - /ColorOccupancyGrid1/Status1
       Splitter Ratio: 0.556426346
     Tree Height: 634
   - Class: rviz/Selection
@@ -263,7 +264,7 @@ Visualization Manager:
   Global Options:
     Background Color: 48; 48; 48
     Default Light: true
-    Fixed Frame: map_zed
+    Fixed Frame: map
     Frame Rate: 30
   Name: root
   Tools:
@@ -284,7 +285,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 9.79977131
+      Distance: 15.4201298
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
@@ -299,10 +300,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.599796772
+      Pitch: 0.614796758
       Target Frame: zed_left_camera
       Value: Orbit (rviz)
-      Yaw: 5.45233297
+      Yaw: 3.44233322
     Saved: ~
 Window Geometry:
   Displays:
