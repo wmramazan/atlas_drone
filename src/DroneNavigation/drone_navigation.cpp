@@ -28,7 +28,6 @@ ros::ServiceClient trigger_service_client;
 std_srvs::Trigger trigger_srv;
 geometry_msgs::Pose marker_pose;
 geometry_msgs::Pose start_pose;
-geometry_msgs::Pose goal_pose;
 nav_msgs::Path* path;
 nav_msgs::Path* drone_path;
 visualization_msgs::MarkerArray marker_array;
@@ -72,11 +71,11 @@ void addCostmapMarker()
     marker_array.markers.push_back(costmap_marker);
 }
 
-void findPath()
+void findPath(Pose start_pose, Pose target_pose)
 {
     //TODO: Read transform of drone instead of start pose.
     path_planner->SetCurrentPose(start_pose);
-    path_planner->SetTargetPose(goal_pose);
+    path_planner->SetTargetPose(target_pose);
 
     path = path_planner->GeneratePath();
 
@@ -131,22 +130,7 @@ void markerFeedbackCallback(const visualization_msgs::InteractiveMarkerFeedbackC
             break;
 
         case visualization_msgs::InteractiveMarkerFeedback::POSE_UPDATE:
-        {
             //ROS_INFO_STREAM( "pose update." );
-            Vec3 a = Vec3::FromPoint(goal_pose.position);
-            Vec3 b = Vec3::FromPoint(feedback->pose.position);
-            a = a * 10;
-            b = b * 10;
-            Vec3Int c = Vec3Int(a.x, a.y, a.z);
-            Vec3Int d = Vec3Int(b.x, b.y, b.z);
-            if (c != d)
-            {
-                last_pose_update = ros::Time::now();
-                findPath();
-            }
-
-            goal_pose = feedback->pose;
-        }
             break;
 
         case visualization_msgs::InteractiveMarkerFeedback::MOUSE_DOWN:
@@ -155,27 +139,24 @@ void markerFeedbackCallback(const visualization_msgs::InteractiveMarkerFeedbackC
 
         case visualization_msgs::InteractiveMarkerFeedback::MOUSE_UP:
             ROS_INFO_STREAM( "mouse up." );
-            //ROS_INFO("Goal Pose: %lf %lf %lf", goal_pose.position.x, goal_pose.position.y, goal_pose.position.z);
 
-            navigation_pose_pub.publish(goal_pose);
+            Pose target_pose = feedback->pose;
 
-            //findPath();
+            target_pose.position.x = (double)((int)(feedback->pose.position.x / resolution)) * resolution;
+            target_pose.position.y = (double)((int)(feedback->pose.position.y / resolution)) * resolution;
+            target_pose.position.z = (double)((int)(feedback->pose.position.z / resolution)) * resolution;
+
+            last_pose_update = ros::Time::now();
+
+            findPath(start_pose, target_pose);
+
+            navigation_pose_pub.publish(target_pose);
 
             goal_vector = Vec3Int(
-                        path_planner->costmap->ToIndex(goal_pose.position.x),
-                        path_planner->costmap->ToIndex(goal_pose.position.y),
-                        path_planner->costmap->ToIndex(goal_pose.position.z)
+                        path_planner->costmap->ToIndex(target_pose.position.x),
+                        path_planner->costmap->ToIndex(target_pose.position.y),
+                        path_planner->costmap->ToIndex(target_pose.position.z)
                         );
-
-            /*
-            j = 0;
-            for (i = 0; i < path_planner->costmap->size_cube; i++)
-            {
-                if (path_planner->costmap->data.data[i])
-                   j++;
-            }
-            ROS_INFO("Occupied cells: %d", j);
-            */
 
             for (i = -radius; i < radius; i++)
             {
@@ -233,7 +214,7 @@ int main(int argc, char **argv)
 
     ground_path_marker.header.frame_id = frame_id;
     ground_path_marker.header.stamp = ros::Time();
-    ground_path_marker.ns = "path";
+    ground_path_marker.ns = "ground_path";
     ground_path_marker.type = visualization_msgs::Marker::SPHERE;
     ground_path_marker.action = visualization_msgs::Marker::ADD;
 
@@ -247,7 +228,7 @@ int main(int argc, char **argv)
 
     drone_path_marker.header.frame_id = frame_id;
     drone_path_marker.header.stamp = ros::Time();
-    drone_path_marker.ns = "path";
+    drone_path_marker.ns = "drone_path";
     drone_path_marker.type = visualization_msgs::Marker::SPHERE;
     drone_path_marker.action = visualization_msgs::Marker::ADD;
 

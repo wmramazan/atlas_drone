@@ -72,7 +72,7 @@ void PathPlanner::GenerateLocalCostmap(const PointCloud::ConstPtr& point_cloud)
 
     delete cloud_filtered;
 
-    costmap->Merge(*local_costmap);
+//    costmap->Merge(*local_costmap);
     local_costmap_pub.publish(local_costmap->data);
 }
 
@@ -141,7 +141,7 @@ Path* PathPlanner::GeneratePath()
             pose.pose.position.x = costmap->ToPosition(coordinate.x);
             pose.pose.position.y = costmap->ToPosition(coordinate.y);
             pose.pose.position.z = costmap->ToPosition(coordinate.z);
-            ROS_INFO("Coordinate: %d %d %d  %lf %lf %lf", coordinate.x, coordinate.y, coordinate.z, pose.pose.position.x, pose.pose.position.y, pose.pose.position.z);
+            //ROS_INFO("Coordinate: %d %d %d  %lf %lf %lf", coordinate.x, coordinate.y, coordinate.z, pose.pose.position.x, pose.pose.position.y, pose.pose.position.z);
             path.poses.push_back(pose);
         }
 
@@ -190,7 +190,7 @@ void PathPlanner::global_costmap_callback(const UInt8MultiArray::ConstPtr& msg)
 {
     costmap->Clear();
     global_costmap->data = *msg;
-    costmap->Merge(*global_costmap);
+//    costmap->Merge(*global_costmap);
 }
 
 

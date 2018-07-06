@@ -194,8 +194,8 @@ vector<Vec3Int> Pathfinder::Find(Vec3Int start, Vec3Int end)
     reference_node = start_node;
     reference_node->state = IN_OPENLIST;
 
-    execution_time = clock();
-    while (!open_list.empty() && clock() - execution_time < TimeOut)
+    execution_time = ros::Time::now();
+    while (!open_list.empty() && ros::Time::now() - execution_time < ros::Duration(TimeOut))
     {
         Node *current = open_list.front();
         pop_heap(open_list.begin(), open_list.end(), [](const Node *a, const Node *b)->bool

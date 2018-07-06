@@ -18,18 +18,6 @@
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/PoseStamped.h>
 
-// Octomap Includes
-#include <octomap/octomap.h>
-#include <octomap/OcTree.h>
-#include <octomap_msgs/Octomap.h>
-#include <octomap_msgs/conversions.h>
-#include <octomap_msgs/GetOctomap.h>
-
-// PointCloud Includes
-#include <pcl_ros/point_cloud.h>
-#include <pcl/point_types.h>
-#include <pcl/filters/voxel_grid.h>
-
 #include "BlockAllocator.h"
 #include "Vec3Int.h"
 #include "Costmap.h"
@@ -37,14 +25,9 @@
 class BlockAllocator;
 
 using namespace std;
-using namespace octomap_msgs;
-using namespace octomap;
 
 class Pathfinder
 {
-public:
-    typedef function<bool(const Vec3Int&)> Callback;
-
 private:
     enum NodeState
     {
@@ -124,13 +107,13 @@ private:
     std::vector<Node*>      open_list;
     BlockAllocator*         allocator;
     Vec3Int                 last_direction;
-    std::clock_t            execution_time;
+    ros::Time               execution_time;
 
     Costmap*                costmap;
     const int               StepValue = 10;
     const int               ObliqueValue = 14;
     const int               ChangedDirectionValue = 30;
-    const double            TimeOut = 100000.0;
+    const double            TimeOut = 5.0;
 
 };
 

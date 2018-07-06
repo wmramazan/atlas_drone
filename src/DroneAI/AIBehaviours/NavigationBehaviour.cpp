@@ -63,6 +63,12 @@ void NavigationBehaviour::task_complete_callback(AITaskResult &result)
 void NavigationBehaviour::navigation_target_callback(const Pose::ConstPtr &msg)
 {
     navigation_target = *msg;
+    Pose pose;
+    pose.position = DRONE->LocalPosition.point;
+    pathPlanner->SetCurrentPose(pose);
     pathPlanner->SetTargetPose(navigation_target);
+    path = pathPlanner->GeneratePath();
+    if (NULL == path)
+       ROS_ERROR("No path.");
     LOG("||-> Navigation target set to: %f - %f - %f", navigation_target.position.x, navigation_target.position.y, navigation_target.position.z);
 }
