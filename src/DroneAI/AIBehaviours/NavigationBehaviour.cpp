@@ -63,6 +63,7 @@ void NavigationBehaviour::task_complete_callback(AITaskResult &result)
 void NavigationBehaviour::navigation_target_callback(const Pose::ConstPtr &msg)
 {
     navigation_target = *msg;
+
     Pose pose;
     pose.position = DRONE->LocalPosition.point;
     pathPlanner->SetCurrentPose(pose);

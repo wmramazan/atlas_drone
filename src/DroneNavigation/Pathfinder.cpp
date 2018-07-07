@@ -8,20 +8,22 @@ Pathfinder::Pathfinder(Costmap* costmap)
 
     mapping.resize(costmap->size_cube, nullptr);
 
-    /*directions.reserve(27);
+    directions.reserve(27);
     std::vector<int> vec = {-1, 0, 1};
     int i, j, k;
     for (i = 0; i < 3; i++)
       for (j = 0; j < 3; j++)
         for (k = 0; k < 3; k++)
-          directions.push_back(Vec3(vec[i], vec[j], vec[k]));*/
+          directions.push_back(Vec3Int(vec[i], vec[j], vec[k]));
 
+    /*
     directions =
     {
         {-1, 0, 0}, {1, 0, 0},
         {0, -1, 0}, {0, 1, 0},
         {0, 0, -1}, {0, 0, 1}
     };
+    */
 
     last_direction = {0, 0, 0};
 
@@ -84,7 +86,9 @@ void Pathfinder::percolate_up(size_t hole)
 
 inline uint16_t Pathfinder::calculate_g_value(Node *parent, const Vec3Int &current)
 {
-    uint16_t g_value = current.Distance(parent->pos) == 1 ? StepValue : ObliqueValue;
+    Vec3Int direction = parent->pos - current;
+    uint16_t g_value = penalty_matrix[direction.x + 1][direction.y + 1][direction.z + 1];
+    //uint16_t g_value = current.Distance(parent->pos) == 1 ? StepValue : ObliqueValue;
     if (parent->parent)
       last_direction = parent->pos - parent->parent->pos;
 

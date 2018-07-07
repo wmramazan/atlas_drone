@@ -17,7 +17,6 @@
 #define DRONE_PATH_TOPIC "/drone_path"
 #define NAVIGATION_TARGET_TOPIC "navigation_target"
 #define SERVICE_NAME "/drone_ai/go_to_target"
-#define DURATION 0.5
 
 ros::Subscriber drone_marker_sub;
 ros::Subscriber drone_path_sub;
@@ -29,15 +28,16 @@ std_srvs::Trigger trigger_srv;
 geometry_msgs::Pose marker_pose;
 geometry_msgs::Pose start_pose;
 nav_msgs::Path* path;
-nav_msgs::Path* drone_path;
+
 visualization_msgs::MarkerArray marker_array;
+visualization_msgs::MarkerArray ground_path_marker_array;
+visualization_msgs::MarkerArray vehicle_path_marker_array;
+visualization_msgs::MarkerArray costmap_marker_array;
+
 visualization_msgs::Marker ground_path_marker;
 visualization_msgs::Marker drone_path_marker;
 visualization_msgs::Marker costmap_marker;
 visualization_msgs::Marker delete_marker;
-
-ros::Time last_pose_update;
-ros::Duration duration(DURATION);
 
 PathPlanner* path_planner;
 Vec3Int goal_vector, temp_vector;
@@ -48,27 +48,82 @@ double costmap_radius;
 int radius;
 
 int id;
-int i, j, k;
+bool dirty;
 
-void addDronePathMarker()
+enum MarkerType {
+  VEHICLE_PATH_MARKER,
+  GROUND_PATH_MARKER,
+  COSTMAP_MARKER
+};
+
+void add_marker(MarkerType marker_type, Point position)
 {
-    drone_path_marker.id = id++;
-    drone_path_marker.pose = marker_pose;
-    marker_array.markers.push_back(drone_path_marker);
+    visualization_msgs::Marker* marker;
+    visualization_msgs::MarkerArray* marker_array;
+
+    switch (marker_type)
+    {
+        case VEHICLE_PATH_MARKER:
+            marker = &drone_path_marker;
+            marker_array = &vehicle_path_marker_array;
+            break;
+
+        case GROUND_PATH_MARKER:
+            marker = &ground_path_marker;
+            marker_array = &ground_path_marker_array;
+            break;
+
+        case COSTMAP_MARKER:
+            marker = &costmap_marker;
+            marker_array = &costmap_marker_array;
+            break;
+    }
+
+    marker->id = id++;
+    marker->pose.position = position;
+    marker_array->markers.push_back(*marker);
 }
 
-void addGroundPathMarker()
+void generate_path_marker_array(Path path, bool is_vehicle)
 {
-    ground_path_marker.id = id++;
-    ground_path_marker.pose = marker_pose;
-    marker_array.markers.push_back(ground_path_marker);
+    dirty = true;
+    is_vehicle ? vehicle_path_marker_array.markers.clear() : ground_path_marker_array.markers.clear();
+
+    for (int i = 0; i < path.poses.size(); i++)
+    {
+        add_marker(is_vehicle ? MarkerType::VEHICLE_PATH_MARKER : MarkerType::GROUND_PATH_MARKER, path.poses[i].pose.position);
+    }
 }
 
-void addCostmapMarker()
+void generate_costmap_marker_array(Pose origin)
 {
-    costmap_marker.id = id++;
-    costmap_marker.pose = marker_pose;
-    marker_array.markers.push_back(costmap_marker);
+    dirty = true;
+    costmap_marker_array.markers.clear();
+
+    Vec3Int origin_index = Vec3Int(
+                path_planner->costmap->ToIndex(origin.position.x),
+                path_planner->costmap->ToIndex(origin.position.y),
+                path_planner->costmap->ToIndex(origin.position.z)
+                );
+
+    for (int i = -radius; i < radius; i++)
+    {
+        for (int j = -radius; j < radius; j++)
+        {
+            for (int k = -radius; k < radius; k++)
+            {
+                temp_vector = origin_index + Vec3Int(i, j, k);
+                if (path_planner->costmap->Get(temp_vector))
+                {
+                    Point position;
+                    position.x = path_planner->costmap->ToPosition(temp_vector.x);
+                    position.y = path_planner->costmap->ToPosition(temp_vector.y);
+                    position.z = path_planner->costmap->ToPosition(temp_vector.z);
+                    add_marker(MarkerType::COSTMAP_MARKER, position);
+                }
+            }
+        }
+    }
 }
 
 void findPath(Pose start_pose, Pose target_pose)
@@ -81,18 +136,7 @@ void findPath(Pose start_pose, Pose target_pose)
 
     if (path != NULL)
     {
-        ROS_INFO("Path Size: %lu", path->poses.size());
-
-        for (i = 0; i < path->poses.size(); i++)
-        {
-            marker_pose.position.x = path->poses[i].pose.position.x;
-            marker_pose.position.y = path->poses[i].pose.position.y;
-            marker_pose.position.z = path->poses[i].pose.position.z;
-
-            addGroundPathMarker();
-        }
-
-        //marker_array_pub.publish(marker_array);
+        generate_path_marker_array(*path, false);
     }
     else
     {
@@ -102,15 +146,11 @@ void findPath(Pose start_pose, Pose target_pose)
 
 void dronePathCallback(const nav_msgs::PathConstPtr &path)
 {
-    *drone_path = *path;
-    //ROS_INFO("dronePathCallback %d", path->poses.size());
+    generate_path_marker_array(*path, true);
 }
 
 void markerFeedbackCallback(const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback)
 {
-    marker_array.markers.clear();
-    marker_array.markers.push_back(delete_marker);
-
     switch ( feedback->event_type )
     {
         case visualization_msgs::InteractiveMarkerFeedback::MENU_SELECT:
@@ -140,57 +180,36 @@ void markerFeedbackCallback(const visualization_msgs::InteractiveMarkerFeedbackC
         case visualization_msgs::InteractiveMarkerFeedback::MOUSE_UP:
             ROS_INFO_STREAM( "mouse up." );
 
-            Pose target_pose = feedback->pose;
-
-            target_pose.position.x = (double)((int)(feedback->pose.position.x / resolution)) * resolution;
-            target_pose.position.y = (double)((int)(feedback->pose.position.y / resolution)) * resolution;
-            target_pose.position.z = (double)((int)(feedback->pose.position.z / resolution)) * resolution;
-
-            last_pose_update = ros::Time::now();
-
-            findPath(start_pose, target_pose);
-
-            navigation_pose_pub.publish(target_pose);
-
-            goal_vector = Vec3Int(
-                        path_planner->costmap->ToIndex(target_pose.position.x),
-                        path_planner->costmap->ToIndex(target_pose.position.y),
-                        path_planner->costmap->ToIndex(target_pose.position.z)
-                        );
-
-            for (i = -radius; i < radius; i++)
-            {
-                for (j = -radius; j < radius; j++)
-                {
-                    for (k = -radius; k < radius; k++)
-                    {
-                        temp_vector = goal_vector + Vec3Int(i, j, k);
-                        if (path_planner->costmap->Get(temp_vector))
-                        {
-                            marker_pose.position.x = path_planner->costmap->ToPosition(temp_vector.x);
-                            marker_pose.position.y = path_planner->costmap->ToPosition(temp_vector.y);
-                            marker_pose.position.z = path_planner->costmap->ToPosition(temp_vector.z);
-                            ROS_INFO("Marker Pose: %lf %lf %lf", marker_pose.position.x, marker_pose.position.y, marker_pose.position.z);
-                            addCostmapMarker();
-                        }
-
-                    }
-                }
-            }
+            findPath(start_pose, feedback->pose);
+            generate_costmap_marker_array(feedback->pose);
+            navigation_pose_pub.publish(feedback->pose);
 
             break;
     }
 
-    for (i = 0; i < drone_path->poses.size(); i++)
-    {
-        marker_pose.position.x = drone_path->poses[i].pose.position.x;
-        marker_pose.position.y = drone_path->poses[i].pose.position.y;
-        marker_pose.position.z = drone_path->poses[i].pose.position.z;
-
-        addDronePathMarker();
-    }
-
     marker_array_pub.publish(marker_array);
+}
+
+void draw()
+{
+    if (dirty)
+    {
+        marker_array.markers.clear();
+        marker_array.markers.push_back(delete_marker);
+
+        for (visualization_msgs::Marker marker : vehicle_path_marker_array.markers)
+            marker_array.markers.push_back(marker);
+
+        for (visualization_msgs::Marker marker : ground_path_marker_array.markers)
+            marker_array.markers.push_back(marker);
+
+        for (visualization_msgs::Marker marker : costmap_marker_array.markers)
+            marker_array.markers.push_back(marker);
+
+        marker_array_pub.publish(marker_array);
+
+        dirty = false;
+    }
 }
 
 int main(int argc, char **argv)
@@ -262,11 +281,12 @@ int main(int argc, char **argv)
     marker_pose.orientation.w = 1.0;
 
     path_planner = new PathPlanner(nh, PathPlanner::Mode::GROUND);
-    last_pose_update = ros::Time::now();
 
-    drone_path = new nav_msgs::Path();
-
-    ros::spin();
+    while (ros::ok())
+    {
+        ros::spinOnce();
+        draw();
+    }
 
     return 0;
 }

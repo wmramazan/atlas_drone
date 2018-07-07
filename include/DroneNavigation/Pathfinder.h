@@ -115,6 +115,24 @@ private:
     const int               ChangedDirectionValue = 30;
     const double            TimeOut = 5.0;
 
+    int penalty_matrix[3][3][3] = {
+        {
+            {20, 18, 20},
+            {18, 15, 18},
+            {20, 18, 20}
+        },
+        {
+            {14, 10, 14},
+            {10, 0, 10},
+            {14, 10, 14}
+        },
+        {
+            {20, 18, 20},
+            {18, 15, 18},
+            {20, 18, 20}
+        }
+    };
+
 };
 
 #endif // PATHFINDER_H

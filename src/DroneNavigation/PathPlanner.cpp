@@ -92,17 +92,15 @@ void PathPlanner::GenerateGlobalCostmap(const Octomap::ConstPtr& octomap)
         octree_node = octree->search(it.getKey());
         if (NULL != octree_node && octree_node->getOccupancy() > occupancy_threshold)
         {
-          //global_costmap->Get(x, y, z) = 1;
-
-          x = it.getX();
-          y = it.getY();
-          z = it.getZ();
+          x = global_costmap->ToIndex(it.getX());
+          y = global_costmap->ToIndex(it.getY());
+          z = global_costmap->ToIndex(it.getZ());
 
           // Inflation
           for (i = x - radius; i < x + radius; i++)
               for (j = y - radius; j < y + radius; j++)
                   for (k = z - radius; k < z + radius; k++)
-                      global_costmap->Get(k, size - i, size - j) = 1;
+                      global_costmap->Get(i, j, k) = 1;
         }
 
     }
