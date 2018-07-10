@@ -22,6 +22,8 @@
 -->
 </include>
 
+<node pkg="atlas_drone" type="drone_tf" name="drone_tf"/>
+
 <!--
 <node name="rviz" pkg="rviz" type="rviz" args="-d $(find atlas_drone)/rviz/rtabmap.rviz" output="screen" />
 -->

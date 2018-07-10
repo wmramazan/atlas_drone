@@ -43,11 +43,11 @@ void DroneTerminal::initialize_node()
     terminal_message_pub = nh.advertise<std_msgs::String>("drone_ai/terminal_message", 1000);
 
     attitude_sub      = nh.subscribe("dji_sdk/attitude",        10, &DisplayWindow::AttitudeCallback,      displayWindow);
-    flight_status_sub  = nh.subscribe("dji_sdk/flight_status",   10, &DisplayWindow::FlightStatusCallback,  displayWindow);
-    display_mode_sub   = nh.subscribe("dji_sdk/display_mode",    10, &DisplayWindow::DisplayModeCallback,   displayWindow);
-    local_position_sub = nh.subscribe("dji_sdk/local_position",  10, &DisplayWindow::LocalPositionCallback, displayWindow);
+    flight_status_sub  = nh.subscribe("dji_sdk/flight_status",  10, &DisplayWindow::FlightStatusCallback,  displayWindow);
+    display_mode_sub   = nh.subscribe("dji_sdk/display_mode",   10, &DisplayWindow::DisplayModeCallback,   displayWindow);
+    local_position_sub = nh.subscribe("drone_position",         10, &DisplayWindow::LocalPositionCallback, displayWindow);
     gps_sub           = nh.subscribe("dji_sdk/gps_position",    10, &DisplayWindow::GPSPositionCallback,   displayWindow);
-    gps_health_sub     = nh.subscribe("dji_sdk/gps_health",      10, &DisplayWindow::GPSHealthCallback,     displayWindow);
+    gps_health_sub     = nh.subscribe("dji_sdk/gps_health",     10, &DisplayWindow::GPSHealthCallback,     displayWindow);
     battery_state_sub = nh.subscribe("dji_sdk/battery_state",   10, &DisplayWindow::BatteryStateCallback,  displayWindow);
     ai_state_sub      = nh.subscribe("drone_ai/ai_state",       10, &DisplayWindow::AIStateCallback,       displayWindow);
     drone_message_sub = nh.subscribe("drone_ai/drone_message",  10, &MessageWindow::DroneMessageCallback,  messageWindow);

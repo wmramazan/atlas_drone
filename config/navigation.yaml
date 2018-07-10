@@ -3,6 +3,7 @@
 #
 
 frame_id:               "map"
+child_frame_id:         "base_link"
 size:                   200
 resolution:             0.1
 inflation_radius:       0.5
@@ -14,6 +15,8 @@ drone_path_topic:       "drone_path"
 
 global_costmap_topic:   "/global_costmap"
 octomap_topic:          "/rtabmap/octomap_full"
+
+position_topic:         "/drone_position"
 
 # Visualization
 costmap_radius:         0.5

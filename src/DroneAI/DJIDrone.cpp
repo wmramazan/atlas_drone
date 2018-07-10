@@ -3,13 +3,16 @@
 
 DJIDrone::DJIDrone(ros::NodeHandle& nh)
 {
+    string position_topic;
+    nh.param<string>("/position_topic", position_topic, "/drone_position");
+
     attitude_sub          = nh.subscribe("dji_sdk/attitude",          10, &DJIDrone::attitude_callback,         this);
     flightStatus_sub      = nh.subscribe("dji_sdk/flight_status",     10, &DJIDrone::flight_status_callback,    this);
     displayMode_sub       = nh.subscribe("dji_sdk/display_mode",      10, &DJIDrone::display_mode_callback,     this);
-    localPosition_sub     = nh.subscribe("dji_sdk/local_position",    10, &DJIDrone::local_position_callback,   this);
+    localPosition_sub     = nh.subscribe(position_topic,              10, &DJIDrone::local_position_callback,   this);
     gps_sub               = nh.subscribe("dji_sdk/gps_position",      10, &DJIDrone::gps_position_callback,     this);
     gpsHealth_sub         = nh.subscribe("dji_sdk/gps_health",        10, &DJIDrone::gps_health_callback,       this);
-    battery_state_sub      = nh.subscribe("dji_sdk/battery_state",     10, &DJIDrone::battery_state_callback,    this);
+    battery_state_sub      = nh.subscribe("dji_sdk/battery_state",    10, &DJIDrone::battery_state_callback,    this);
 
     sdk_ctrl_authority_service = nh.serviceClient<dji_sdk::SDKControlAuthority> ("dji_sdk/sdk_control_authority");
     drone_task_service         = nh.serviceClient<dji_sdk::DroneTaskControl>    ("dji_sdk/drone_task_control");

@@ -28,7 +28,7 @@ using namespace std;
 
 class Pathfinder
 {
-private:
+public:
     enum NodeState
     {
         NOTEXIST,
@@ -38,9 +38,10 @@ private:
 
     struct Node
     {
+        bool occupancy;
         uint16_t    g;
         uint16_t    h;
-        Vec3Int        pos;
+        Vec3Int     pos;
         NodeState   state;
         Node*       parent;
 
@@ -64,40 +65,55 @@ public:
     }
 
 public:
+    //
     int get_step_value() const;
 
+    //
     int get_oblique_value() const;
 
+    //
     void set_step_value(int value);
 
+    //
     void set_oblique_value(int value);
 
+    //
     std::vector<Vec3Int> Find(Vec3Int start, Vec3Int end);
 
 private:
     void clear();
 
 private:
+    //
     void percolate_up(size_t hole);
 
+    //
     bool get_node_index(Node *node, size_t *index);
 
-    int get_mapping_index(const Vec3Int *pos);
+    int to_map_index(const Vec3Int position);
 
+    //
     uint16_t calculate_g_value(Node *parent, const Vec3Int &current);
 
+    //
     uint16_t calculate_h_value(const Vec3Int &current, const Vec3Int &end);
 
+    //
     bool in_open_list(const Vec3Int &pos, Node *&out_node);
 
+    //
     bool in_closed_list(const Vec3Int &pos);
 
+    //
     bool can_pass(const Vec3Int &current, const Vec3Int &destination);
 
+    //
     void find_can_pass_nodes(const Vec3Int &current, std::vector<Vec3Int> *out_lists);
 
+    //
     void handle_found_node(Node *current, Node *destination);
 
+    //
     void handle_not_found_node(Node *current, Node *destination, const Vec3Int &end);
 
 
@@ -111,15 +127,15 @@ private:
 
     Costmap*                costmap;
     const int               StepValue = 10;
-    const int               ObliqueValue = 14;
     const int               ChangedDirectionValue = 30;
     const double            TimeOut = 5.0;
+    const int               heightPenalty = 2;
 
     int penalty_matrix[3][3][3] = {
         {
-            {20, 18, 20},
-            {18, 15, 18},
-            {20, 18, 20}
+            {20 * heightPenalty, 18 * heightPenalty, 20 * heightPenalty},
+            {18 * heightPenalty, 15, 18 * heightPenalty},
+            {20 * heightPenalty, 18 * heightPenalty, 20 * heightPenalty}
         },
         {
             {14, 10, 14},
@@ -127,9 +143,9 @@ private:
             {14, 10, 14}
         },
         {
-            {20, 18, 20},
-            {18, 15, 18},
-            {20, 18, 20}
+            {20 * heightPenalty, 18 * heightPenalty, 20 * heightPenalty},
+            {18 * heightPenalty, 15, 18 * heightPenalty},
+            {20 * heightPenalty, 18 * heightPenalty, 20 * heightPenalty}
         }
     };
 

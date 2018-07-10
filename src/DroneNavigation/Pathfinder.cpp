@@ -16,15 +16,6 @@ Pathfinder::Pathfinder(Costmap* costmap)
         for (k = 0; k < 3; k++)
           directions.push_back(Vec3Int(vec[i], vec[j], vec[k]));
 
-    /*
-    directions =
-    {
-        {-1, 0, 0}, {1, 0, 0},
-        {0, -1, 0}, {0, 1, 0},
-        {0, 0, -1}, {0, 0, 1}
-    };
-    */
-
     last_direction = {0, 0, 0};
 
     assert(allocator != nullptr);
@@ -61,9 +52,9 @@ bool Pathfinder::get_node_index(Node *node, size_t *index)
     return false;
 }
 
-int Pathfinder::get_mapping_index(const Vec3Int *pos)
+int Pathfinder::to_map_index(const Vec3Int position)
 {
-  return pos->z * costmap->size_square + pos->y * costmap->size + pos->x;
+  return position.z * costmap->size_square + position.y * costmap->size + position.x;
 }
 
 void Pathfinder::percolate_up(size_t hole)
@@ -87,7 +78,7 @@ void Pathfinder::percolate_up(size_t hole)
 inline uint16_t Pathfinder::calculate_g_value(Node *parent, const Vec3Int &current)
 {
     Vec3Int direction = parent->pos - current;
-    uint16_t g_value = penalty_matrix[direction.x + 1][direction.y + 1][direction.z + 1];
+    uint16_t g_value = penalty_matrix[direction.z + 1][direction.x + 1][direction.y + 1];
     //uint16_t g_value = current.Distance(parent->pos) == 1 ? StepValue : ObliqueValue;
     if (parent->parent)
       last_direction = parent->pos - parent->parent->pos;
@@ -105,13 +96,13 @@ inline uint16_t Pathfinder::calculate_h_value(const Vec3Int &current, const Vec3
 
 inline bool Pathfinder::in_open_list(const Vec3Int &pos, Node *&out_node)
 {
-    out_node = mapping[get_mapping_index(&pos)];
+    out_node = mapping[to_map_index(pos)];
     return out_node ? out_node->state == IN_OPENLIST : false;
 }
 
 inline bool Pathfinder::in_closed_list(const Vec3Int &pos)
 {
-    Node *node_ptr = mapping[get_mapping_index(&pos)];
+    Node *node_ptr = mapping[to_map_index(pos)];
     return node_ptr ? node_ptr->state == IN_CLOSEDLIST : false;
 }
 
@@ -173,7 +164,7 @@ void Pathfinder::handle_not_found_node(Node *current, Node *destination, const V
     destination->h = calculate_h_value(destination->pos, end);
     destination->g = calculate_g_value(current, destination->pos);
 
-    Node *&reference_node = mapping[get_mapping_index(&destination->pos)];
+    Node *&reference_node = mapping[to_map_index(destination->pos)];
     reference_node = destination;
     reference_node->state = IN_OPENLIST;
 
@@ -186,7 +177,7 @@ void Pathfinder::handle_not_found_node(Node *current, Node *destination, const V
 
 vector<Vec3Int> Pathfinder::Find(Vec3Int start, Vec3Int end)
 {
-    vector<Vec3Int> paths;
+    vector<Vec3Int> path;
 
     vector<Vec3Int> nearby_nodes;
     nearby_nodes.reserve(directions.size());
@@ -194,9 +185,11 @@ vector<Vec3Int> Pathfinder::Find(Vec3Int start, Vec3Int end)
     Node *start_node = new(allocator->Allocate(sizeof(Node))) Node(start);
     open_list.push_back(start_node);
 
-    Node *&reference_node = mapping[get_mapping_index(&start_node->pos)];
+    Node *&reference_node = mapping[to_map_index(start_node->pos)];
     reference_node = start_node;
     reference_node->state = IN_OPENLIST;
+
+    last_direction = {0, 0, 0};
 
     execution_time = ros::Time::now();
     while (!open_list.empty() && ros::Time::now() - execution_time < ros::Duration(TimeOut))
@@ -207,17 +200,17 @@ vector<Vec3Int> Pathfinder::Find(Vec3Int start, Vec3Int end)
             return a->f() > b->f();
         });
         open_list.pop_back();
-        mapping[get_mapping_index(&current->pos)]->state = IN_CLOSEDLIST;
+        mapping[to_map_index(current->pos)]->state = IN_CLOSEDLIST;
 
         if (current->pos == end)
         {
             while (current->parent)
             {
-                paths.push_back(current->pos);
+                path.push_back(current->pos);
                 current = current->parent;
             }
-            reverse(paths.begin(), paths.end());
-            goto __end__;
+            reverse(path.begin(), path.end());
+            break;
         }
 
         nearby_nodes.clear();
@@ -240,7 +233,6 @@ vector<Vec3Int> Pathfinder::Find(Vec3Int start, Vec3Int end)
             ++index;
         }
     }
-__end__:
     clear();
-    return paths;
+    return path;
 }

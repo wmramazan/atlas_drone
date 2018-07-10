@@ -171,6 +171,7 @@ add_definitions(${PCL_DEFINITIONS})
 
 add_executable(drone_navigation src/DroneNavigation/drone_navigation.cpp)
 add_executable(drone_odom src/DroneNavigation/drone_odom.cpp)
+add_executable(drone_tf src/DroneNavigation/drone_tf.cpp)
 
 add_library(path_planner src/DroneNavigation/PathPlanner.cpp)
 add_library(pathfinder src/DroneNavigation/Pathfinder.cpp)
@@ -179,6 +180,7 @@ add_library(costmap src/DroneNavigation/Costmap.cpp)
 
 target_link_libraries(path_planner ${PCL_LIBRARIES} ${OCTOMAP_LIBRARIES} pathfinder block_allocator costmap)
 target_link_libraries(drone_odom ${catkin_LIBRARIES})
+target_link_libraries(drone_tf ${catkin_LIBRARIES})
 target_link_libraries(drone_navigation ${catkin_LIBRARIES} path_planner)
 
 add_executable(drone_ai src/DroneAI/DroneAI.cpp)

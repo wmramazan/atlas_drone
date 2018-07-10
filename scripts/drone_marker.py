@@ -51,7 +51,7 @@ pub = rospy.Publisher('/drone_marker/position_string', String, queue_size=10)
 def frameCallback( msg ):
     global counter, br
     time = rospy.Time.now()
-    br.sendTransform( (0, 0, sin(counter/140.0)*2.0), (0, 0, 0, 1.0), time, "map", "moving_frame" )
+    br.sendTransform( (0, 0, sin(counter/140.0)*2.0), (0, 0, 0, 1.0), time, "moving_frame", "map" )
     counter += 1
 
 def processFeedback( feedback ):
