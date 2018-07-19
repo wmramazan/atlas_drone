@@ -1,5 +1,9 @@
 <launch>
 
+<include file="$(find dji_sdk)/launch/sdk.launch" />
+
+<include file="$(find atlas_drone)/launch/rtabmap.launch" />
+
 <node pkg="atlas_drone" type="drone_ai" name="drone_ai" output="screen">
     <rosparam file="$(find atlas_drone)/config/navigation.yaml" command="load" />
 </node>

@@ -90,6 +90,8 @@ class DJIDrone
     ros::ServiceClient query_version_service;
     ros::ServiceClient set_local_pos_reference;
 
+    uint8_t flag;
+
   // METHODS
   public:
     bool RequestControl(ControlRequest request);

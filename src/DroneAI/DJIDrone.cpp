@@ -19,10 +19,16 @@ DJIDrone::DJIDrone(ros::NodeHandle& nh)
     query_version_service      = nh.serviceClient<dji_sdk::QueryDroneVersion>   ("dji_sdk/query_drone_version");
     set_local_pos_reference    = nh.serviceClient<dji_sdk::SetLocalPosRef>      ("dji_sdk/set_local_pos_ref");
 
-    position_control_pub = nh.advertise<sensor_msgs::Joy>("/dji_sdk/flight_control_setpoint_ENUposition_yaw", 10);
+    position_control_pub = nh.advertise<sensor_msgs::Joy>("/dji_sdk/flight_control_setpoint_generic", 10);
 
     dji_sdk::SetLocalPosRef localPosReferenceSetter;
     set_local_pos_reference.call(localPosReferenceSetter);
+
+    flag = (DJISDK::VERTICAL_VELOCITY |
+            DJISDK::HORIZONTAL_VELOCITY |
+            DJISDK::YAW_ANGLE |
+            DJISDK::HORIZONTAL_GROUND |
+            DJISDK::STABLE_ENABLE );
 }
 
 bool DJIDrone::RequestControl(ControlRequest request)
@@ -72,7 +78,7 @@ bool DJIDrone::RequestTask(TaskRequest request)
     }
     else
     {
-        LOG("|||-< %s request faield!", task.c_str());
+        LOG("|||-< %s request failed!", task.c_str());
         return false;
     }
 }
@@ -84,6 +90,6 @@ void DJIDrone::Move(double x, double y, double z, double yaw)
     controlPosYaw.axes.push_back(y);
     controlPosYaw.axes.push_back(z);
     controlPosYaw.axes.push_back(yaw);
-    //controlPosYaw.axes.push_back(flag);
+    controlPosYaw.axes.push_back(flag);
     position_control_pub.publish(controlPosYaw);
 }

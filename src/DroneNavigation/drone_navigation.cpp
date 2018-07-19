@@ -1,6 +1,7 @@
 #include <ros/ros.h>
 
 #include <geometry_msgs/Pose.h>
+#include <geometry_msgs/PointStamped.h>
 #include <visualization_msgs/InteractiveMarkerFeedback.h>
 #include <visualization_msgs/MarkerArray.h>
 #include <nav_msgs/Path.h>
@@ -13,14 +14,18 @@
 #define RESOLUTION 0.1
 #define COSTMAP_RADIUS 5
 #define FEEDBACK_TOPIC "/drone_marker/feedback"
-#define MARKER_ARRAY_TOPIC "markers"
+#define PATH_MARKER_ARRAY_TOPIC "path_markers"
+#define COSTMAP_MARKER_ARRAY_TOPIC "costmap_markers"
 #define DRONE_PATH_TOPIC "/drone_path"
+#define DRONE_POSITION_TOPIC "/drone_position"
 #define NAVIGATION_TARGET_TOPIC "navigation_target"
 #define SERVICE_NAME "/drone_ai/go_to_target"
 
 ros::Subscriber drone_marker_sub;
 ros::Subscriber drone_path_sub;
-ros::Publisher marker_array_pub;
+ros::Subscriber drone_position_sub;
+ros::Publisher path_marker_array_pub;
+ros::Publisher costmap_marker_array_pub;
 ros::Publisher navigation_pose_pub;
 ros::ServiceClient trigger_service_client;
 
@@ -99,6 +104,7 @@ void generate_costmap_marker_array(Pose origin)
 {
     dirty = true;
     costmap_marker_array.markers.clear();
+    costmap_marker_array.markers.push_back(delete_marker);
 
     Vec3Int origin_index = Vec3Int(
                 path_planner->costmap->ToIndex(origin.position.x),
@@ -147,6 +153,8 @@ void generate_costmap_marker_array(Pose origin)
             }
         }
     }
+
+    costmap_marker_array_pub.publish(costmap_marker_array);
 }
 
 void findPath(Pose start_pose, Pose target_pose)
@@ -169,6 +177,13 @@ void findPath(Pose start_pose, Pose target_pose)
 void dronePathCallback(const nav_msgs::PathConstPtr &path)
 {
     generate_path_marker_array(*path, true);
+}
+
+void dronePositionCallback(const geometry_msgs::PointStampedConstPtr &point)
+{
+    start_pose.position.x = point->point.x;
+    start_pose.position.y = point->point.y;
+    start_pose.position.z = point->point.z;
 }
 
 void markerFeedbackCallback(const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback)
@@ -208,10 +223,9 @@ void markerFeedbackCallback(const visualization_msgs::InteractiveMarkerFeedbackC
             break;
     }
 
-    marker_array_pub.publish(marker_array);
 }
 
-void draw()
+void draw_paths()
 {
     if (dirty)
     {
@@ -224,10 +238,7 @@ void draw()
         for (visualization_msgs::Marker marker : ground_path_marker_array.markers)
             marker_array.markers.push_back(marker);
 
-        for (visualization_msgs::Marker marker : costmap_marker_array.markers)
-            marker_array.markers.push_back(marker);
-
-        marker_array_pub.publish(marker_array);
+        path_marker_array_pub.publish(marker_array);
 
         dirty = false;
     }
@@ -244,7 +255,9 @@ int main(int argc, char **argv)
 
     drone_path_sub = nh.subscribe<nav_msgs::Path>( DRONE_PATH_TOPIC, 10, dronePathCallback );
     drone_marker_sub = nh.subscribe<visualization_msgs::InteractiveMarkerFeedback>( FEEDBACK_TOPIC, 10, markerFeedbackCallback );
-    marker_array_pub = nh.advertise<visualization_msgs::MarkerArray>( MARKER_ARRAY_TOPIC, 1 );
+    drone_position_sub = nh.subscribe<geometry_msgs::PointStamped>( DRONE_POSITION_TOPIC, 10, dronePositionCallback );
+    path_marker_array_pub = nh.advertise<visualization_msgs::MarkerArray>( PATH_MARKER_ARRAY_TOPIC, 1 );
+    costmap_marker_array_pub = nh.advertise<visualization_msgs::MarkerArray>( COSTMAP_MARKER_ARRAY_TOPIC, 1 );
     navigation_pose_pub = nh.advertise<geometry_msgs::Pose> ( NAVIGATION_TARGET_TOPIC, 10 );
 
     trigger_service_client = nh.serviceClient<std_srvs::Trigger>( SERVICE_NAME );
@@ -306,7 +319,7 @@ int main(int argc, char **argv)
     while (ros::ok())
     {
         ros::spinOnce();
-        draw();
+        draw_paths();
     }
 
     return 0;

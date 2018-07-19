@@ -12,6 +12,7 @@
 #include <cassert>
 
 #include <boost/thread/thread.hpp>
+#include <ros/ros.h>
 
 using namespace std_msgs;
 using namespace nav_msgs;

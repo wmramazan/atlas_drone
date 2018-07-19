@@ -4,12 +4,13 @@
 
 frame_id:               "map"
 child_frame_id:         "base_link"
-size:                   200
+size:                   600
 resolution:             0.1
-inflation_radius:       0.5
+inflation_radius:       5
 
 local_costmap_topic:    "/local_costmap"
 pointcloud_topic:       "/camera/depth/points"
+filtered_cloud_topic:   "/point_cloud_filter/filtered_cloud"
 ground_path_topic:      "ground_path"
 drone_path_topic:       "drone_path"
 

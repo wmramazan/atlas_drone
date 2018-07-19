@@ -9,9 +9,9 @@
    <arg name="depth_topic" value="/camera/data_throttled_image_depth" />
    <arg name="camera_info_topic" value="/camera/data_throttled_camera_info" />
    <arg name="compressed" value="true" />
-   <arg name="rtabmap_args" value="--delete_db_on_start" />
+   <!--<arg name="rtabmap_args" value="\-\-delete_db_on_start" />-->
    <arg name="visual_odometry" value="false" />
-   <arg name="localization" value="false" />
+   <arg name="localization" value="true" />
    <arg name="odom_topic" value="/zed/odom" />
    <arg name="rviz" value="false" />
    <arg name="rtabmapviz" value="true" />

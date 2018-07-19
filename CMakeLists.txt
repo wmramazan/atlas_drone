@@ -172,6 +172,7 @@ add_definitions(${PCL_DEFINITIONS})
 add_executable(drone_navigation src/DroneNavigation/drone_navigation.cpp)
 add_executable(drone_odom src/DroneNavigation/drone_odom.cpp)
 add_executable(drone_tf src/DroneNavigation/drone_tf.cpp)
+add_executable(point_cloud_filter src/DroneNavigation/point_cloud_filter.cpp)
 
 add_library(path_planner src/DroneNavigation/PathPlanner.cpp)
 add_library(pathfinder src/DroneNavigation/Pathfinder.cpp)
@@ -182,6 +183,7 @@ target_link_libraries(path_planner ${PCL_LIBRARIES} ${OCTOMAP_LIBRARIES} pathfin
 target_link_libraries(drone_odom ${catkin_LIBRARIES})
 target_link_libraries(drone_tf ${catkin_LIBRARIES})
 target_link_libraries(drone_navigation ${catkin_LIBRARIES} path_planner)
+target_link_libraries(point_cloud_filter ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
 add_executable(drone_ai src/DroneAI/DroneAI.cpp)
 add_library(commander src/DroneAI/Commander.cpp)

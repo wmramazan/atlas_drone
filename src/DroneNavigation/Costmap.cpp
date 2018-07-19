@@ -92,7 +92,8 @@ void Costmap::Merge(Costmap* costmap)
 
     // wait for other threads to finish
     for(i = 1; i < number_threads; i++)
-    {     bthread[i]->join();
+    {
+        bthread[i]->join();
         delete bthread[i];
     }
 

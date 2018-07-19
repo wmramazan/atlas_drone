@@ -35,7 +35,7 @@ int main(int argc, char **argv)
         tf::StampedTransform transform;
         try
         {
-            listener.lookupTransform(target_frame, source_frame, ros::Time(0), transform);
+            listener.lookupTransform(source_frame, target_frame, ros::Time(0), transform);
         } catch (tf::TransformException &e)
         {
             ROS_ERROR("%s", e.what());
@@ -43,7 +43,7 @@ int main(int argc, char **argv)
             continue;
         }
 
-        position.header.frame_id = target_frame;
+        position.header.frame_id = source_frame;
         position.header.stamp = ros::Time::now();
         position.point.x = transform.getOrigin().getX();
         position.point.y = transform.getOrigin().getY();

@@ -9,8 +9,6 @@
 #include <geometry_msgs/PoseStamped.h>
 
 #include <pcl_ros/point_cloud.h>
-#include <pcl/point_types.h>
-#include <pcl/filters/voxel_grid.h>
 
 #include <octomap/octomap.h>
 #include <octomap/OcTree.h>
@@ -27,7 +25,6 @@ using namespace nav_msgs;
 using namespace geometry_msgs;
 
 typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
-typedef pcl::VoxelGrid<pcl::PointXYZ> VoxelGrid;
 
 class PathPlanner
 {
@@ -78,8 +75,6 @@ private:
     Pose target_pose;
 
     Pathfinder* pathfinder;
-    VoxelGrid voxel_grid;
-    PointCloud* cloud_filtered;
 
     std::string frame_id;
 

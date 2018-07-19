@@ -138,6 +138,7 @@ class MoveTask : public AITask
     Pose move_target;
     bool moved = false;
     bool isInAir = false;
+    bool time_set = false;
 };
 
 /*class AIHoverTask : AITask
