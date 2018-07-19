@@ -62,11 +62,44 @@ double Costmap::ToPosition(int value)
     return (double) (value - origin) * resolution - offset;
 }
 
-void Costmap::Merge(Costmap& costmap)
+void Costmap::Merge(Costmap* costmap)
 {
-    for (int i = 0; i < size_cube; i++)
-        data.data[i] |= costmap.data.data[i];
+    bool ok = true;
+
+    size_t i, j;
+
+    // number of threads
+    size_t number_threads = NUMBER_THREADS;
+
+    // set of workers
+    CostmapMergeJob jobs[NUMBER_THREADS];
+    // threads for each worker
+    boost::thread* bthread[NUMBER_THREADS];
+
+    // Break the work up into sub work for each thread
+    int n = size_cube / number_threads;
+
+    jobs[0].Setup(&data, costmap, 0, n);
+
+    for(i = 1; i < number_threads; i++)
+    {
+        jobs[i].Setup(&data, costmap, n * i, n * (i + 1));
+        bthread[i] = new boost::thread(jobs[i]);
+    }
+
+    // do this threads protion of the work
+    jobs[0]();
+
+    // wait for other threads to finish
+    for(i = 1; i < number_threads; i++)
+    {     bthread[i]->join();
+        delete bthread[i];
+    }
+
+    //for (int i = 0; i < size_cube; i++)
+    //    data.data[i] |= costmap.data.data[i];
 }
+
 
 void Costmap::Clear()
 {

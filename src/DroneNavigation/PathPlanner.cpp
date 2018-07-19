@@ -8,8 +8,7 @@ PathPlanner::PathPlanner(NodeHandle& nh, Mode mode)
 
     this->size = nh.param("size", 200);
     this->resolution = nh.param("resolution", 0.1);
-    this->inflation_radius = nh.param("inflation_radius", 0.5);
-    this->radius = (int) (inflation_radius / resolution);
+    this->radius = nh.param("inflation_radius", 5);
 
     nh.param<std::string>("frame_id", frame_id, "map");
 
@@ -64,15 +63,15 @@ void PathPlanner::GenerateLocalCostmap(const PointCloud::ConstPtr& point_cloud)
 
         //ROS_INFO("%d %d %d", x, y, z);
 
-        for (i = x - radius; i < x + radius; i++)
-            for (j = y - radius; j < y + radius; j++)
-                for (k = z - radius; k < z + radius; k++)
+        for (i = x - radius; i <= x + radius; i++)
+            for (j = y - radius; j <= y + radius; j++)
+                for (k = z - radius; k <= z + radius; k++)
                     local_costmap->Get(k, size - i, size - j) = 1;
     }
 
     delete cloud_filtered;
 
-//    costmap->Merge(*local_costmap);
+    costmap->Merge(local_costmap);
     local_costmap_pub.publish(local_costmap->data);
 }
 
@@ -97,15 +96,15 @@ void PathPlanner::GenerateGlobalCostmap(const Octomap::ConstPtr& octomap)
           z = global_costmap->ToIndex(it.getZ());
 
           // Inflation
-          for (i = x - radius; i < x + radius; i++)
-              for (j = y - radius; j < y + radius; j++)
-                  for (k = z - radius; k < z + radius; k++)
+          for (i = x - radius; i <= x + radius; i++)
+              for (j = y - radius; j <= y + radius; j++)
+                  for (k = z - radius; k <= z + radius; k++)
                       global_costmap->Get(i, j, k) = 1;
         }
 
     }
 
-    costmap->Merge(*global_costmap);
+    costmap->Merge(global_costmap);
     global_costmap_pub.publish(global_costmap->data);
 }
 
@@ -151,8 +150,14 @@ Path* PathPlanner::GeneratePath()
         return NULL;
 }
 
+bool PathPlanner::IsPathClear()
+{
+    return costmap->CanPathPass(&path);
+}
+
 Pose PathPlanner::GetNextPathNode()
 {
+    // TODO: Move implementation from NavigationBehaviour
     return path.poses[0].pose;
 }
 
@@ -181,14 +186,14 @@ void PathPlanner::octomap_callback(const Octomap::ConstPtr& msg)
 void PathPlanner::local_costmap_callback(const UInt8MultiArray::ConstPtr& msg)
 {
     local_costmap->data = *msg;
-    costmap->Merge(*local_costmap);
+    costmap->Merge(local_costmap);
 }
 
 void PathPlanner::global_costmap_callback(const UInt8MultiArray::ConstPtr& msg)
 {
     costmap->Clear();
     global_costmap->data = *msg;
-//    costmap->Merge(*global_costmap);
+    costmap->Merge(global_costmap);
 }
 
 

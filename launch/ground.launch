@@ -14,7 +14,7 @@
    <arg name="localization" value="false" />
    <arg name="odom_topic" value="/zed/odom" />
    <arg name="rviz" value="false" />
-   <arg name="rtabmapviz" value="false" />
+   <arg name="rtabmapviz" value="true" />
 
 <!--
    <arg name="odom_frame_id" value="odom"/>

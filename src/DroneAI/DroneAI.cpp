@@ -42,7 +42,9 @@ DroneAI::DroneAI()
 
 void DroneAI::UpdateAI()
 {
+    LOG("spinning");
     ros::spinOnce();
+    LOG("spin done");
     behaviourManager->Update();
 
     atlas_drone::AIState aiState;
@@ -68,8 +70,6 @@ void DroneAI::UpdateAI()
 bool DroneAI::triggerServiceCallback(std_srvs::TriggerRequest& request, std_srvs::TriggerResponse& response)
 {
     //LOG("Trigger Service Callback");
-
-    // TODO: Go to target
 
     behaviourManager->SetBehaviour("Navigation Behaviour", true);
 

@@ -84,5 +84,6 @@ void DJIDrone::Move(double x, double y, double z, double yaw)
     controlPosYaw.axes.push_back(y);
     controlPosYaw.axes.push_back(z);
     controlPosYaw.axes.push_back(yaw);
+    //controlPosYaw.axes.push_back(flag);
     position_control_pub.publish(controlPosYaw);
 }

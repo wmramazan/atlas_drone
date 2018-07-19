@@ -1,6 +1,6 @@
 #include "DroneTerminal/DroneTerminal.h"
 
-///TODO_BD: Runtime Subcription
+//TODO_BD: Runtime Subcription
 
 int main(int argc, char **argv)
 {

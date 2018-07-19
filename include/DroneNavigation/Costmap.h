@@ -1,9 +1,17 @@
 #ifndef COSTMAP_H
 #define COSTMAP_H
 
+#define NUMBER_THREADS 8
+
 #include <std_msgs/UInt8MultiArray.h>
 #include <nav_msgs/Path.h>
 #include "Vec3Int.h"
+#include <boost/thread.hpp>
+#include <limits>
+#include <cmath>
+#include <cassert>
+
+#include <boost/thread/thread.hpp>
 
 using namespace std_msgs;
 using namespace nav_msgs;
@@ -19,7 +27,7 @@ public:
     uint8_t& Get(double x, double y, double z);
     int ToIndex(double value);
     double ToPosition(int value);
-    void Merge(Costmap& costmap);
+    void Merge(Costmap* costmap);
     void Clear();
     bool CanPathPass(Path* path);
 
@@ -32,6 +40,34 @@ public:
 
 private:
     double resolution;
+
+    class CostmapMergeJob
+    {
+          private:
+              Costmap*  costmap;
+              UInt8MultiArray* data;
+              int       start;
+              int       end;
+         public:
+              void Setup(UInt8MultiArray* data, Costmap* costmap, int start, int end)
+              {
+                  this->costmap = costmap;
+                  this->start = start;
+                  this->end = end;
+                  this->data = data;
+              }
+
+              void Job()
+              {
+                  for (int i = start; i < end; i++)
+                      data->data[i] |= costmap->data.data[i];
+              }
+
+              void operator()()
+              {
+                  Job();
+              }
+     };
 };
 
 #endif // COSTMAP_H

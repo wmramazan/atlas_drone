@@ -24,7 +24,6 @@ void BehaviourManager::Update()
     }
     else
     {
-        //DJIDrone::Instance->SendMessage("-> Updating current behaviour.");
         currentBehaviour->Update();
     }
 }

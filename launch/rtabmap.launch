@@ -26,9 +26,17 @@
 
   <include file="$(find zed_wrapper)/launch/zed.launch" />
 
-  <node pkg="tf" type="static_transform_publisher" name="static_transform_publisher" args="0.14 0 -0.2 0 0 0 /base_link /zed_center 100" />
-  <node pkg="tf" type="static_transform_publisher" name="static_transform_publisher_" args="0.14 0 -0.23 0 0 0 /base_link /camera_link 100" />
-  <node pkg="tf" type="static_transform_publisher" name="static_transform_publisher__" args="0 0 0 0 0 0 /map /map_zed 100" />
+<!--
+<node pkg="tf" type="static_transform_publisher" name="base_link_to_camera_link" args="0.14 0 -0.23 0 0 0 /base_link /camera_link 100" />
+<node pkg="tf" type="static_transform_publisher" name="base_link_to_zed_center" args="0.14 0 -0.2 0 0 0 /base_link /zed_center 100" />
+-->
+
+<node pkg="tf" type="static_transform_publisher" name="static_transform_publisher_zed" args="0.14 0 -0.2 0 0 0 /base_link /zed_center 100" />
+<node pkg="tf" type="static_transform_publisher" name="static_transform_publisher_camera_link" args="0.14 0 -0.23 0 0 0 /base_link /camera_link 100" />
+
+<!--
+<node pkg="tf" type="static_transform_publisher" name="static_transform_publisher_map_zed" args="0 0 0 0 0 0 /map /map_zed 100" />
+-->
 
 <!--
 <node pkg="tf" type="static_transform_publisher" name="static_transform_publisher1" args="0.14 0 -0.2 0 0 0 /base_link /zed_center 200" />

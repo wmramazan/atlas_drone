@@ -11,16 +11,7 @@ CommandedBehaviour::CommandedBehaviour(NodeHandle& nh)
 
 void CommandedBehaviour::Update()
 {
-    if (CurrentTask == NULL)
-    {
-        ROS_INFO("Null task exception.");
-        next_task();
-    }
-    else
-    {
-        ROS_INFO("Updating %s.", CurrentTask->Name.c_str());
-        CurrentTask->Update();
-    }
+    AIBehaviour::Update();
 }
 
 void CommandedBehaviour::task_complete_callback(AITaskResult &result)

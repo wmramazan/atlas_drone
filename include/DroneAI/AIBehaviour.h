@@ -20,7 +20,19 @@ class AIBehaviour
 {
   public:
     AIBehaviour() { }
-    virtual void Update() = 0;
+    virtual void Update()
+    {
+      if (CurrentTask == NULL)
+      {
+          ROS_INFO("%s : Null task exception.", name.c_str());
+          on_handle_null_task_exception();
+      }
+      else
+      {
+          ROS_INFO("Updating %s.", CurrentTask->Name.c_str());
+          CurrentTask->Update();
+      }
+    }
 
     virtual void AddTask(AITask* task)
     {
@@ -35,6 +47,11 @@ class AIBehaviour
         else
             LOG("||- %s failed to complete in %d seconds.", CurrentTask->Name.c_str(), result.completation_time.sec);
 
+        next_task();
+    }
+
+    virtual void on_handle_null_task_exception()
+    {
         next_task();
     }
 
@@ -106,9 +123,9 @@ class NavigationBehaviour : public AIBehaviour
 
   private:
     Subscriber navigation_target_sub;
+    Publisher target_pose_pub;
     Pose navigation_target;
     Path* path;
-    bool on_task;
 
     PathPlanner* pathPlanner;
 };

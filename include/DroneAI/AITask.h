@@ -6,6 +6,7 @@
 #include <tf/tf.h>
 #include <geometry_msgs/Pose.h>
 #include <functional>
+#include <DroneNavigation/Vec3.h>
 
 using namespace std;
 using namespace geometry_msgs;

@@ -43,6 +43,7 @@ public:
     Pose GetNextPathNode();
     void SetCurrentPose(Pose current_pose);
     void SetTargetPose(Pose target_pose);
+    bool IsPathClear();
 
     Costmap* costmap;
     Path path;
@@ -71,7 +72,6 @@ private:
 
     uint size;
     double resolution;
-    double inflation_radius;
     Costmap* local_costmap;
     Costmap* global_costmap;
     Pose current_pose;

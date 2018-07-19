@@ -11,7 +11,7 @@
 
 #define FRAME_ID "map"
 #define RESOLUTION 0.1
-#define COSTMAP_RADIUS 2.0
+#define COSTMAP_RADIUS 5
 #define FEEDBACK_TOPIC "/drone_marker/feedback"
 #define MARKER_ARRAY_TOPIC "markers"
 #define DRONE_PATH_TOPIC "/drone_path"
@@ -106,20 +106,43 @@ void generate_costmap_marker_array(Pose origin)
                 path_planner->costmap->ToIndex(origin.position.z)
                 );
 
-    for (int i = -radius; i < radius; i++)
+    Vec3Int neighbours[] =
     {
-        for (int j = -radius; j < radius; j++)
+        {1, 0, 0},
+        {-1, 0, 0},
+        {0, 1, 0},
+        {0, -1, 0},
+        {0, 0, 1},
+        {0, 0, -1}
+     };
+
+    for (int i = -radius; i <= radius; i++)
+    {
+        for (int j = -radius; j <= radius; j++)
         {
-            for (int k = -radius; k < radius; k++)
+            for (int k = -radius; k <= radius; k++)
             {
                 temp_vector = origin_index + Vec3Int(i, j, k);
                 if (path_planner->costmap->Get(temp_vector))
                 {
+                  bool visible = false;
+                  for  (int a = 0; a < 6; a++)
+                  {
+                     if (!path_planner->costmap->Get(temp_vector + neighbours[a]))
+                     {
+                         visible = true;
+                         break;
+                     }
+                  }
+
+                  if (visible)
+                  {
                     Point position;
                     position.x = path_planner->costmap->ToPosition(temp_vector.x);
                     position.y = path_planner->costmap->ToPosition(temp_vector.y);
                     position.z = path_planner->costmap->ToPosition(temp_vector.z);
                     add_marker(MarkerType::COSTMAP_MARKER, position);
+                  }
                 }
             }
         }
@@ -128,7 +151,6 @@ void generate_costmap_marker_array(Pose origin)
 
 void findPath(Pose start_pose, Pose target_pose)
 {
-    //TODO: Read transform of drone instead of start pose.
     path_planner->SetCurrentPose(start_pose);
     path_planner->SetTargetPose(target_pose);
 
@@ -180,10 +202,9 @@ void markerFeedbackCallback(const visualization_msgs::InteractiveMarkerFeedbackC
         case visualization_msgs::InteractiveMarkerFeedback::MOUSE_UP:
             ROS_INFO_STREAM( "mouse up." );
 
+            navigation_pose_pub.publish(feedback->pose);
             findPath(start_pose, feedback->pose);
             generate_costmap_marker_array(feedback->pose);
-            navigation_pose_pub.publish(feedback->pose);
-
             break;
     }
 
@@ -237,9 +258,9 @@ int main(int argc, char **argv)
     ground_path_marker.type = visualization_msgs::Marker::SPHERE;
     ground_path_marker.action = visualization_msgs::Marker::ADD;
 
-    ground_path_marker.scale.x = resolution;
-    ground_path_marker.scale.y = resolution;
-    ground_path_marker.scale.z = resolution;
+    ground_path_marker.scale.x = resolution / 2;
+    ground_path_marker.scale.y = resolution / 2;
+    ground_path_marker.scale.z = resolution / 2;
     ground_path_marker.color.a = 1.0;
     ground_path_marker.color.r = 1;
     ground_path_marker.color.g = 0;
@@ -251,9 +272,9 @@ int main(int argc, char **argv)
     drone_path_marker.type = visualization_msgs::Marker::SPHERE;
     drone_path_marker.action = visualization_msgs::Marker::ADD;
 
-    drone_path_marker.scale.x = resolution;
-    drone_path_marker.scale.y = resolution;
-    drone_path_marker.scale.z = resolution;
+    drone_path_marker.scale.x = resolution / 2;
+    drone_path_marker.scale.y = resolution / 2;
+    drone_path_marker.scale.z = resolution / 2;
     drone_path_marker.color.a = 1.0;
     drone_path_marker.color.r = 0;
     drone_path_marker.color.g = 0;
@@ -265,9 +286,9 @@ int main(int argc, char **argv)
     costmap_marker.type = visualization_msgs::Marker::CUBE;
     costmap_marker.action = visualization_msgs::Marker::ADD;
 
-    costmap_marker.scale.x = resolution;
-    costmap_marker.scale.y = resolution;
-    costmap_marker.scale.z = resolution;
+    costmap_marker.scale.x = resolution / 2;
+    costmap_marker.scale.y = resolution / 2;
+    costmap_marker.scale.z = resolution / 2;
     costmap_marker.color.a = 0.1;
     costmap_marker.color.r = 1;
     costmap_marker.color.g = 1;
