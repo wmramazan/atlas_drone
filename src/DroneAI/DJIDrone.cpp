@@ -12,15 +12,22 @@ DJIDrone::DJIDrone(ros::NodeHandle& nh)
     localPosition_sub     = nh.subscribe(position_topic,              10, &DJIDrone::local_position_callback,   this);
     gps_sub               = nh.subscribe("dji_sdk/gps_position",      10, &DJIDrone::gps_position_callback,     this);
     gpsHealth_sub         = nh.subscribe("dji_sdk/gps_health",        10, &DJIDrone::gps_health_callback,       this);
-    battery_state_sub      = nh.subscribe("dji_sdk/battery_state",    10, &DJIDrone::battery_state_callback,    this);
+    battery_state_sub     = nh.subscribe("dji_sdk/battery_state",     10, &DJIDrone::battery_state_callback,    this);
+    current_state_sub     = nh.subscribe("mavros/state",              10, &DJIDrone::current_state_callback,    this);
 
+    /*
     sdk_ctrl_authority_service = nh.serviceClient<dji_sdk::SDKControlAuthority> ("dji_sdk/sdk_control_authority");
     drone_task_service         = nh.serviceClient<dji_sdk::DroneTaskControl>    ("dji_sdk/drone_task_control");
     query_version_service      = nh.serviceClient<dji_sdk::QueryDroneVersion>   ("dji_sdk/query_drone_version");
     set_local_pos_reference    = nh.serviceClient<dji_sdk::SetLocalPosRef>      ("dji_sdk/set_local_pos_ref");
+    */
+    arming_service = nh.serviceClient<mavros_msgs::CommandBool>("mavros/cmd/arming");
+    set_mode_service = nh.serviceClient<mavros_msgs::SetMode>("mavros/set_mode");
 
     position_control_pub = nh.advertise<sensor_msgs::Joy>("/dji_sdk/flight_control_setpoint_generic", 10);
+    local_pos_pub        = nh.advertise<geometry_msgs::PoseStamped>("mavros/setpoint_position/local", 10);
 
+    /*
     dji_sdk::SetLocalPosRef localPosReferenceSetter;
     set_local_pos_reference.call(localPosReferenceSetter);
 
@@ -29,6 +36,7 @@ DJIDrone::DJIDrone(ros::NodeHandle& nh)
             DJISDK::YAW_ANGLE |
             DJISDK::HORIZONTAL_GROUND |
             DJISDK::STABLE_ENABLE );
+    */
 }
 
 bool DJIDrone::RequestControl(ControlRequest request)
@@ -38,6 +46,7 @@ bool DJIDrone::RequestControl(ControlRequest request)
     else
         LOG("|||-> Attempting to release control.");
 
+    /*
     dji_sdk::SDKControlAuthority authority;
     authority.request.control_enable = request;
     sdk_ctrl_authority_service.call(authority);
@@ -52,6 +61,9 @@ bool DJIDrone::RequestControl(ControlRequest request)
         LOG("|||-< Request failed!");
         return false;
     }
+    */
+
+    return false;
 }
 
 bool DJIDrone::RequestTask(TaskRequest request)
@@ -67,6 +79,7 @@ bool DJIDrone::RequestTask(TaskRequest request)
 
     LOG("|||-> Requesting to %s!", task.c_str());
 
+    /*
     dji_sdk::DroneTaskControl droneTaskControl;
     droneTaskControl.request.task = request;
     drone_task_service.call(droneTaskControl);
@@ -81,6 +94,9 @@ bool DJIDrone::RequestTask(TaskRequest request)
         LOG("|||-< %s request failed!", task.c_str());
         return false;
     }
+    */
+
+    return false;
 }
 
 void DJIDrone::Move(double x, double y, double z, double yaw)

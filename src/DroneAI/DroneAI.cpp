@@ -42,9 +42,7 @@ DroneAI::DroneAI()
 
 void DroneAI::UpdateAI()
 {
-    LOG("spinning");
     ros::spinOnce();
-    LOG("spin done");
     behaviourManager->Update();
 
     atlas_drone::AIState aiState;

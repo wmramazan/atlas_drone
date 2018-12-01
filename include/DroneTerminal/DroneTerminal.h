@@ -21,8 +21,8 @@
 #include <sensor_msgs/BatteryState.h>
 
 // DJISDK Includes
-#include <dji_sdk/dji_sdk.h>
-#include <dji_sdk/SetLocalPosRef.h>
+//#include <dji_sdk/dji_sdk.h>
+//#include <dji_sdk/SetLocalPosRef.h>
 
 #include <atlas_drone/AIState.h>
 #include <ncurses.h>

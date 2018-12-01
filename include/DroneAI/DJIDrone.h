@@ -9,18 +9,25 @@
 // ROS Includes
 #include <ros/ros.h>
 #include <geometry_msgs/QuaternionStamped.h>
+#include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/PointStamped.h>
 #include <std_msgs/UInt8.h>
 #include <sensor_msgs/Joy.h>
 #include <sensor_msgs/NavSatFix.h>
 #include <sensor_msgs/BatteryState.h>
 
+#include <mavros_msgs/CommandBool.h>
+#include <mavros_msgs/SetMode.h>
+#include <mavros_msgs/State.h>
+
 // DJI SDK Includes
+/*
 #include <dji_sdk/dji_sdk.h>
 #include <dji_sdk/DroneTaskControl.h>
 #include <dji_sdk/SDKControlAuthority.h>
 #include <dji_sdk/QueryDroneVersion.h>
 #include <dji_sdk/SetLocalPosRef.h>
+*/
 
 using namespace std;
 
@@ -32,32 +39,32 @@ enum ControlRequest
 
 enum TaskRequest
 {
-    GoHome          = dji_sdk::DroneTaskControl::Request::TASK_GOHOME,
-    TakeOff         = dji_sdk::DroneTaskControl::Request::TASK_TAKEOFF,
-    Land            = dji_sdk::DroneTaskControl::Request::TASK_LAND
+    GoHome          /* = dji_sdk::DroneTaskControl::Request::TASK_GOHOME*/,
+    TakeOff         /* = dji_sdk::DroneTaskControl::Request::TASK_TAKEOFF*/,
+    Land            /* = dji_sdk::DroneTaskControl::Request::TASK_LAND*/
 };
 
 enum FlightStatus
 {
-    Stopped   = DJISDK::FlightStatus::STATUS_STOPPED,
-    OnGround  = DJISDK::FlightStatus::STATUS_ON_GROUND,
-    InAir     = DJISDK::FlightStatus::STATUS_IN_AIR
+    Stopped   /* = DJISDK::FlightStatus::STATUS_STOPPED*/,
+    OnGround  /* = DJISDK::FlightStatus::STATUS_ON_GROUND*/,
+    InAir     /* = DJISDK::FlightStatus::STATUS_IN_AIR*/
 };
 
 enum DisplayMode
 {
-    ManualControl       = DJISDK::DisplayMode::MODE_MANUAL_CTRL,
-    Attitude            = DJISDK::DisplayMode::MODE_ATTITUDE,
-    PGPS                = DJISDK::DisplayMode::MODE_P_GPS,
-    HotpointMode        = DJISDK::DisplayMode::MODE_HOTPOINT_MODE,
-    AssistedTakeoff     = DJISDK::DisplayMode::MODE_ASSISTED_TAKEOFF,
-    AutoTakeoff         = DJISDK::DisplayMode::MODE_AUTO_TAKEOFF,
-    AutoLanding         = DJISDK::DisplayMode::MODE_AUTO_LANDING,
-    NaviGoHome          = DJISDK::DisplayMode::MODE_NAVI_GO_HOME,
-    NaviSDKControl      = DJISDK::DisplayMode::MODE_NAVI_SDK_CTRL,
-    ForceAutoLanding    = DJISDK::DisplayMode::MODE_FORCE_AUTO_LANDING,
-    SearchMode          = DJISDK::DisplayMode::MODE_SEARCH_MODE,
-    EngineStart         = DJISDK::DisplayMode::MODE_ENGINE_START
+    ManualControl       /* = DJISDK::DisplayMode::MODE_MANUAL_CTRL*/,
+    Attitude            /* = DJISDK::DisplayMode::MODE_ATTITUDE*/,
+    PGPS                /* = DJISDK::DisplayMode::MODE_P_GPS*/,
+    HotpointMode        /* = DJISDK::DisplayMode::MODE_HOTPOINT_MODE*/,
+    AssistedTakeoff     /* = DJISDK::DisplayMode::MODE_ASSISTED_TAKEOFF*/,
+    AutoTakeoff         /* = DJISDK::DisplayMode::MODE_AUTO_TAKEOFF*/,
+    AutoLanding         /* = DJISDK::DisplayMode::MODE_AUTO_LANDING*/,
+    NaviGoHome          /* = DJISDK::DisplayMode::MODE_NAVI_GO_HOME*/,
+    NaviSDKControl      /* = DJISDK::DisplayMode::MODE_NAVI_SDK_CTRL*/,
+    ForceAutoLanding    /* = DJISDK::DisplayMode::MODE_FORCE_AUTO_LANDING*/,
+    SearchMode          /* = DJISDK::DisplayMode::MODE_SEARCH_MODE*/,
+    EngineStart         /* = DJISDK::DisplayMode::MODE_ENGINE_START*/
 };
 
 class DJIDrone
@@ -74,6 +81,8 @@ class DJIDrone
     uint8_t DisplayMode   = -1;
     uint8_t GPSHealth     = -1;
 
+    mavros_msgs::State CurrentState;
+
   private:
     ros::Subscriber attitude_sub;
     ros::Subscriber flightStatus_sub;
@@ -82,13 +91,17 @@ class DJIDrone
     ros::Subscriber gps_sub;
     ros::Subscriber gpsHealth_sub;
     ros::Subscriber battery_state_sub;
+    ros::Subscriber current_state_sub;
 
     ros::Publisher position_control_pub;
+    ros::Publisher local_pos_pub;
 
     ros::ServiceClient sdk_ctrl_authority_service;
     ros::ServiceClient drone_task_service;
     ros::ServiceClient query_version_service;
     ros::ServiceClient set_local_pos_reference;
+    ros::ServiceClient arming_service;
+    ros::ServiceClient set_mode_service;
 
     uint8_t flag;
 
@@ -132,6 +145,11 @@ class DJIDrone
     void battery_state_callback(const sensor_msgs::BatteryState::ConstPtr& msg)
     {
         BatteryState = *msg;
+    }
+
+    void current_state_callback(const mavros_msgs::State::ConstPtr& msg)
+    {
+        CurrentState = *msg;
     }
 };
 

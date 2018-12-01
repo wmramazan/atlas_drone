@@ -9,20 +9,21 @@ project(atlas_drone)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
 	roscpp
-        dji_sdk
+    #dji_sdk
 	sensor_msgs
 	pcl_ros
 	pcl_conversions
 	nav_msgs
 	std_msgs
 	std_srvs
-        visualization_msgs
-        octomap_ros
-        octomap_msgs
-        message_generation
+	visualization_msgs
+	octomap_ros
+	octomap_msgs
+	message_generation
+	mavros_msgs
 )
 
-find_package(DJIOSDK REQUIRED)
+#find_package(DJIOSDK REQUIRED)
 find_package(Curses REQUIRED)
 find_package(PCL REQUIRED)
 find_package(octomap REQUIRED)
@@ -118,7 +119,9 @@ generate_messages(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 INCLUDE_DIRS include
-CATKIN_DEPENDS dji_sdk message_runtime
+CATKIN_DEPENDS 
+#dji_sdk 
+message_runtime
 #  DEPENDS system_lib
 )
 
@@ -204,18 +207,18 @@ add_dependencies(drone_ai atlas_drone_generate_messages_cpp)
 
 target_link_libraries(drone_ai
 	${catkin_LIBRARIES}
-        ${DJIOSDK_LIBRARIES}
-        commander
+	#${DJIOSDK_LIBRARIES}
+	commander
 	djidrone
 	behaviourmanager
 	commandedbehaviour
 	idlebehaviour
-        navigationbehaviour
+	navigationbehaviour
 	takecontroltask
 	takeofftask
-        movetask
-        path_planner
-	)
+	movetask
+	path_planner
+)
 
 add_executable(drone_terminal src/DroneTerminal/DroneTerminal.cpp)
 add_library(displayWindow src/DroneTerminal/DisplayWindow.cpp)
@@ -223,12 +226,12 @@ add_library(messageWindow src/DroneTerminal/MessageWindow.cpp)
 add_library(inputWindow src/DroneTerminal/InputWindow.cpp)
 target_link_libraries(drone_terminal
 	${catkin_LIBRARIES}
-	${DJIOSDK_LIBRARIES}
+	#${DJIOSDK_LIBRARIES}
 	${CURSES_LIBRARIES}
 	displayWindow
 	messageWindow
 	inputWindow
-	)
+)
 
 #############
 ## Install ##

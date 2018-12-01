@@ -24,7 +24,7 @@ class AIBehaviour
     {
       if (CurrentTask == NULL)
       {
-          ROS_INFO("%s : Null task exception.", name.c_str());
+          //ROS_INFO("%s : Null task exception.", name.c_str());
           on_handle_null_task_exception();
       }
       else
