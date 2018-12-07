@@ -3,6 +3,7 @@
 
 #include <math.h>
 #include <geometry_msgs/Point.h>
+#include <geometry_msgs/Pose.h>
 #include <cfloat>
 
 struct Vec3
@@ -89,6 +90,11 @@ struct Vec3
     static Vec3 FromPoint(const geometry_msgs::Point &point)
     {
         return Vec3(point.x, point.y, point.z);
+    }
+
+    static Vec3 FromPose(const geometry_msgs::Pose &pose)
+    {
+        return Vec3(pose.position.x, pose.position.y, pose.position.z);
     }
 };
 

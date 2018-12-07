@@ -14,11 +14,15 @@
 #include <ros/ros.h>
 #include <geometry_msgs/QuaternionStamped.h>
 #include <geometry_msgs/PointStamped.h>
+#include <geometry_msgs/PoseStamped.h>
 #include <std_msgs/UInt8.h>
 #include <std_msgs/String.h>
 #include <sensor_msgs/Joy.h>
 #include <sensor_msgs/NavSatFix.h>
 #include <sensor_msgs/BatteryState.h>
+
+#include <mavros_msgs/State.h>
+#include <mavros_msgs/Altitude.h>
 
 // DJISDK Includes
 //#include <dji_sdk/dji_sdk.h>
@@ -48,13 +52,14 @@ class DroneTerminal
     void initialize_terminal();
     void draw();
 
-    ros::Subscriber attitude_sub;
+    ros::Subscriber altitude_sub;
     ros::Subscriber flight_status_sub;
     ros::Subscriber display_mode_sub;
     ros::Subscriber local_position_sub;
     ros::Subscriber gps_sub;
     ros::Subscriber gps_health_sub;
     ros::Subscriber battery_state_sub;
+    ros::Subscriber current_state_sub;
     ros::Subscriber drone_message_sub;
     ros::Subscriber ai_state_sub;
 
@@ -69,13 +74,15 @@ class DisplayWindow
         DisplayWindow(DroneTerminal* terminal);
         void Draw();
 
-        void FlightStatusCallback(const std_msgs::UInt8::ConstPtr& msg);
-        void DisplayModeCallback(const std_msgs::UInt8::ConstPtr& msg);
+        //void FlightStatusCallback(const std_msgs::UInt8::ConstPtr& msg);
+        //void DisplayModeCallback(const std_msgs::UInt8::ConstPtr& msg);
         void BatteryStateCallback(const sensor_msgs::BatteryState::ConstPtr& msg);
-        void LocalPositionCallback(const geometry_msgs::PointStamped::ConstPtr& msg);
-        void AttitudeCallback(const geometry_msgs::QuaternionStamped::ConstPtr& msg);
-        void GPSPositionCallback(const sensor_msgs::NavSatFix::ConstPtr& msg);
-        void GPSHealthCallback(const std_msgs::UInt8::ConstPtr& msg);
+        void LocalPositionCallback(const geometry_msgs::PoseStamped::ConstPtr& msg);
+        void AltitudeCallback(const mavros_msgs::Altitude::ConstPtr& msg);
+        void CurrentStateCallback(const mavros_msgs::State::ConstPtr& msg);
+        
+        //void GPSPositionCallback(const sensor_msgs::NavSatFix::ConstPtr& msg);
+        //void GPSHealthCallback(const std_msgs::UInt8::ConstPtr& msg);
         void AIStateCallback(const atlas_drone::AIState::ConstPtr& msg);
 
     private:
@@ -83,10 +90,12 @@ class DisplayWindow
         WINDOW* window;
         bool dirty;
 
-        geometry_msgs::PointStamped local_position;
-        geometry_msgs::Quaternion current_attitude;
+        geometry_msgs::PoseStamped local_position;
+        mavros_msgs::Altitude current_altitude;
         sensor_msgs::NavSatFix gps_position;
         sensor_msgs::BatteryState battery_state;
+        mavros_msgs::State current_state;
+
         int flight_status  = -1;
         int display_mode   = -1;
         int gps_health     = -1;

@@ -21,7 +21,7 @@ void DisplayWindow::Draw()
     mvwprintw(window, 3, 1, "Battery State\t: %fV (%f\%)", battery_state.voltage, battery_state.percentage);
     mvwprintw(window, 4, 1, "GPS Health\t: %d", gps_health);
     mvwprintw(window, 5, 1, "GPS Position\t: %f - %f - %f", gps_position.altitude, gps_position.latitude, gps_position.longitude);
-    mvwprintw(window, 6, 1, "Local Position\t: %f - %f - %f", local_position.point.x, local_position.point.y, local_position.point.z);
+    mvwprintw(window, 6, 1, "Local Position\t: %f - %f - %f", local_position.pose.position.x, local_position.pose.position.y, local_position.pose.position.z);
     mvwprintw(window, 7, 1, "Behaviour\t: %s", current_behaviour.c_str());
     mvwprintw(window, 8, 1, "Task\t: %s", current_task.c_str());
 
@@ -30,13 +30,13 @@ void DisplayWindow::Draw()
     dirty = false;
 }
 
-void DisplayWindow::AttitudeCallback(const geometry_msgs::QuaternionStamped::ConstPtr& msg)
+void DisplayWindow::AltitudeCallback(const mavros_msgs::Altitude::ConstPtr& msg)
 {
-    current_attitude = msg->quaternion;
+    current_altitude = *msg;
     dirty = true;
 }
 
-void DisplayWindow::FlightStatusCallback(const std_msgs::UInt8::ConstPtr& msg)
+/*void DisplayWindow::FlightStatusCallback(const std_msgs::UInt8::ConstPtr& msg)
 {
     flight_status = msg->data;
     dirty = true;
@@ -46,15 +46,15 @@ void DisplayWindow::DisplayModeCallback(const std_msgs::UInt8::ConstPtr& msg)
 {
     display_mode = msg->data;
     dirty = true;
-}
+}*/
 
-void DisplayWindow::LocalPositionCallback(const geometry_msgs::PointStamped::ConstPtr& msg)
+void DisplayWindow::LocalPositionCallback(const geometry_msgs::PoseStamped::ConstPtr& msg)
 {
     local_position = *msg;
     dirty = true;
 }
 
-void DisplayWindow::GPSPositionCallback(const sensor_msgs::NavSatFix::ConstPtr& msg)
+/*void DisplayWindow::GPSPositionCallback(const sensor_msgs::NavSatFix::ConstPtr& msg)
 {
     gps_position = *msg;
     dirty = true;
@@ -64,7 +64,7 @@ void DisplayWindow::GPSHealthCallback(const std_msgs::UInt8::ConstPtr& msg)
 {
     gps_health = msg->data;
     dirty = true;
-}
+}*/
 
 void DisplayWindow::AIStateCallback(const atlas_drone::AIState::ConstPtr& msg)
 {
@@ -77,4 +77,9 @@ void DisplayWindow::BatteryStateCallback(const sensor_msgs::BatteryState::ConstP
 {
     battery_state = *msg;
     dirty = true;
+}
+
+void DisplayWindow::CurrentStateCallback(const mavros_msgs::State::ConstPtr& msg)
+{
+    current_state = *msg;
 }

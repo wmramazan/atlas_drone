@@ -32,7 +32,7 @@ DroneAI::DroneAI()
 
     LOG("Drone AI Initialized. Beginning AI cycle.");
 
-    ros::Rate loop_rate(10);
+    ros::Rate loop_rate(20);
     while (ros::ok())
     {
         UpdateAI();

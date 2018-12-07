@@ -9,9 +9,9 @@ void MoveTask::Start()
 
 void MoveTask::Update()
 {
-    Vec3 target_distance = Vec3(move_target.position.x - DRONE->LocalPosition.point.x,
-                                move_target.position.y - DRONE->LocalPosition.point.y,
-                                move_target.position.z - DRONE->LocalPosition.point.z);
+    Vec3 target_distance = Vec3(move_target.position.x - DRONE->LocalPosition.pose.position.x,
+                                move_target.position.y - DRONE->LocalPosition.pose.position.y,
+                                move_target.position.z - DRONE->LocalPosition.pose.position.z);
 
     if ((std::abs(target_distance.x) > 0.25) || (std::abs(target_distance.y) > 0.25) || (std::abs(target_distance.z) > 0.25))
     {
@@ -23,7 +23,7 @@ void MoveTask::Update()
         m.getRPY(roll, pitch, yaw);
 
         Vec3 move_vector = target_distance.Normalized();
-        DRONE->Move(move_vector.x, move_vector.y, move_target.position.z, 0);
+        DRONE->Move(move_target.position.x, move_target.position.y, move_target.position.z, 0);
     }
     else
     {

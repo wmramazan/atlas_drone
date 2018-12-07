@@ -199,7 +199,7 @@ add_library(idlebehaviour src/DroneAI/AIBehaviours/IdleBehaviour.cpp)
 add_library(navigationbehaviour src/DroneAI/AIBehaviours/NavigationBehaviour.cpp)
 
 ## AI TASKS
-add_library(takecontroltask src/DroneAI/AITasks/TakeControlTask.cpp)
+add_library(initializationtask src/DroneAI/AITasks/InitializationTask.cpp)
 add_library(takeofftask src/DroneAI/AITasks/TakeOffTask.cpp)
 add_library(movetask src/DroneAI/AITasks/MoveTask.cpp)
 
@@ -214,7 +214,7 @@ target_link_libraries(drone_ai
 	commandedbehaviour
 	idlebehaviour
 	navigationbehaviour
-	takecontroltask
+	initializationtask
 	takeofftask
 	movetask
 	path_planner

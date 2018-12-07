@@ -16,8 +16,7 @@ NavigationBehaviour::NavigationBehaviour(NodeHandle& nh)
 
 void NavigationBehaviour::Update()
 {
-    Pose pose;
-    pose.position = DRONE->LocalPosition.point;
+    Pose pose = DRONE->LocalPosition.pose;
     pathPlanner->SetCurrentPose(pose);
 
     if (path == NULL)
@@ -25,8 +24,8 @@ void NavigationBehaviour::Update()
 
     if (CurrentTask == NULL)
     {
-        Vec3 current_position = Vec3::FromPoint(DRONE->LocalPosition.point);
-        Vec3 direction = Vec3::FromPoint(path->poses[1].pose.position) - Vec3::FromPoint(path->poses[0].pose.position);
+        Vec3 current_position = Vec3::FromPose(DRONE->LocalPosition.pose);
+        Vec3 direction = Vec3::FromPose(path->poses[1].pose) - Vec3::FromPose(path->poses[0].pose);
 
         LOG("Direction = %f %f %f", direction.x, direction.y, direction.z);
 
@@ -80,8 +79,7 @@ void NavigationBehaviour::navigation_target_callback(const Pose::ConstPtr &msg)
 {
     navigation_target = *msg;
     LOG("||-> Setting navigation target to: %f - %f - %f", navigation_target.position.x, navigation_target.position.y, navigation_target.position.z);
-    Pose pose;
-    pose.position = DRONE->LocalPosition.point;
+    Pose pose = DRONE->LocalPosition.pose;
     pathPlanner->SetCurrentPose(pose);
     pathPlanner->SetTargetPose(navigation_target);
     LOG("||-< Navigation target set.");

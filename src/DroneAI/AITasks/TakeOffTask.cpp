@@ -49,5 +49,5 @@ void TakeOffTask::start_engine()
 bool TakeOffTask::request_takeoff()
 {
     last_try_time = ros::Time::now();
-    bool takeoff_request = DRONE->RequestTask(TaskRequest::TakeOff);
+    //bool takeoff_request = DRONE->RequestTask(TaskRequest::TakeOff);
 }

@@ -19,6 +19,7 @@
 #include <mavros_msgs/CommandBool.h>
 #include <mavros_msgs/SetMode.h>
 #include <mavros_msgs/State.h>
+#include <mavros_msgs/Altitude.h>
 
 // DJI SDK Includes
 /*
@@ -31,17 +32,18 @@
 
 using namespace std;
 
-enum ControlRequest
+enum ArmRequest
 {
-    ReleaseControl  = 0x0,
-    TakeControl     = 0x1
+    Arm     = 0x0,
+    Disarm  = 0x1
 };
 
 enum TaskRequest
 {
     GoHome          /* = dji_sdk::DroneTaskControl::Request::TASK_GOHOME*/,
     TakeOff         /* = dji_sdk::DroneTaskControl::Request::TASK_TAKEOFF*/,
-    Land            /* = dji_sdk::DroneTaskControl::Request::TASK_LAND*/
+    Land            /* = dji_sdk::DroneTaskControl::Request::TASK_LAND*/,
+    Offboard
 };
 
 enum FlightStatus
@@ -73,10 +75,12 @@ class DJIDrone
   public:
     DJIDrone(ros::NodeHandle& nh);
 
-    geometry_msgs::PointStamped LocalPosition;
-    sensor_msgs::NavSatFix GPSPosition;
+    mavros_msgs::Altitude CurrentAltitude;
     sensor_msgs::BatteryState BatteryState;
-    geometry_msgs::Quaternion CurrentAttitude;
+
+    geometry_msgs::PoseStamped LocalPosition;
+    sensor_msgs::NavSatFix GPSPosition;
+    
     uint8_t FlightStatus  = -1;
     uint8_t DisplayMode   = -1;
     uint8_t GPSHealth     = -1;
@@ -84,7 +88,7 @@ class DJIDrone
     mavros_msgs::State CurrentState;
 
   private:
-    ros::Subscriber attitude_sub;
+    ros::Subscriber altitude_sub;
     ros::Subscriber flightStatus_sub;
     ros::Subscriber displayMode_sub;
     ros::Subscriber localPosition_sub;
@@ -107,14 +111,14 @@ class DJIDrone
 
   // METHODS
   public:
-    bool RequestControl(ControlRequest request);
-    bool RequestTask(TaskRequest request);
+    bool SetMode(string mode);
+    bool RequestArming(ArmRequest request);
     void Move(double x, double y, double z, double yaw);
 
   private:
-    void attitude_callback(const geometry_msgs::QuaternionStamped::ConstPtr& msg)
+    void altitude_callback(const mavros_msgs::Altitude::ConstPtr& msg)
     {
-        CurrentAttitude = msg->quaternion;
+        CurrentAltitude = *msg;
     }
 
     void flight_status_callback(const std_msgs::UInt8::ConstPtr& msg)
@@ -127,7 +131,7 @@ class DJIDrone
         DisplayMode = msg->data;
     }
 
-    void local_position_callback(const geometry_msgs::PointStamped::ConstPtr& msg)
+    void local_position_callback(const geometry_msgs::PoseStamped::ConstPtr& msg)
     {
         LocalPosition = *msg;
     }

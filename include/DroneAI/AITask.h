@@ -51,21 +51,22 @@ class AITask
     bool task_completed;
 };
 
-class TakeControlTask : public AITask
+class InitializationTask : public AITask
 {
-  enum AITakeControlTaskState
+  enum InitializationTaskState
   {
-      NO_CONTROL            = 0,
-      WAITING_TO_TRY_AGAIN  = 1,
-      HAVE_CONTROL          = 2
+      INITIAL_STATE         = 0,
+      SETTING_MODE          = 1,
+      ARMING                = 2,
+      INITIALIZED           = 3
   };
 
   public:
-    TakeControlTask()
+    InitializationTask()
     {
-        LOG("|-> Initializing Take Control Task.");
-        Name = "Take Control Task";
-        LOG("|-< Take Control Task Initialization Complete.");
+        LOG("|-> \"Initializing Initialization\" Task.");
+        Name = "\"Initialization Task\"";
+        LOG("|-< \"Initialization Task\" Initialization Complete.");
     }
 
     virtual void Start();
@@ -74,9 +75,10 @@ class TakeControlTask : public AITask
 
   private:
     ros::Time last_try_time;
-    AITakeControlTaskState control_state;
+    InitializationTaskState task_state;
 
-    void take_control();
+    void set_mode();
+    void arm();
 };
 
 class TakeOffTask : public AITask

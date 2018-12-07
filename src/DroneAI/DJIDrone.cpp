@@ -6,52 +6,64 @@ DJIDrone::DJIDrone(ros::NodeHandle& nh)
     string position_topic;
     nh.param<string>("/position_topic", position_topic, "/drone_position");
 
-    attitude_sub          = nh.subscribe("dji_sdk/attitude",          10, &DJIDrone::attitude_callback,         this);
-    flightStatus_sub      = nh.subscribe("dji_sdk/flight_status",     10, &DJIDrone::flight_status_callback,    this);
-    displayMode_sub       = nh.subscribe("dji_sdk/display_mode",      10, &DJIDrone::display_mode_callback,     this);
-    localPosition_sub     = nh.subscribe(position_topic,              10, &DJIDrone::local_position_callback,   this);
-    gps_sub               = nh.subscribe("dji_sdk/gps_position",      10, &DJIDrone::gps_position_callback,     this);
-    gpsHealth_sub         = nh.subscribe("dji_sdk/gps_health",        10, &DJIDrone::gps_health_callback,       this);
-    battery_state_sub     = nh.subscribe("dji_sdk/battery_state",     10, &DJIDrone::battery_state_callback,    this);
-    current_state_sub     = nh.subscribe("mavros/state",              10, &DJIDrone::current_state_callback,    this);
+    altitude_sub          = nh.subscribe("/navros/altitude",          10, &DJIDrone::altitude_callback,         this);
+    //flightStatus_sub      = nh.subscribe("dji_sdk/flight_status",       10, &DJIDrone::flight_status_callback,    this);
+    //displayMode_sub       = nh.subscribe("dji_sdk/display_mode",        10, &DJIDrone::display_mode_callback,     this);
+    localPosition_sub     = nh.subscribe("/mavros/local_position/pose", 10, &DJIDrone::local_position_callback,   this);
+    //gps_sub               = nh.subscribe("dji_sdk/gps_position",        10, &DJIDrone::gps_position_callback,     this);
+    //gpsHealth_sub         = nh.subscribe("dji_sdk/gps_health",          10, &DJIDrone::gps_health_callback,       this);
+    battery_state_sub     = nh.subscribe("/mavros/battery",             10, &DJIDrone::battery_state_callback,    this);
+    current_state_sub     = nh.subscribe("/mavros/state",               10, &DJIDrone::current_state_callback,    this);
 
-    /*
-    sdk_ctrl_authority_service = nh.serviceClient<dji_sdk::SDKControlAuthority> ("dji_sdk/sdk_control_authority");
-    drone_task_service         = nh.serviceClient<dji_sdk::DroneTaskControl>    ("dji_sdk/drone_task_control");
-    query_version_service      = nh.serviceClient<dji_sdk::QueryDroneVersion>   ("dji_sdk/query_drone_version");
-    set_local_pos_reference    = nh.serviceClient<dji_sdk::SetLocalPosRef>      ("dji_sdk/set_local_pos_ref");
-    */
-    arming_service = nh.serviceClient<mavros_msgs::CommandBool>("mavros/cmd/arming");
-    set_mode_service = nh.serviceClient<mavros_msgs::SetMode>("mavros/set_mode");
+    arming_service          = nh.serviceClient<mavros_msgs::CommandBool>("mavros/cmd/arming");
+    set_mode_service        = nh.serviceClient<mavros_msgs::SetMode>("mavros/set_mode");
 
-    position_control_pub = nh.advertise<sensor_msgs::Joy>("/dji_sdk/flight_control_setpoint_generic", 10);
-    local_pos_pub        = nh.advertise<geometry_msgs::PoseStamped>("mavros/setpoint_position/local", 10);
-
-    /*
-    dji_sdk::SetLocalPosRef localPosReferenceSetter;
-    set_local_pos_reference.call(localPosReferenceSetter);
-
-    flag = (DJISDK::VERTICAL_VELOCITY |
-            DJISDK::HORIZONTAL_VELOCITY |
-            DJISDK::YAW_ANGLE |
-            DJISDK::HORIZONTAL_GROUND |
-            DJISDK::STABLE_ENABLE );
-    */
+    position_control_pub    = nh.advertise<sensor_msgs::Joy>("/dji_sdk/flight_control_setpoint_generic", 10);
+    local_pos_pub           = nh.advertise<geometry_msgs::PoseStamped>("mavros/setpoint_position/local", 10);
 }
 
-bool DJIDrone::RequestControl(ControlRequest request)
+bool DJIDrone::SetMode(string mode)
 {
-    if (request == ControlRequest::TakeControl)
-        LOG("|||-> Attempting to take control.");
+    LOG("|||-> Attempting to set mode \"%s\".", mode.c_str());
+
+    mavros_msgs::SetMode offboard_set_mode;
+    offboard_set_mode.request.custom_mode = mode.c_str();
+    set_mode_service.call(offboard_set_mode);
+
+    if (offboard_set_mode.response.mode_sent)
+    {
+        LOG("|||-< \"%s\" Mode set successful!", mode.c_str());
+        return true;
+    }
     else
-        LOG("|||-> Attempting to release control.");
+    {
+        LOG("|||-< \"%s\" Mode set failed!", mode.c_str());
+        return false;
+    }
+}
 
-    /*
-    dji_sdk::SDKControlAuthority authority;
-    authority.request.control_enable = request;
-    sdk_ctrl_authority_service.call(authority);
+bool DJIDrone::RequestArming(ArmRequest request)
+{
+    string task;
+    bool request_value;
 
-    if(authority.response.result)
+    if (request == ArmRequest::Arm)
+    {
+        task = "Arm";
+        request_value = true;
+    }
+    else
+    {
+        task = "Disarm";
+        request_value = false;
+    }
+        
+    LOG("|||-> Attempting to \"%s\".", task.c_str());
+    mavros_msgs::CommandBool arm_command;
+    arm_command.request.value = request_value;
+    arming_service.call(arm_command);
+
+    if (arm_command.response.result)
     {
         LOG("|||-< Request successful!");
         return true;
@@ -61,51 +73,16 @@ bool DJIDrone::RequestControl(ControlRequest request)
         LOG("|||-< Request failed!");
         return false;
     }
-    */
-
-    return false;
-}
-
-bool DJIDrone::RequestTask(TaskRequest request)
-{
-    string task;
-
-    if (request == TaskRequest::TakeOff)
-        task = "Take Off";
-    else if (request == TaskRequest::Land)
-        task = "Land";
-    else if (request == TaskRequest::GoHome)
-        task = "Go Home";
-
-    LOG("|||-> Requesting to %s!", task.c_str());
-
-    /*
-    dji_sdk::DroneTaskControl droneTaskControl;
-    droneTaskControl.request.task = request;
-    drone_task_service.call(droneTaskControl);
-
-    if (droneTaskControl.response.result)
-    {
-        LOG("|||-< %s request succesful!", task.c_str());
-        return true;
-    }
-    else
-    {
-        LOG("|||-< %s request failed!", task.c_str());
-        return false;
-    }
-    */
-
-    return false;
 }
 
 void DJIDrone::Move(double x, double y, double z, double yaw)
 {
-    sensor_msgs::Joy controlPosYaw;
-    controlPosYaw.axes.push_back(x);
-    controlPosYaw.axes.push_back(y);
-    controlPosYaw.axes.push_back(z);
-    controlPosYaw.axes.push_back(yaw);
-    controlPosYaw.axes.push_back(flag);
-    position_control_pub.publish(controlPosYaw);
+    SetMode("OFFBOARD");
+
+    geometry_msgs::PoseStamped pose;
+    pose.pose.position.x = x;
+    pose.pose.position.y = y;
+    pose.pose.position.z = z;
+
+    local_pos_pub.publish(pose);
 }

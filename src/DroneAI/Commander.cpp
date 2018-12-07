@@ -86,7 +86,7 @@ void Commander::Execute(string message)
         {
             if (args[1].compare("take_control") == 0)
             {
-                DRONEAI->behaviourManager->AddTaskToCurrentBehaviour(new TakeControlTask());
+                DRONEAI->behaviourManager->AddTaskToCurrentBehaviour(new InitializationTask());
             }
             else if (args[1].compare("take_off") == 0)
             {
