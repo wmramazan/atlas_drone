@@ -203,8 +203,6 @@ add_library(initializationtask src/DroneAI/AITasks/InitializationTask.cpp)
 add_library(takeofftask src/DroneAI/AITasks/TakeOffTask.cpp)
 add_library(movetask src/DroneAI/AITasks/MoveTask.cpp)
 
-add_dependencies(drone_ai atlas_drone_generate_messages_cpp)
-
 target_link_libraries(drone_ai
 	${catkin_LIBRARIES}
 	#${DJIOSDK_LIBRARIES}
@@ -219,6 +217,9 @@ target_link_libraries(drone_ai
 	movetask
 	path_planner
 )
+
+# add_dependencies(drone_ai atlas_drone_generate_messages_cpp)
+add_dependencies(drone_ai ${atlas_drone_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 add_executable(drone_terminal src/DroneTerminal/DroneTerminal.cpp)
 add_library(displayWindow src/DroneTerminal/DisplayWindow.cpp)
