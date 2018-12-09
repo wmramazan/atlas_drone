@@ -10,14 +10,14 @@
 #include "DroneNavigation/PathPlanner.h"
 #include "DroneNavigation/Vec3.h"
 
-#define FRAME_ID "map"
+#define FRAME_ID "world"
 #define RESOLUTION 0.1
 #define COSTMAP_RADIUS 5
 #define FEEDBACK_TOPIC "/drone_marker/feedback"
 #define PATH_MARKER_ARRAY_TOPIC "path_markers"
 #define COSTMAP_MARKER_ARRAY_TOPIC "costmap_markers"
 #define DRONE_PATH_TOPIC "/drone_path"
-#define DRONE_POSITION_TOPIC "/drone_position"
+#define DRONE_POSITION_TOPIC "/mavros/local_position/pose"
 #define NAVIGATION_TARGET_TOPIC "navigation_target"
 #define SERVICE_NAME "/drone_ai/go_to_target"
 
@@ -179,11 +179,11 @@ void dronePathCallback(const nav_msgs::PathConstPtr &path)
     generate_path_marker_array(*path, true);
 }
 
-void dronePositionCallback(const geometry_msgs::PointStampedConstPtr &point)
+void dronePositionCallback(const geometry_msgs::PoseStampedConstPtr &pose)
 {
-    start_pose.position.x = point->point.x;
-    start_pose.position.y = point->point.y;
-    start_pose.position.z = point->point.z;
+    start_pose.position.x = pose->pose.position.x;
+    start_pose.position.y = pose->pose.position.y;
+    start_pose.position.z = pose->pose.position.z;
 }
 
 void markerFeedbackCallback(const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback)
@@ -255,7 +255,7 @@ int main(int argc, char **argv)
 
     drone_path_sub = nh.subscribe<nav_msgs::Path>( DRONE_PATH_TOPIC, 10, dronePathCallback );
     drone_marker_sub = nh.subscribe<visualization_msgs::InteractiveMarkerFeedback>( FEEDBACK_TOPIC, 10, markerFeedbackCallback );
-    drone_position_sub = nh.subscribe<geometry_msgs::PointStamped>( DRONE_POSITION_TOPIC, 10, dronePositionCallback );
+    drone_position_sub = nh.subscribe<geometry_msgs::PoseStamped>( DRONE_POSITION_TOPIC, 10, dronePositionCallback );
     path_marker_array_pub = nh.advertise<visualization_msgs::MarkerArray>( PATH_MARKER_ARRAY_TOPIC, 1 );
     costmap_marker_array_pub = nh.advertise<visualization_msgs::MarkerArray>( COSTMAP_MARKER_ARRAY_TOPIC, 1 );
     navigation_pose_pub = nh.advertise<geometry_msgs::Pose> ( NAVIGATION_TARGET_TOPIC, 10 );

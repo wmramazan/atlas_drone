@@ -51,7 +51,7 @@ pub = rospy.Publisher('/drone_marker/position_string', String, queue_size=10)
 def frameCallback( msg ):
     global counter, br
     time = rospy.Time.now()
-    br.sendTransform( (0, 0, sin(counter/140.0)*2.0), (0, 0, 0, 1.0), time, "moving_frame", "map" )
+    br.sendTransform( (0, 0, sin(counter/140.0)*2.0), (0, 0, 0, 1.0), time, "moving_frame", "world" )
     counter += 1
 
 def processFeedback( feedback ):
@@ -112,7 +112,7 @@ def normalizeQuaternion( quaternion_msg ):
 
 def makedroneMarker(position):
     int_marker = InteractiveMarker()
-    int_marker.header.frame_id = "map"
+    int_marker.header.frame_id = "world"
     int_marker.pose.position = position
     int_marker.scale = 1
 

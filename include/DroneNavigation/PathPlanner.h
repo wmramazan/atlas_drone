@@ -63,8 +63,8 @@ private:
     Publisher global_costmap_pub;
     Publisher path_pub;
 
-    ColorOcTree* octree;
-    ColorOcTreeNode* octree_node;
+    OcTree* octree;
+    OcTreeNode* octree_node;
     double occupancy_threshold;
 
     uint size;

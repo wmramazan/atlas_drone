@@ -6,17 +6,17 @@ PathPlanner::PathPlanner(NodeHandle& nh, Mode mode)
     this->nh = &nh;
     this->mode = mode;
 
-    this->size = nh.param("size", 600);
+    this->size = nh.param("size", 300);
     this->resolution = nh.param("resolution", 0.1);
     this->radius = nh.param("inflation_radius", 5);
 
     nh.param<std::string>("frame_id", frame_id, "map");
 
     nh.param<std::string>("local_costmap_topic", local_costmap_topic ,"/local_costmap");
-    nh.param<std::string>("filtered_cloud_topic", pointcloud_topic, "/point_cloud_filter/filtered_cloud");
+    nh.param<std::string>("pointcloud_topic", pointcloud_topic, "/camera/depth/points");
 
     nh.param<std::string>("global_costmap_topic", global_costmap_topic, "/global_costmap");
-    nh.param<std::string>("octomap_topic", octomap_topic, "/rtabmap/octomap_full");
+    nh.param<std::string>("octomap_topic", octomap_topic, "/octomap_full");
 
     this->costmap = new Costmap(size, resolution);
     this->local_costmap = new Costmap(size, resolution);
@@ -40,6 +40,7 @@ PathPlanner::PathPlanner(NodeHandle& nh, Mode mode)
     }
 
     path_pub = nh.advertise<Path>(path_topic, 5);
+
 }
 
 void PathPlanner::GenerateLocalCostmap(const PointCloud::ConstPtr& point_cloud)
@@ -72,13 +73,13 @@ void PathPlanner::GenerateGlobalCostmap(const Octomap::ConstPtr& octomap)
     costmap->Clear();
     global_costmap->Clear();
 
-    octree = dynamic_cast<ColorOcTree*>(fullMsgToMap(*octomap));
+    octree = dynamic_cast<OcTree*>(fullMsgToMap(*octomap));
     occupancy_threshold = octree->getOccupancyThres();
 
     uint x, y, z;
     uint i, j, k;
 
-    for (ColorOcTree::leaf_iterator it = octree->begin_leafs(), end = octree->end_leafs(); it != end; ++it)
+    for (OcTree::leaf_iterator it = octree->begin_leafs(), end = octree->end_leafs(); it != end; ++it)
     {
         octree_node = octree->search(it.getKey());
         if (NULL != octree_node && octree_node->getOccupancy() > occupancy_threshold)

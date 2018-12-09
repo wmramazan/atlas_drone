@@ -6,7 +6,7 @@ DJIDrone::DJIDrone(ros::NodeHandle& nh)
     string position_topic;
     nh.param<string>("/position_topic", position_topic, "/drone_position");
 
-    altitude_sub          = nh.subscribe("/navros/altitude",          10, &DJIDrone::altitude_callback,         this);
+    altitude_sub          = nh.subscribe("/mavros/altitude",          10, &DJIDrone::altitude_callback,         this);
     //flightStatus_sub      = nh.subscribe("dji_sdk/flight_status",       10, &DJIDrone::flight_status_callback,    this);
     //displayMode_sub       = nh.subscribe("dji_sdk/display_mode",        10, &DJIDrone::display_mode_callback,     this);
     localPosition_sub     = nh.subscribe("/mavros/local_position/pose", 10, &DJIDrone::local_position_callback,   this);
