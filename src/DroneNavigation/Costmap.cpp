@@ -43,18 +43,22 @@ uint8_t& Costmap::Get(Vec3Int position)
 }
 
 uint8_t& Costmap::Get(uint x, uint y, uint z)
-{
+{  
+    //ROS_INFO("index : %d", x + y * size + z * size_square);
     return data.data[x + y * size + z * size_square];
 }
 
 uint8_t& Costmap::Get(double x, double y, double z)
 {
+    //ROS_INFO("%lf %lf %lf", x, y, z);
     return data.data[ToIndex(x) + ToIndex(y) * size + ToIndex(z) * size_square];
 }
 
 int Costmap::ToIndex(double value)
 {
-    return ((int) ((value + offset) / resolution)) + origin;
+    int index = ((int) ((value + offset) / resolution)) + origin;
+    //ROS_INFO("to index : %d", index);
+    return index;
 }
 
 double Costmap::ToPosition(int value)

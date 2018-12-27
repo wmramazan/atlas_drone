@@ -129,7 +129,7 @@ private:
     const int               StepValue = 10;
     const int               ChangedDirectionValue = 30;
     const double            TimeOut = 5.0;
-    const int               heightPenalty = 2;
+    const int               heightPenalty = 1;
 
     int penalty_matrix[3][3][3] = {
         {

@@ -30,7 +30,7 @@ int main(int argc, char **argv)
   ros::NodeHandle nh("~");
 
   filtered_cloud_pub = nh.advertise<PointCloud>("filtered_cloud", 10);
-  point_cloud_sub = nh.subscribe("/camera/depth/points", 5, pointCloudCallback);
+  point_cloud_sub = nh.subscribe("/pointcloud_throttled", 5, pointCloudCallback);
 
   cloud_filtered = new PointCloud();
 

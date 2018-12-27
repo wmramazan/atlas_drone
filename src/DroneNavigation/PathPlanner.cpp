@@ -6,17 +6,17 @@ PathPlanner::PathPlanner(NodeHandle& nh, Mode mode)
     this->nh = &nh;
     this->mode = mode;
 
-    this->size = nh.param("size", 300);
+    this->size = nh.param("size", 600);
     this->resolution = nh.param("resolution", 0.1);
     this->radius = nh.param("inflation_radius", 5);
 
     nh.param<std::string>("frame_id", frame_id, "map");
 
     nh.param<std::string>("local_costmap_topic", local_costmap_topic ,"/local_costmap");
-    nh.param<std::string>("pointcloud_topic", pointcloud_topic, "/camera/depth/points");
+    nh.param<std::string>("pointcloud_topic", pointcloud_topic, "/point_cloud_filter/filtered_cloud");
 
     nh.param<std::string>("global_costmap_topic", global_costmap_topic, "/global_costmap");
-    nh.param<std::string>("octomap_topic", octomap_topic, "/octomap_full");
+    nh.param<std::string>("octomap_topic", octomap_topic, "/octomap_throttled");
 
     this->costmap = new Costmap(size, resolution);
     this->local_costmap = new Costmap(size, resolution);
@@ -50,18 +50,22 @@ void PathPlanner::GenerateLocalCostmap(const PointCloud::ConstPtr& point_cloud)
     uint x, y, z;
     uint i, j, k;
 
-    BOOST_FOREACH (const pcl::PointXYZ& pt, point_cloud->points)
+   BOOST_FOREACH (const pcl::PointXYZ& pt, point_cloud->points)
     {   
-        x = local_costmap->ToIndex(pt.x);
-        y = local_costmap->ToIndex(pt.y);
-        z = local_costmap->ToIndex(pt.z);
+       if (!isnan(pt.x))
+       {
+           x = local_costmap->ToIndex(pt.x);
+           y = local_costmap->ToIndex(pt.y);
+           z = local_costmap->ToIndex(pt.z);
 
-        //ROS_INFO("%d %d %d", x, y, z);
-        if (!local_costmap->Get(z, size - x, size - y))
-          for (i = x - radius; i <= x + radius; i++)
-              for (j = y - radius; j <= y + radius; j++)
-                  for (k = z - radius; k <= z + radius; k++)
-                      local_costmap->Get(k, size - i, size - j) = 1;
+           //ROS_INFO("%lf %lf %lf", pt.x, pt.y, pt.z);
+           //ROS_INFO("%d %d %d", x, y, z);
+           if (!local_costmap->Get(z, size - x, size - y))
+             for (i = x - radius; i <= x + radius; i++)
+                 for (j = y - radius; j <= y + radius; j++)
+                     for (k = z - radius; k <= z + radius; k++)
+                         local_costmap->Get(k, size - i, size - j) = 1;
+       }
     }
 
     costmap->Merge(local_costmap);
@@ -76,6 +80,8 @@ void PathPlanner::GenerateGlobalCostmap(const Octomap::ConstPtr& octomap)
     octree = dynamic_cast<OcTree*>(fullMsgToMap(*octomap));
     occupancy_threshold = octree->getOccupancyThres();
 
+    //ROS_INFO("%lf", occupancy_threshold);
+
     uint x, y, z;
     uint i, j, k;
 
@@ -87,6 +93,9 @@ void PathPlanner::GenerateGlobalCostmap(const Octomap::ConstPtr& octomap)
           x = global_costmap->ToIndex(it.getX());
           y = global_costmap->ToIndex(it.getY());
           z = global_costmap->ToIndex(it.getZ());
+
+          //ROS_INFO("octomap: %lf %lf %lf", it.getX(), it.getY(), it.getZ());
+          //ROS_INFO("costmap: %d %d %d", x, y, z);
 
           // Inflation
           for (i = x - radius; i <= x + radius; i++)

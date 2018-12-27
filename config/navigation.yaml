@@ -9,13 +9,13 @@ resolution:             0.1
 inflation_radius:       5
 
 local_costmap_topic:    "/local_costmap"
-pointcloud_topic:       "/camera/depth/points"
+pointcloud_topic:       "/filtered_cloud"
 filtered_cloud_topic:   "/point_cloud_filter/filtered_cloud"
 ground_path_topic:      "ground_path"
 drone_path_topic:       "drone_path"
 
 global_costmap_topic:   "/global_costmap"
-octomap_topic:          "/octomap_full"
+octomap_topic:          "/octomap_throttled"
 
 position_topic:         "/mavros/local_position/pose"
 

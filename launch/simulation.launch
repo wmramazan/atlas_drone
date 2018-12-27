@@ -25,9 +25,7 @@
     </include>
 
     <!-- Octomap -->
-    <include file="$(find atlas_drone)/launch/simulation_octomap.launch" >
-        <arg name="point_cloud_topic" value="$(arg point_cloud_topic)" />
-    </include>
+    <include file="$(find atlas_drone)/launch/simulation_octomap.launch"/>
 
     <!-- Run a wrapper on top of Mavros to handle 3-point messages -->
     <group if="$(arg use_three_point_msg)">
@@ -42,4 +40,8 @@
     <group if="$(arg use_stereo_simulation)">
         <node ns="stereo" pkg="stereo_image_proc" type="stereo_image_proc" name="stereo_image_proc"/>
     </group>
+
+    <node name="octomap_throttler" type="throttle" pkg="topic_tools" args="messages /octomap_full 1 /octomap_throttled" />
+    <node name="pointcloud_throttler" type="throttle" pkg="topic_tools" args="messages /camera/depth/points 1 /pointcloud_throttled" />
+    <node name="pointcloud_filter" type="point_cloud_filter" pkg="atlas_drone" />
 </launch>

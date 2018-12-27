@@ -69,6 +69,12 @@ void InitializationTask::set_mode()
 
 void InitializationTask::arm()
 {
+    if (DRONE->CurrentState.mode != "OFFBOARD")
+    {
+        task_state = INITIAL_STATE;
+        return;
+    }
+
     if (DRONE->CurrentState.armed)
     { 
         task_state = INITIALIZED;

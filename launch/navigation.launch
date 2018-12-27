@@ -7,11 +7,11 @@
     <include file="$(find atlas_drone)/launch/ground.launch" />
 -->
     <node pkg="atlas_drone" name="drone_marker" type="drone_marker.py" output="screen" />
-<!--
+
     <node pkg="atlas_drone" name="drone_navigation" type="drone_navigation" output="screen">
         <rosparam file="$(find atlas_drone)/config/navigation.yaml" command="load" />
     </node>
--->
+
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find atlas_drone)/rviz/navigation.rviz" output="screen" />
 
 </launch>
