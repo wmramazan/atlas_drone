@@ -10,15 +10,12 @@ NavigationBehaviour::NavigationBehaviour(NodeHandle& nh)
     name = "Navigation Behaviour";
     navigation_target_sub = nh.subscribe("/drone_navigation/navigation_target",  1, &NavigationBehaviour::navigation_target_callback,  this);
     target_pose_pub = nh.advertise<Pose>("navigation_target_pose", 10);
-    pathPlanner = new PathPlanner(nh, PathPlanner::Mode::VEHICLE);
+    //pathPlanner = new PathPlanner(nh, PathPlanner::Mode::VEHICLE);
     LOG("||-< Navigation Behaviour Initialization Complete.");
 }
 
 void NavigationBehaviour::Update()
 {
-    Pose pose = DRONE->LocalPosition.pose;
-    pathPlanner->SetCurrentPose(pose);
-
     if (path == NULL)
       return;
 

@@ -30,7 +30,7 @@ bool DJIDrone::SetMode(string mode)
     offboard_set_mode.request.custom_mode = mode.c_str();
     set_mode_service.call(offboard_set_mode);
 
-    if (offboard_set_mode.response.mode_sent)
+    if (offboard_set_mode.response.mode_sent && DRONE->CurrentState.mode == mode)
     {
         LOG("|||-< \"%s\" Mode set successful!", mode.c_str());
         return true;
@@ -77,8 +77,6 @@ bool DJIDrone::RequestArming(ArmRequest request)
 
 void DJIDrone::Move(double x, double y, double z, double yaw)
 {
-    SetMode("OFFBOARD");
-
     geometry_msgs::PoseStamped pose;
     pose.pose.position.x = x;
     pose.pose.position.y = y;

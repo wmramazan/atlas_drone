@@ -12,6 +12,21 @@ IdleBehaviour::IdleBehaviour(NodeHandle& nh)
 void IdleBehaviour::Update()
 {
     AIBehaviour::Update();
+
+    if (!(DRONE->CurrentState.connected && DRONE->CurrentState.mode == "OFFBOARD" && DRONE->CurrentState.armed))
+    {
+        if (CurrentTask == NULL)
+        {
+            AddTask(new InitializationTask());
+        }
+    }
+    else
+    {
+        if (CurrentTask == NULL)
+        {
+            AddTask(new IdleTask());
+        }
+    }
 }
 
 void IdleBehaviour::task_complete_callback(AITaskResult &result)

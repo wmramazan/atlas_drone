@@ -76,9 +76,28 @@ class InitializationTask : public AITask
   private:
     ros::Time last_try_time;
     InitializationTaskState task_state;
+    int i;
 
     void set_mode();
     void arm();
+};
+
+class IdleTask : public AITask
+{
+  public:
+    IdleTask()
+    {
+        LOG("|-> Initializing \"Idle Task.\"");
+        Name = "\"Idle Task\"";
+        LOG("|-< \"Idle Task\" Initialization Complete.");
+    }
+
+    virtual void Start();
+    virtual void Update();
+    virtual void End();
+
+  private:
+    ros::Time last_try_time;
 };
 
 class TakeOffTask : public AITask

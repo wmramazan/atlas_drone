@@ -12,6 +12,8 @@
         <rosparam file="$(find atlas_drone)/config/navigation.yaml" command="load" />
     </node>
 
+    <node pkg="atlas_drone" name="drone_ai" type="drone_ai" output="screen" />
+
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find atlas_drone)/rviz/navigation.rviz" output="screen" />
 
 </launch>

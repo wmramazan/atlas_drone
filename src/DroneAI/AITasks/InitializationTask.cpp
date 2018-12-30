@@ -6,6 +6,9 @@ void InitializationTask::Start()
     LOG("||-> Starting \"%s\" Task.", Name.c_str());
     task_state = INITIAL_STATE;
     last_try_time = ros::Time::now();
+
+    geometry_msgs::PoseStamped pose;
+
 }
 
 void InitializationTask::Update()
@@ -13,6 +16,43 @@ void InitializationTask::Update()
     if (ros::Time::now() - task_start_time > ros::Duration(30.0))
         Terminate();
 
+    if (i < 100)
+    {
+        DRONE->Move(0, 0, 2, 0);
+        i++;
+    }
+    else
+    {
+        if (!DRONE->CurrentState.connected)
+        {
+            LOG("||-> PX4 not connected, returning from initialization task.");
+            return;
+        }
+
+        if (DRONE->CurrentState.mode != "OFFBOARD" && ros::Time::now() - last_try_time > ros::Duration(2.0))
+        {
+            LOG("||-> Drone mode is not OFFBOARD");
+            set_mode();
+        }
+
+        if (DRONE->CurrentState.mode == "OFFBOARD" && !DRONE->CurrentState.armed && ros::Time::now() - last_try_time > ros::Duration(2.0))
+        {
+            LOG("||-> Drone is not armed");
+            arm();
+        }
+
+        if (DRONE->CurrentState.connected && DRONE->CurrentState.mode == "OFFBOARD" && DRONE->CurrentState.armed)
+        {
+            DRONE->Move(0, 0, 2, 0);
+            task_completed = true;
+            Terminate();
+            return;
+        }
+
+        DRONE->Move(DRONE->LocalPosition.pose.position.x, DRONE->LocalPosition.pose.position.y, DRONE->LocalPosition.pose.position.z, 0);
+    }
+
+    /*
     switch (task_state)
     {
         case INITIAL_STATE:
@@ -42,7 +82,7 @@ void InitializationTask::Update()
             task_completed = true;
             Terminate();
             break;
-    }
+    }*/
 }
 
 void InitializationTask::End()
@@ -52,40 +92,22 @@ void InitializationTask::End()
 
 void InitializationTask::set_mode()
 {
-    if (DRONE->CurrentState.mode == "OFFBOARD")
-    { 
-        task_state = ARMING;
-        return;
-    }
-
     last_try_time = ros::Time::now();
     bool mode_set = DRONE->SetMode("OFFBOARD");
-    if (mode_set)
+    /*if (mode_set)
     {
         task_state = ARMING;
         LOG("||-> Entering \"Arming Mode\" State.");
-    }
+    }*/
 }
 
 void InitializationTask::arm()
 {
-    if (DRONE->CurrentState.mode != "OFFBOARD")
-    {
-        task_state = INITIAL_STATE;
-        return;
-    }
-
-    if (DRONE->CurrentState.armed)
-    { 
-        task_state = INITIALIZED;
-        return;
-    }
-
     last_try_time = ros::Time::now();
     bool armed = DRONE->RequestArming(ArmRequest::Arm);
-    if (task_state)
+    /*if (task_state)
     {
         task_state = INITIALIZED;
         LOG("||-> Entering \"Initialized Mode\" State.");
-    }
+    }*/
 }
