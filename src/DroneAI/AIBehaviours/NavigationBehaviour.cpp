@@ -1,16 +1,18 @@
 #include "DroneAI/AIBehaviour.h"
 #include "DroneAI/DJIDrone.h"
 #include "DroneAI/AITask.h"
-#include "DroneNavigation/PathPlanner.h"
+
+#include <nav_msgs/Path.h>
 #include "DroneNavigation/Vec3.h"
 
 NavigationBehaviour::NavigationBehaviour(NodeHandle& nh)
 {
     LOG("||-> Initializing Navigation Behaviour.");
     name = "Navigation Behaviour";
-    navigation_target_sub = nh.subscribe("/drone_navigation/navigation_target",  1, &NavigationBehaviour::navigation_target_callback,  this);
+    navigation_target_sub = nh.subscribe("/target_pose",  1, &NavigationBehaviour::navigation_target_callback,  this);
+    generate_path_service_client = nh.serviceClient<Trigger>( "/path_planner/generate_path" );
+    is_path_clear_service_client = nh.serviceClient<Trigger>( "/path_planner/is_path_clear" );
     target_pose_pub = nh.advertise<Pose>("navigation_target_pose", 10);
-    //pathPlanner = new PathPlanner(nh, PathPlanner::Mode::VEHICLE);
     LOG("||-< Navigation Behaviour Initialization Complete.");
 }
 
@@ -48,7 +50,7 @@ void NavigationBehaviour::Update()
         double distance = current_position.Distance(target_position);
 
         ROS_INFO("Distance is: %lf", distance);
-        if (distance > 0.1f && pathPlanner->IsPathClear())
+        if (distance > 0.1f && isPathClear())
         {
             LOG("||-> Adding task with pose: %f - %f - %f", target_pose.position.x, target_pose.position.y, target_pose.position.z);
             AddTask(new MoveTask(target_pose));
@@ -56,7 +58,7 @@ void NavigationBehaviour::Update()
     }
     else
     {
-        if (!pathPlanner->IsPathClear())
+        if (!isPathClear())
         {
             LOG("Path is not clear.");
             CurrentTask->Terminate();
@@ -68,7 +70,7 @@ void NavigationBehaviour::Update()
 
 void NavigationBehaviour::task_complete_callback(AITaskResult &result)
 {
-    path = pathPlanner->GeneratePath();
+    generatePath();
     AIBehaviour::task_complete_callback(result);
 }
 
@@ -77,13 +79,20 @@ void NavigationBehaviour::navigation_target_callback(const Pose::ConstPtr &msg)
     navigation_target = *msg;
     LOG("||-> Setting navigation target to: %f - %f - %f", navigation_target.position.x, navigation_target.position.y, navigation_target.position.z);
     Pose pose = DRONE->LocalPosition.pose;
-    pathPlanner->SetCurrentPose(pose);
-    pathPlanner->SetTargetPose(navigation_target);
     LOG("||-< Navigation target set.");
 
-    path = pathPlanner->GeneratePath();
-    if (path == NULL)
+    if (generatePath())
         LOG("||- No path has found to navigation target.");
     else
-        LOG("||- Path found with size of %d", path->poses.size());
+        LOG("||- Path found.");
+}
+
+bool NavigationBehaviour::generatePath()
+{
+    return generate_path_service_client.call(trigger_srv);
+}
+
+bool NavigationBehaviour::isPathClear()
+{
+    return is_path_clear_service_client.call(trigger_srv);
 }

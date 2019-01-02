@@ -6,15 +6,16 @@
 
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/PoseStamped.h>
+#include <nav_msgs/Path.h>
 #include <ros/ros.h>
-
-#include <DroneNavigation/PathPlanner.h>
 
 #include <queue>
 #include <functional>
 using namespace ros;
 using namespace std;
 using namespace geometry_msgs;
+using namespace nav_msgs;
+using namespace std_srvs;
 
 class AIBehaviour
 {
@@ -120,13 +121,16 @@ class NavigationBehaviour : public AIBehaviour
   private:
     virtual void task_complete_callback(AITaskResult& result);
     void navigation_target_callback(const geometry_msgs::Pose::ConstPtr& msg);
+    bool generatePath();
+    bool isPathClear();
 
   private:
+    Trigger trigger_srv;
+    ServiceClient generate_path_service_client;
+    ServiceClient is_path_clear_service_client;
     Subscriber navigation_target_sub;
     Publisher target_pose_pub;
     Pose navigation_target;
     Path* path;
-
-    PathPlanner* pathPlanner;
 };
 #endif // AIBEHAVIOUR_H

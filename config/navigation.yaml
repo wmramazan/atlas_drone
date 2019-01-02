@@ -5,7 +5,7 @@
 frame_id:               "map"
 child_frame_id:         "base_link"
 size:                   600
-resolution:             0.1
+resolution:             0.25
 inflation_radius:       5
 
 local_costmap_topic:    "/local_costmap"

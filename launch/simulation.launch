@@ -10,8 +10,9 @@
 
     <param name="use_sim_time" value="true" />
 
-    <!-- Dynamic Reconfiguration Server -->
+    <!-- Dynamic Reconfiguration Server
     <node pkg="rqt_reconfigure" type="rqt_reconfigure" output="screen" name="rqt_reconfigure" />
+    -->
 
     <!-- Ros transformation -->
     <node pkg="tf" type="static_transform_publisher" name="tf_local_origin"

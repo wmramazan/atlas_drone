@@ -1,7 +1,7 @@
 <launch>
     <arg name="resolution" default="0.1"/>
 
-    <node pkg="octomap_server" type="octomap_server_node" name="octomap_server_a">
+    <node pkg="octomap_server" type="octomap_server_node" name="octomap_server">
         <param name="resolution" value="$(arg resolution)" />
         <!-- fixed map frame (set to 'map' if SLAM or localization running!) -->
         <param name="frame_id" type="string" value="world" />
