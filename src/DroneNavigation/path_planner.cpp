@@ -146,7 +146,9 @@ Path* GeneratePath()
 
     ROS_INFO("to %d %d %d %lf %lf %lf", end.x, end.y, end.z, target_pose.position.x, target_pose.position.y, target_pose.position.z);
 
+    int current_timestamp = ros::Time::now().toSec();
     vector<Vec3Int> found_path = pathfinder->Find(start, end);
+    ROS_INFO("Execution time: %lf s", ros::Time::now().toSec() - current_timestamp);
     if (found_path.size())
     {
         path.header.frame_id = frame_id;
