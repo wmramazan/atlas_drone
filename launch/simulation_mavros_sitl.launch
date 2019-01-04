@@ -1,6 +1,6 @@
 <launch>
     <arg name="headless" default="false"/>
-    <arg name="gui" default="true"/>
+    <arg name="gui" default="false"/>
     <arg name="ns" default="/"/>
     <arg name="world_path"/>
     <arg name="build" default="posix_sitl_default"/>
@@ -35,6 +35,7 @@
         <arg name="headless" value="$(arg headless)"/>
         <arg name="gui" value="$(arg gui)"/>
         <arg name="world_name" value="$(arg world_path)" />
+        <arg name="respawn_gazebo" default="false"/>
     </include>
 <!--
     <group ns="uav1">
@@ -91,5 +92,4 @@
         </include>
     </group>
 -->
-
 </launch>

@@ -211,7 +211,7 @@ void markerFeedbackCallback(const InteractiveMarkerFeedbackConstPtr &feedback)
             ROS_INFO_STREAM( "mouse up." );
 
             target_pose_pub.publish(feedback->pose);
-            findPath();
+            //findPath();
             //generate_costmap_marker_array(feedback->pose);
             break;
     }
