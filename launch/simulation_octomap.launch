@@ -1,11 +1,10 @@
 <launch>
-    <arg name="resolution" default="0.1"/>
+    <arg name="resolution" default="0.25"/>
 
     <node pkg="octomap_server" type="octomap_server_node" name="octomap_server">
         <param name="resolution" value="$(arg resolution)" />
-        <!-- fixed map frame (set to 'map' if SLAM or localization running!) -->
         <param name="frame_id" type="string" value="world" />
-        <!-- maximum range to integrate (speedup!) -->
+        <!--
         <param name="sensor_model/max_range" value="9.0" />
         <param name="sensor_model/min" value="0.01" />
         <param name="sensor_model/max" value="0.99" />
@@ -15,11 +14,16 @@
         <param name="color/g" value="0.1" />
         <param name="color/b" value="0.1" />
         <param name="color/a" value="1.0" />
-        <!-- Filter out obstacles which are lower than 1 meter -->
         <param name="occupancy_min_z" value="1.0" />
         <param name="height_map" value="false" />
         <param name="publish_free_space" value="false" />
+        -->
         <remap from="cloud_in" to="/camera/depth/points" />
+        <!--
+        <remap from="cloud_in1" to="/camera_1/depth/points" />
+        <remap from="cloud_in2" to="/camera_2/depth/points" />
+        <remap from="cloud_in3" to="/camera_3/depth/points" />
+        -->
     </node>
 <!--
     <group ns="uav1">
