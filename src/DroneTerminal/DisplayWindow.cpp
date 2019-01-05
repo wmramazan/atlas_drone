@@ -17,11 +17,12 @@ void DisplayWindow::Draw()
 
     mvwprintw(window, 1, 1, "Flight Status\t: %d", flight_status);
     mvwprintw(window, 1, 1, "Flight Status\t: %d\t%s", flight_status, flight_status_str[flight_status].c_str());
-    mvwprintw(window, 2, 1, "Display Mode\t: %d\t%s", display_mode, display_mode_str[display_mode].c_str());
+    mvwprintw(window, 2, 1, "Current Mode\t: %s", current_state.mode.c_str());
     mvwprintw(window, 3, 1, "Battery State\t: %fV (%f\%)", battery_state.voltage, battery_state.percentage);
-    mvwprintw(window, 4, 1, "GPS Health\t: %d", gps_health);
-    mvwprintw(window, 5, 1, "GPS Position\t: %f - %f - %f", gps_position.altitude, gps_position.latitude, gps_position.longitude);
-    mvwprintw(window, 6, 1, "Local Position\t: %f - %f - %f", local_position.pose.position.x, local_position.pose.position.y, local_position.pose.position.z);
+    mvwprintw(window, 4, 1, "Connected\t: %s\t|\tArmed\t: %s", current_state.connected ? "True" : "False", current_state.armed ? "True" : "False");
+    mvwprintw(window, 5, 1, "Local Position\t: %f - %f - %f", local_position.pose.position.x, local_position.pose.position.y, local_position.pose.position.z);
+
+    //mvwprintw(window, 6, 1, "Yaw\t: %f", gps_position.altitude, gps_position.latitude, gps_position.longitude);
     mvwprintw(window, 7, 1, "Behaviour\t: %s", current_behaviour.c_str());
     mvwprintw(window, 8, 1, "Task\t: %s", current_task.c_str());
 

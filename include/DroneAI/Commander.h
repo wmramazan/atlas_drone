@@ -14,6 +14,8 @@
 
 #include <std_msgs/String.h>
 
+#include <DroneAI/Math.h>
+
 using namespace std;
 
 /*class Command;

@@ -23,7 +23,7 @@ void NavigationBehaviour::Update()
 
     if (CurrentTask == NULL)
     {
-        Vec3 current_position = Vec3::FromPose(DRONE->LocalPosition.pose);
+        Vec3 current_position = DRONE->GetPosition();
         Vec3 direction = Vec3::FromPose(path->poses[1].pose) - Vec3::FromPose(path->poses[0].pose);
 
         LOG("Direction = %f %f %f", direction.x, direction.y, direction.z);
@@ -53,7 +53,7 @@ void NavigationBehaviour::Update()
         if (distance > 0.1f && isPathClear())
         {
             LOG("||-> Adding task with pose: %f - %f - %f", target_pose.position.x, target_pose.position.y, target_pose.position.z);
-            AddTask(new MoveTask(target_pose));
+            //AddTask(new MoveTask(target_pose));
         }
     }
     else
@@ -78,7 +78,7 @@ void NavigationBehaviour::navigation_target_callback(const Pose::ConstPtr &msg)
 {
     navigation_target = *msg;
     LOG("||-> Setting navigation target to: %f - %f - %f", navigation_target.position.x, navigation_target.position.y, navigation_target.position.z);
-    Pose pose = DRONE->LocalPosition.pose;
+    //Pose pose = DRONE->LocalPosition.pose;
     LOG("||-< Navigation target set.");
 
     if (generatePath())

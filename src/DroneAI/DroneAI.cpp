@@ -28,12 +28,12 @@ DroneAI::DroneAI()
     Drone = new DJIDrone(nh);
     behaviourManager = new BehaviourManager(nh);
 
-    //behaviourManager->SetBehaviour("Commanded Behaviour", true);
-    behaviourManager->SetBehaviour("Idle Behaviour", true);
+    behaviourManager->SetBehaviour("Commanded Behaviour", true);
+    //behaviourManager->SetBehaviour("Idle Behaviour", true);
 
     LOG("Drone AI Initialized. Beginning AI cycle.");
 
-    ros::Rate loop_rate(20);
+    ros::Rate loop_rate(40);
     while (ros::ok())
     {
         UpdateAI();
@@ -44,6 +44,7 @@ DroneAI::DroneAI()
 void DroneAI::UpdateAI()
 {
     ros::spinOnce();
+    Drone->Move();
     behaviourManager->Update();
 
     atlas_drone::AIState aiState;

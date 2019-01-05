@@ -9,21 +9,18 @@ void MoveTask::Start()
 
 void MoveTask::Update()
 {
-    Vec3 target_distance = Vec3(move_target.position.x - DRONE->LocalPosition.pose.position.x,
-                                move_target.position.y - DRONE->LocalPosition.pose.position.y,
-                                move_target.position.z - DRONE->LocalPosition.pose.position.z);
-
-    if ((std::abs(target_distance.x) > 0.25) || (std::abs(target_distance.y) > 0.25) || (std::abs(target_distance.z) > 0.25))
+    if (!DRONE->Ready())
     {
-        time_set = false;
-        LOG("||- Moving to target destination with offset: %f-%f-%f", target_distance.x, target_distance.y, target_distance.z);
-        tf::Quaternion q(move_target.orientation.x, move_target.orientation.y, move_target.orientation.z, move_target.orientation.w);
-        tf::Matrix3x3 m(q);
-        double roll, pitch, yaw;
-        m.getRPY(roll, pitch, yaw);
+        Terminate();
+        return;
+    }
 
-        Vec3 move_vector = target_distance.Normalized();
-        DRONE->Move(move_target.position.x, move_target.position.y, move_target.position.z, 0);
+    float target_distance = (target_position - DRONE->GetPosition()).Magnitude();
+    double rotation_diff = target_yaw - DRONE->GetYaw();
+
+    if (target_distance > 0.25f || (std::abs(rotation_diff) > 5 * DEG2RAD))
+    {
+        DRONE->MoveTo(target_position, target_yaw);
     }
     else
     {

@@ -52,6 +52,7 @@ void Commander::Execute(string message)
 
         }
     }*/
+
     if (args[0].compare("set_behaviour") == 0)
     {
         if (args.size() != 3)
@@ -93,29 +94,27 @@ void Commander::Execute(string message)
                 DRONEAI->behaviourManager->AddTaskToCurrentBehaviour(new TakeOffTask());
             }
         }
-        else if (args.size() == 5)
+        else if (args.size() == 6)
         {
             if (args[1].compare("move") == 0)
             {
 
-                Pose moveTarget;
-                moveTarget.position.x = stof(args[2]);
-                moveTarget.position.y = stof(args[3]);
-                moveTarget.position.z = stof(args[4]);
+                Vec3 target_position;
+                target_position.x = stod(args[2]);
+                target_position.y = stod(args[3]);
+                target_position.z = stod(args[4]);
 
-                DRONEAI->behaviourManager->AddTaskToCurrentBehaviour(new MoveTask(moveTarget));
+                double target_rotation = stod(args[5]) * DEG2RAD;
+
+                DRONEAI->behaviourManager->AddTaskToCurrentBehaviour(new MoveTask(target_position, target_rotation));
             }
         }
     }
-
-    //if (message.compare("take_control") == 0)
-    //{
-        //DRONEAI->behaviourManager->AddTaskToCurrentBehaviour(new TakeControlTask());
-    //}
-    //else if (message.compare("take_off") == 0)
-    //{
-    //    DRONEAI->behaviourManager->AddTaskToCurrentBehaviour(new TakeOffTask());
-    //}
+    else if (args[0].compare("init") == 0)
+    {
+        //TODO_BERKAY: Smooth set this behaviour
+        DRONEAI->behaviourManager->SetBehaviour("Idle Behaviour", true);
+    }
 }
 
 /*bool Commander::validate(vector<string> command)

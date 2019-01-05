@@ -2,24 +2,30 @@
 #define DJIDRONE_H
 
 #include "DroneAI/DroneAI.h"
+#include "DroneAI/Math.h"
+#include "DroneNavigation/Vec3.h"
 
 // System Includes
 #include <string>
 
 // ROS Includes
 #include <ros/ros.h>
-#include <geometry_msgs/QuaternionStamped.h>
 #include <geometry_msgs/PoseStamped.h>
+#include <geometry_msgs/Pose.h>
 #include <geometry_msgs/PointStamped.h>
+#include <geometry_msgs/Point.h>
+
 #include <std_msgs/UInt8.h>
 #include <sensor_msgs/Joy.h>
 #include <sensor_msgs/NavSatFix.h>
 #include <sensor_msgs/BatteryState.h>
 
+#include <mavros_msgs/PositionTarget.h>
 #include <mavros_msgs/CommandBool.h>
 #include <mavros_msgs/SetMode.h>
 #include <mavros_msgs/State.h>
 #include <mavros_msgs/Altitude.h>
+#include <mavros/frame_tf.h>
 
 // DJI SDK Includes
 /*
@@ -31,6 +37,8 @@
 */
 
 using namespace std;
+using namespace geometry_msgs;
+using namespace mavros_msgs;
 
 enum ArmRequest
 {
@@ -75,17 +83,12 @@ class DJIDrone
   public:
     DJIDrone(ros::NodeHandle& nh);
 
-    mavros_msgs::Altitude CurrentAltitude;
+    Altitude CurrentAltitude;
     sensor_msgs::BatteryState BatteryState;
 
-    geometry_msgs::PoseStamped LocalPosition;
-    sensor_msgs::NavSatFix GPSPosition;
-    
     uint8_t FlightStatus  = -1;
     uint8_t DisplayMode   = -1;
     uint8_t GPSHealth     = -1;
-
-    mavros_msgs::State CurrentState;
 
   private:
     ros::Subscriber altitude_sub;
@@ -107,16 +110,39 @@ class DJIDrone
     ros::ServiceClient arming_service;
     ros::ServiceClient set_mode_service;
 
+    PoseStamped local_position;
+    sensor_msgs::NavSatFix gps_position;
+    State current_state;
+
+    PositionTarget target_position;
+
     uint8_t flag;
 
   // METHODS
   public:
     bool SetMode(string mode);
     bool RequestArming(ArmRequest request);
-    void Move(double x, double y, double z, double yaw);
+    void Move();
+
+    void MoveTo(double x, double y, double z, double yaw);
+    void MoveTo(Vec3 position, double yaw);
+
+    void MoveBy(double x, double y, double z, double yaw);
+    void MoveBy(Vec3 position, double yaw);
+
+    Vec3 GetPosition();
+    Quaternion GetRotation();
+    double GetYaw();
+    Vec3 GetTargetPosition();
+    double GetTargetYaw();
+    string GetMode();
+    bool IsConnected();
+    bool IsArmed();
+    bool IsGuided();
+    bool Ready();
 
   private:
-    void altitude_callback(const mavros_msgs::Altitude::ConstPtr& msg)
+    void altitude_callback(const Altitude::ConstPtr& msg)
     {
         CurrentAltitude = *msg;
     }
@@ -131,14 +157,14 @@ class DJIDrone
         DisplayMode = msg->data;
     }
 
-    void local_position_callback(const geometry_msgs::PoseStamped::ConstPtr& msg)
+    void local_position_callback(const PoseStamped::ConstPtr& msg)
     {
-        LocalPosition = *msg;
+        local_position = *msg;
     }
 
     void gps_position_callback(const sensor_msgs::NavSatFix::ConstPtr& msg)
     {
-        GPSPosition = *msg;
+        gps_position = *msg;
     }
 
     void gps_health_callback(const std_msgs::UInt8::ConstPtr& msg)
@@ -151,9 +177,9 @@ class DJIDrone
         BatteryState = *msg;
     }
 
-    void current_state_callback(const mavros_msgs::State::ConstPtr& msg)
+    void current_state_callback(const State::ConstPtr& msg)
     {
-        CurrentState = *msg;
+        current_state = *msg;
     }
 };
 

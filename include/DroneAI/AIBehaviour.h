@@ -30,7 +30,7 @@ class AIBehaviour
       }
       else
       {
-          ROS_INFO("Updating %s.", CurrentTask->Name.c_str());
+          //ROS_INFO("Updating %s.", CurrentTask->Name.c_str());
           CurrentTask->Update();
       }
     }
@@ -44,11 +44,16 @@ class AIBehaviour
     virtual void task_complete_callback(AITaskResult& result)
     {
         if (result.result)
-            LOG("||- %s completed in %d seconds.", CurrentTask->Name.c_str(), result.completation_time.sec);
+            LOG("||- %s completed in %d seconds.", result.name.c_str(), result.completation_time.sec);
         else
-            LOG("||- %s failed to complete in %d seconds.", CurrentTask->Name.c_str(), result.completation_time.sec);
+            LOG("||- %s failed to complete in %d seconds.", result.name.c_str(), result.completation_time.sec);
 
         next_task();
+    }
+
+    virtual void on_task_added()
+    {
+
     }
 
     virtual void on_handle_null_task_exception()

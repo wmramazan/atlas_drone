@@ -1,6 +1,6 @@
 <launch>
     <arg name="headless" default="false"/>
-    <arg name="gui" default="false"/>
+    <arg name="gui" default="true"/>
     <arg name="ns" default="/"/>
     <arg name="world_path"/>
     <arg name="build" default="posix_sitl_default"/>

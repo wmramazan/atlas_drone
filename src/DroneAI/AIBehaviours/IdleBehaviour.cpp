@@ -13,19 +13,16 @@ void IdleBehaviour::Update()
 {
     AIBehaviour::Update();
 
-    if (!(DRONE->CurrentState.connected && DRONE->CurrentState.mode == "OFFBOARD" && DRONE->CurrentState.armed))
+    if (!DRONE->Ready())
     {
         if (CurrentTask == NULL)
         {
             AddTask(new InitializationTask());
         }
     }
-    else
+    else if (CurrentTask == NULL && DRONE->GetPosition().z > 1.9f)
     {
-        if (CurrentTask == NULL)
-        {
-            AddTask(new IdleTask());
-        }
+        AddTask(new IdleTask(true));
     }
 }
 

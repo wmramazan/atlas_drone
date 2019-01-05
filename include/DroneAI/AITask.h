@@ -13,6 +13,7 @@ using namespace geometry_msgs;
 
 struct AITaskResult
 {
+    string name;
     bool result;
     ros::Duration completation_time;
 };
@@ -37,6 +38,7 @@ class AITask
     void Terminate()
     {
         AITaskResult taskResult;
+        taskResult.name = Name;
         taskResult.result = task_completed;
         taskResult.completation_time = ros::Time::now() - task_start_time;
         taskCompleteCallback(taskResult);
@@ -53,14 +55,6 @@ class AITask
 
 class InitializationTask : public AITask
 {
-  enum InitializationTaskState
-  {
-      INITIAL_STATE         = 0,
-      SETTING_MODE          = 1,
-      ARMING                = 2,
-      INITIALIZED           = 3
-  };
-
   public:
     InitializationTask()
     {
@@ -75,20 +69,21 @@ class InitializationTask : public AITask
 
   private:
     ros::Time last_try_time;
-    InitializationTaskState task_state;
-    int i;
+    ros::Time in_air_time;
+    bool air_time_set;
 
-    void set_mode();
-    void arm();
+    bool set_mode();
+    bool arm();
 };
 
 class IdleTask : public AITask
 {
   public:
-    IdleTask()
+    IdleTask(bool rotating)
     {
         LOG("|-> Initializing \"Idle Task.\"");
         Name = "\"Idle Task\"";
+        this->rotating = rotating;
         LOG("|-< \"Idle Task\" Initialization Complete.");
     }
 
@@ -98,6 +93,10 @@ class IdleTask : public AITask
 
   private:
     ros::Time last_try_time;
+    bool rotating;
+
+    Vec3 target_position;
+    double target_yaw;
 };
 
 class TakeOffTask : public AITask
@@ -123,6 +122,7 @@ class TakeOffTask : public AITask
 
   private:
     ros::Time last_try_time;
+
     AITakeOffTaskState task_state;
     bool moved = false;
     bool isInAir = false;
@@ -133,19 +133,13 @@ class TakeOffTask : public AITask
 
 class MoveTask : public AITask
 {
-    enum AIMoveTaskState
-    {
-      TAKEOFF_REQUEST       = 0,
-      WAITING_TO_TRY_AGAIN  = 1,
-      IN_AIR                = 2
-    };
-
   public:
-    MoveTask(Pose move_target)
+    MoveTask(Vec3 target_position, double target_yaw)
     {
         LOG("|-> Initializing Move Task.");
         Name = "Move Task";
-        this->move_target = move_target;
+        this->target_position = target_position;
+        this->target_yaw = target_yaw;
         LOG("|-< Move Task Initialization Complete.");
     }
 
@@ -155,29 +149,14 @@ class MoveTask : public AITask
 
   private:
     ros::Time last_try_time;
-    AIMoveTaskState task_state;
+
     Pose move_target;
     bool moved = false;
     bool isInAir = false;
     bool time_set = false;
-};
 
-/*class AIHoverTask : AITask
-{
-  public:
-    AIHoverTask(void* taskCallback(AITaskResult result));
+    Vec3 target_position;
+    double target_yaw;
 };
-
-class AILandTask : AITask
-{
-  public:
-    AILandTask(void* taskCallback(AITaskResult result));
-};
-
-class AIMoveTask : AITask
-{
-  public:
-    AIMoveTask(void* taskCallback(AITaskResult result));
-};*/
 
 #endif // Task_H

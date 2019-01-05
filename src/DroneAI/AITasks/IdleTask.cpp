@@ -1,28 +1,33 @@
 #include "DroneAI/AITask.h"
 #include "DroneAI/DJIDrone.h"
+#include "DroneAI/Math.h"
 
 void IdleTask::Start()
 {
     LOG("||-> Starting \"%s\" Task.", Name.c_str());
+    target_position = DRONE->GetPosition();
+    target_yaw = DRONE->GetYaw();
 }
 
 void IdleTask::Update()
 {
-    if (DRONE->CurrentState.connected && DRONE->CurrentState.mode == "OFFBOARD" && DRONE->CurrentState.armed)
+    if (!DRONE->Ready())
     {
-        if (DRONE->LocalPosition.pose.position.z < 1.9)
-        {
-            DRONE->Move(DRONE->LocalPosition.pose.position.x, DRONE->LocalPosition.pose.position.y, 2, 0);
-        }
-        else
-        {
-            DRONE->Move(DRONE->LocalPosition.pose.position.x, DRONE->LocalPosition.pose.position.y, DRONE->LocalPosition.pose.position.z, 0);
-        }
-
+        Terminate();
+        return;
     }
-    else
-    {
 
+    float target_distance = (target_position - DRONE->GetPosition()).Magnitude();
+    double rotation_diff = target_yaw - DRONE->GetYaw();
+
+    if (target_distance > 0.25f || (std::abs(rotation_diff) > 5 * DEG2RAD))
+    {
+        DRONE->MoveTo(target_position, target_yaw);
+    }
+    else if (rotating)
+    {
+        target_yaw += 90 * DEG2RAD;
+        target_yaw = Math::ClampAngle(target_yaw);
     }
 }
 
