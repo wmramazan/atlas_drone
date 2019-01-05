@@ -21,6 +21,8 @@ DroneAI::DroneAI()
     if (Instance == NULL)
         Instance = this;
 
+    nh = ros::NodeHandle("uav" + to_string(nh.param("/drone_id", 1)));
+
     ai_state_pub = nh.advertise<atlas_drone::AIState>("/drone_ai/ai_state", 10);
     trigger_service = nh.advertiseService("/drone_ai/go_to_target", &DroneAI::triggerServiceCallback, this);
 
