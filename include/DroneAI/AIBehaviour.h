@@ -20,19 +20,33 @@ using namespace std_srvs;
 class AIBehaviour
 {
   public:
-    AIBehaviour() { }
+    AIBehaviour()
+    {
+
+    }
+
+    virtual void OnEnter()
+    {
+
+    }
+
     virtual void Update()
     {
-      if (CurrentTask == NULL)
-      {
-          //ROS_INFO("%s : Null task exception.", name.c_str());
-          on_handle_null_task_exception();
-      }
-      else
-      {
-          //ROS_INFO("Updating %s.", CurrentTask->Name.c_str());
-          CurrentTask->Update();
-      }
+        if (CurrentTask == NULL)
+        {
+            //ROS_INFO("%s : Null task exception.", name.c_str());
+            on_handle_null_task_exception();
+        }
+        else
+        {
+            //ROS_INFO("Updating %s.", CurrentTask->Name.c_str());
+            CurrentTask->Update();
+        }
+    }
+
+    virtual void OnExit()
+    {
+
     }
 
     virtual void AddTask(AITask* task)
@@ -89,7 +103,9 @@ class IdleBehaviour : public AIBehaviour
 {
   public:
     IdleBehaviour(NodeHandle& nh);
+    virtual void OnEnter();
     virtual void Update();
+    virtual void OnExit();
     virtual void AddTask(AITask* task)
     {
         task->SetCallback(bind(&IdleBehaviour::task_complete_callback, this, placeholders::_1));
@@ -103,7 +119,9 @@ class CommandedBehaviour : public AIBehaviour
 {
   public:
     CommandedBehaviour(NodeHandle& nh);
+    virtual void OnEnter();
     virtual void Update();
+    virtual void OnExit();
     virtual void AddTask(AITask* task)
     {
         task->SetCallback(bind(&CommandedBehaviour::task_complete_callback, this, placeholders::_1));
@@ -117,7 +135,9 @@ class NavigationBehaviour : public AIBehaviour
 {
   public:
     NavigationBehaviour(NodeHandle& nh);
+    virtual void OnEnter();
     virtual void Update();
+    virtual void OnExit();
     virtual void AddTask(AITask* task)
     {
         task->SetCallback(bind(&NavigationBehaviour::task_complete_callback, this, placeholders::_1));
@@ -125,6 +145,7 @@ class NavigationBehaviour : public AIBehaviour
     }
   private:
     virtual void task_complete_callback(AITaskResult& result);
+    virtual void on_task_added();
 
     void navigation_target_callback(const geometry_msgs::Pose::ConstPtr& msg);
     void path_callback(const Path::ConstPtr& msg);

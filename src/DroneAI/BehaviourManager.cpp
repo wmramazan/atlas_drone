@@ -17,14 +17,13 @@ BehaviourManager::BehaviourManager(NodeHandle& nh)
 
 void BehaviourManager::Update()
 {
-    if (currentBehaviour  == NULL)
+    if (currentBehaviour != nullptr)
     {
-        LOG("TODO: Null behaviour exception");
-        //TODO: Null behaviour exception
+        currentBehaviour->Update();
     }
     else
     {
-        currentBehaviour->Update();
+        LOG("TODO: Null behaviour exception");
     }
 }
 
@@ -33,7 +32,13 @@ void BehaviourManager::SetBehaviour(string behaviourName, bool forceSet)
     if (forceSet)
     {
         LOG("||-> Force setting new behaviour : %s", behaviourName.c_str());
+        if (currentBehaviour != nullptr)
+        {
+            //currentBehaviour->OnExit();
+        }
+
         currentBehaviour = behaviourMap[behaviourName];
+        //currentBehaviour->OnEnter();
         LOG("||-< Behaviour set.");
     }
     else
