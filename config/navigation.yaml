@@ -18,8 +18,9 @@ pointcloud_topic:               "camera/depth/points"
 throttled_pointcloud_topic:     "pointcloud_throttled"
 filtered_pointcloud_topic:      "pointcloud_filtered"
 local_costmap_topic:            "local_costmap"
-global_costmap_topic:           "global_costmap"
+global_costmap_topic:           "/global_costmap"
 path_marker_array_topic:        "path_markers"
+costmap_marker_array_topic:     "costmap_markers"
 
 # PathPlanner
 drone_path_topic:               "drone_path"

@@ -36,6 +36,7 @@ Subscriber current_pose_sub;
 Subscriber target_pose_sub;
 
 Publisher path_pub;
+Publisher global_costmap_pub;
 
 ServiceServer is_path_clear_service;
 ServiceServer generate_path_service;
@@ -138,7 +139,7 @@ void GenerateGlobalCostmap(const Octomap::ConstPtr& octomap)
     }
 
     costmap->Merge(global_costmap);
-    //global_costmap_pub.publish(global_costmap->data);
+    global_costmap_pub.publish(global_costmap->data);
 }
 
 Path* GeneratePath()
@@ -258,6 +259,7 @@ int main(int argc, char **argv)
     target_pose_sub     = nh.subscribe(nh.param<std::string>("/target_pose_topic", "target_pose"), 5, &target_pose_callback);
 
     path_pub = nh.advertise<Path>(path_topic, 5);
+    global_costmap_pub = nh.advertise<std_msgs::UInt8MultiArray>(nh.param<std::string>("/global_costmap_topic", "global_costmap"), 1);
 
     generate_path_service = nh.advertiseService(nh.param<std::string>("/generate_path_service", "/path_planner/generate_path"), &generate_path_service_callback);
     is_path_clear_service = nh.advertiseService(nh.param<std::string>("/is_path_clear_service", "/path_planner/is_path_clear"), &is_path_clear_service_callback);

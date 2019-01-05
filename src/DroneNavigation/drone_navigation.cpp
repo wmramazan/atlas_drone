@@ -6,9 +6,12 @@
 #include <visualization_msgs/MarkerArray.h>
 #include <nav_msgs/Path.h>
 #include <std_srvs/Trigger.h>
+#include <std_msgs/UInt8MultiArray.h>
 
 #include "DroneNavigation/Vec3.h"
 #include "DroneNavigation/Vec3Int.h"
+
+#include "DroneNavigation/Costmap.h"
 
 using namespace std;
 using namespace ros;
@@ -20,6 +23,8 @@ using namespace visualization_msgs;
 Subscriber drone_marker_sub;
 Subscriber drone_path_sub;
 Subscriber drone_position_sub;
+Subscriber global_costmap_sub;
+
 Publisher path_marker_array_pub;
 Publisher costmap_marker_array_pub;
 Publisher target_pose_pub;
@@ -31,7 +36,6 @@ Pose marker_pose;
 Pose start_pose;
 
 MarkerArray marker_array;
-MarkerArray ground_path_marker_array;
 MarkerArray vehicle_path_marker_array;
 MarkerArray costmap_marker_array;
 
@@ -39,6 +43,8 @@ Marker ground_path_marker;
 Marker drone_path_marker;
 Marker costmap_marker;
 Marker delete_marker;
+
+Costmap* global_costmap;
 
 Vec3Int goal_vector, temp_vector;
 
@@ -52,7 +58,6 @@ bool dirty;
 
 enum MarkerType {
   VEHICLE_PATH_MARKER,
-  GROUND_PATH_MARKER,
   COSTMAP_MARKER
 };
 
@@ -68,11 +73,6 @@ void add_marker(MarkerType marker_type, Point position)
             marker_array = &vehicle_path_marker_array;
             break;
 
-        case GROUND_PATH_MARKER:
-            marker = &ground_path_marker;
-            marker_array = &ground_path_marker_array;
-            break;
-
         case COSTMAP_MARKER:
             marker = &costmap_marker;
             marker_array = &costmap_marker_array;
@@ -84,18 +84,17 @@ void add_marker(MarkerType marker_type, Point position)
     marker_array->markers.push_back(*marker);
 }
 
-void generate_path_marker_array(Path path, bool is_vehicle)
+void generate_path_marker_array(Path path)
 {
     dirty = true;
-    is_vehicle ? vehicle_path_marker_array.markers.clear() : ground_path_marker_array.markers.clear();
+    vehicle_path_marker_array.markers.clear();
 
     for (int i = 0; i < path.poses.size(); i++)
     {
-        add_marker(is_vehicle ? MarkerType::VEHICLE_PATH_MARKER : MarkerType::GROUND_PATH_MARKER, path.poses[i].pose.position);
+        add_marker(MarkerType::VEHICLE_PATH_MARKER, path.poses[i].pose.position);
     }
 }
 
-/*
 void generate_costmap_marker_array(Pose origin)
 {
     dirty = true;
@@ -103,9 +102,9 @@ void generate_costmap_marker_array(Pose origin)
     costmap_marker_array.markers.push_back(delete_marker);
 
     Vec3Int origin_index = Vec3Int(
-                path_planner->costmap->ToIndex(origin.position.x),
-                path_planner->costmap->ToIndex(origin.position.y),
-                path_planner->costmap->ToIndex(origin.position.z)
+                global_costmap->ToIndex(origin.position.x),
+                global_costmap->ToIndex(origin.position.y),
+                global_costmap->ToIndex(origin.position.z)
                 );
 
     Vec3Int neighbours[] =
@@ -125,12 +124,12 @@ void generate_costmap_marker_array(Pose origin)
             for (int k = -radius; k <= radius; k++)
             {
                 temp_vector = origin_index + Vec3Int(i, j, k);
-                if (path_planner->costmap->Get(temp_vector))
+                if (global_costmap->Get(temp_vector))
                 {
                   bool visible = false;
                   for  (int a = 0; a < 6; a++)
                   {
-                     if (!path_planner->costmap->Get(temp_vector + neighbours[a]))
+                     if (!global_costmap->Get(temp_vector + neighbours[a]))
                      {
                          visible = true;
                          break;
@@ -140,9 +139,9 @@ void generate_costmap_marker_array(Pose origin)
                   if (visible)
                   {
                     Point position;
-                    position.x = path_planner->costmap->ToPosition(temp_vector.x);
-                    position.y = path_planner->costmap->ToPosition(temp_vector.y);
-                    position.z = path_planner->costmap->ToPosition(temp_vector.z);
+                    position.x = global_costmap->ToPosition(temp_vector.x);
+                    position.y = global_costmap->ToPosition(temp_vector.y);
+                    position.z = global_costmap->ToPosition(temp_vector.z);
                     add_marker(MarkerType::COSTMAP_MARKER, position);
                   }
                 }
@@ -152,7 +151,6 @@ void generate_costmap_marker_array(Pose origin)
 
     costmap_marker_array_pub.publish(costmap_marker_array);
 }
-*/
 
 void findPath()
 {
@@ -165,7 +163,7 @@ void findPath()
 void dronePathCallback(const Path::ConstPtr &path)
 {
     ROS_INFO("Path: %d points", path->poses.size());
-    generate_path_marker_array(*path, false);
+    generate_path_marker_array(*path);
 }
 
 void markerFeedbackCallback(const InteractiveMarkerFeedbackConstPtr &feedback)
@@ -201,9 +199,14 @@ void markerFeedbackCallback(const InteractiveMarkerFeedbackConstPtr &feedback)
 
             target_pose_pub.publish(feedback->pose);
             //findPath();
-            //generate_costmap_marker_array(feedback->pose);
+            generate_costmap_marker_array(feedback->pose);
             break;
     }
+}
+
+void global_costmap_callback(const std_msgs::UInt8MultiArray::ConstPtr& msg)
+{
+    global_costmap->data = *msg;
 }
 
 void draw_paths()
@@ -214,9 +217,6 @@ void draw_paths()
         marker_array.markers.push_back(delete_marker);
 
         for (Marker marker : vehicle_path_marker_array.markers)
-            marker_array.markers.push_back(marker);
-
-        for (Marker marker : ground_path_marker_array.markers)
             marker_array.markers.push_back(marker);
 
         path_marker_array_pub.publish(marker_array);
@@ -238,8 +238,10 @@ int main(int argc, char **argv)
 
     drone_path_sub = nh.subscribe<Path>( nh.param<string>("/drone_path_topic", "drone_path"), 10, dronePathCallback );
     drone_marker_sub = nh.subscribe<InteractiveMarkerFeedback>( nh.param<string>("/marker_feedback_topic", "marker/feedback"), 10, markerFeedbackCallback );
+    global_costmap_sub = nh.subscribe<std_msgs::UInt8MultiArray>(nh.param<string>("/global_costmap_topic", "global_costmap"), 1, global_costmap_callback);
+
     path_marker_array_pub = nh.advertise<MarkerArray>( nh.param<string>("/path_marker_array_topic", "path_markers"), 1 );
-    //costmap_marker_array_pub = nh.advertise<MarkerArray>( nh.param<string>("/", ""), 1 );
+    costmap_marker_array_pub = nh.advertise<MarkerArray>( nh.param<string>("/costmap_marker_array_topic", "costmap_markers"), 1 );
     target_pose_pub = nh.advertise<Pose> ( nh.param<string>("/target_pose_topic", "target_pose"), 10 );
 
     go_to_target_service_client = nh.serviceClient<Trigger>( nh.param<string>("/go_to_target_service", "/drone_ai/go_to_target") );
@@ -248,19 +250,7 @@ int main(int argc, char **argv)
     id = 0;
     radius = costmap_radius / resolution;
 
-    ground_path_marker.header.frame_id = frame_id;
-    ground_path_marker.header.stamp = Time();
-    ground_path_marker.ns = "ground_path";
-    ground_path_marker.type = Marker::SPHERE;
-    ground_path_marker.action = Marker::ADD;
-
-    ground_path_marker.scale.x = resolution / 2;
-    ground_path_marker.scale.y = resolution / 2;
-    ground_path_marker.scale.z = resolution / 2;
-    ground_path_marker.color.a = 1.0;
-    ground_path_marker.color.r = 1;
-    ground_path_marker.color.g = 0;
-    ground_path_marker.color.b = 0;
+    global_costmap = new Costmap(nh.param("/size", 600), resolution);
 
     drone_path_marker.header.frame_id = frame_id;
     drone_path_marker.header.stamp = Time();
@@ -272,9 +262,9 @@ int main(int argc, char **argv)
     drone_path_marker.scale.y = resolution / 2;
     drone_path_marker.scale.z = resolution / 2;
     drone_path_marker.color.a = 1.0;
-    drone_path_marker.color.r = 0;
+    drone_path_marker.color.r = 1;
     drone_path_marker.color.g = 0;
-    drone_path_marker.color.b = 1;
+    drone_path_marker.color.b = 0;
 
     costmap_marker.header.frame_id = frame_id;
     costmap_marker.header.stamp = Time();

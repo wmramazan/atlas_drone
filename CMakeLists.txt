@@ -181,7 +181,7 @@ add_library(block_allocator src/DroneNavigation/BlockAllocator.cpp)
 add_library(costmap src/DroneNavigation/Costmap.cpp)
 
 target_link_libraries(path_planner ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${OCTOMAP_LIBRARIES} pathfinder block_allocator costmap)
-target_link_libraries(drone_navigation ${catkin_LIBRARIES})
+target_link_libraries(drone_navigation ${catkin_LIBRARIES} costmap)
 target_link_libraries(point_cloud_filter ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
 add_executable(drone_ai src/DroneAI/DroneAI.cpp)
