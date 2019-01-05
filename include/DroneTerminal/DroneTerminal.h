@@ -12,21 +12,13 @@
 
 // ROS Includes
 #include <ros/ros.h>
-#include <geometry_msgs/QuaternionStamped.h>
-#include <geometry_msgs/PointStamped.h>
 #include <geometry_msgs/PoseStamped.h>
-#include <std_msgs/UInt8.h>
 #include <std_msgs/String.h>
-#include <sensor_msgs/Joy.h>
-#include <sensor_msgs/NavSatFix.h>
 #include <sensor_msgs/BatteryState.h>
 
 #include <mavros_msgs/State.h>
 #include <mavros_msgs/Altitude.h>
-
-// DJISDK Includes
-//#include <dji_sdk/dji_sdk.h>
-//#include <dji_sdk/SetLocalPosRef.h>
+#include <mavros_msgs/PositionTarget.h>
 
 #include <atlas_drone/AIState.h>
 #include <ncurses.h>
@@ -53,19 +45,14 @@ class DroneTerminal
     void draw();
 
     ros::Subscriber altitude_sub;
-    ros::Subscriber flight_status_sub;
-    ros::Subscriber display_mode_sub;
     ros::Subscriber local_position_sub;
-    ros::Subscriber gps_sub;
-    ros::Subscriber gps_health_sub;
+    ros::Subscriber target_position_sub;
     ros::Subscriber battery_state_sub;
     ros::Subscriber current_state_sub;
     ros::Subscriber drone_message_sub;
     ros::Subscriber ai_state_sub;
 
     ros::Publisher terminal_message_pub;
-
-    ros::ServiceClient set_local_pos_reference;
 };
 
 class DisplayWindow
@@ -74,15 +61,11 @@ class DisplayWindow
         DisplayWindow(DroneTerminal* terminal);
         void Draw();
 
-        //void FlightStatusCallback(const std_msgs::UInt8::ConstPtr& msg);
-        //void DisplayModeCallback(const std_msgs::UInt8::ConstPtr& msg);
-        void BatteryStateCallback(const sensor_msgs::BatteryState::ConstPtr& msg);
         void LocalPositionCallback(const geometry_msgs::PoseStamped::ConstPtr& msg);
+        void TargetPositionCallback(const mavros_msgs::PositionTarget::ConstPtr& msg);
+        void BatteryStateCallback(const sensor_msgs::BatteryState::ConstPtr& msg);
         void AltitudeCallback(const mavros_msgs::Altitude::ConstPtr& msg);
         void CurrentStateCallback(const mavros_msgs::State::ConstPtr& msg);
-        
-        //void GPSPositionCallback(const sensor_msgs::NavSatFix::ConstPtr& msg);
-        //void GPSHealthCallback(const std_msgs::UInt8::ConstPtr& msg);
         void AIStateCallback(const atlas_drone::AIState::ConstPtr& msg);
 
     private:
@@ -91,72 +74,13 @@ class DisplayWindow
         bool dirty;
 
         geometry_msgs::PoseStamped local_position;
-        mavros_msgs::Altitude current_altitude;
-        sensor_msgs::NavSatFix gps_position;
-        sensor_msgs::BatteryState battery_state;
+        double local_yaw;
+        mavros_msgs::PositionTarget target_position;
         mavros_msgs::State current_state;
-
-        int flight_status  = -1;
-        int display_mode   = -1;
-        int gps_health     = -1;
+        sensor_msgs::BatteryState battery_state;
+        mavros_msgs::Altitude current_altitude;
         string current_behaviour;
         string current_task;
-
-        const string flight_status_error = "Flight Status Error";
-        string flight_status_str[3]
-        {
-          "Stopped",                // 0
-          "On Ground",              // 1
-          "In Air"                  // 2
-        };
-
-        const string display_mode_error = "Display Mode Error";
-        string display_mode_str[43]
-        {
-          "Manual Control",         // 0
-          "Attitude",               // 1
-          "Reserved",               // 2
-          "Reserved",               // 3
-          "Reserved",               // 4
-          "Reserved",               // 5
-          "P GPS",                  // 6
-          "Reserved",               // 7
-          "Reserved",               // 8
-          "Hotpoint",               // 9
-          "Assisted Takeoff",       // 10
-          "Auto Takeoff",           // 11
-          "Auto Landing",           // 12
-          "Reserved",               // 13
-          "Reserved",               // 14
-          "Navigated Go Home",      // 15
-          "Reserved",               // 16
-          "Navigated SDK Control",  // 17
-          "Reserved",               // 18
-          "Reserved",               // 19
-          "Reserved",               // 20
-          "Reserved",               // 21
-          "Reserved",               // 22
-          "Reserved",               // 23
-          "Reserved",               // 24
-          "Reserved",               // 25
-          "Reserved",               // 26
-          "Reserved",               // 27
-          "Reserved",               // 28
-          "Reserved",               // 29
-          "Reserved",               // 30
-          "Reserved",               // 31
-          "Reserved",               // 32
-          "Force Auto Landing",     // 33
-          "Reserved",               // 34
-          "Reserved",               // 35
-          "Reserved",               // 36
-          "Reserved",               // 37
-          "Reserved",               // 38
-          "Reserved",               // 39
-          "Search Mode",            // 40
-          "Engine Start Mode",      // 41
-          "Reserved"                // 42
-        };
 };
 
 class MessageWindow

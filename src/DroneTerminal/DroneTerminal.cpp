@@ -38,26 +38,16 @@ void DroneTerminal::initialize_terminal()
 void DroneTerminal::initialize_node()
 {
     ros::NodeHandle nh;
-    ros::Time start_time = ros::Time::now();
 
     terminal_message_pub = nh.advertise<std_msgs::String>("drone_ai/terminal_message", 1000);
 
-    altitude_sub          = nh.subscribe("/navros/altitude",          10, &DisplayWindow::AltitudeCallback,      displayWindow);
-    //flight_status_sub   = nh.subscribe("dji_sdk/flight_status",     10, &DisplayWindow::FlightStatusCallback,  displayWindow);
-    //display_mode_sub    = nh.subscribe("dji_sdk/display_mode",      10, &DisplayWindow::DisplayModeCallback,   displayWindow);
-    local_position_sub     = nh.subscribe("/mavros/local_position/pose", 10, &DisplayWindow::LocalPositionCallback, displayWindow);
-    //gps_sub             = nh.subscribe("dji_sdk/gps_position",      10, &DisplayWindow::GPSPositionCallback,   displayWindow);
-    //gps_health_sub      = nh.subscribe("dji_sdk/gps_health",        10, &DisplayWindow::GPSHealthCallback,     displayWindow);
-    battery_state_sub     = nh.subscribe("/mavros/battery",             10, &DisplayWindow::BatteryStateCallback,           displayWindow);
-    current_state_sub     = nh.subscribe("/mavros/state",               10, &DisplayWindow::CurrentStateCallback,    displayWindow);
-
-    ai_state_sub        = nh.subscribe("drone_ai/ai_state",         10, &DisplayWindow::AIStateCallback,       displayWindow);
-    drone_message_sub   = nh.subscribe("drone_ai/drone_message",    10, &MessageWindow::DroneMessageCallback,  messageWindow);
-
-    //set_local_pos_reference    = nh.serviceClient<dji_sdk::SetLocalPosRef> ("dji_sdk/set_local_pos_ref");
-
-    //dji_sdk::SetLocalPosRef localPosReferenceSetter;
-    //set_local_pos_reference.call(localPosReferenceSetter);
+    altitude_sub        = nh.subscribe("/navros/altitude",              10, &DisplayWindow::AltitudeCallback,       displayWindow);
+    local_position_sub  = nh.subscribe("/mavros/local_position/pose",   10, &DisplayWindow::LocalPositionCallback,  displayWindow);
+    target_position_sub = nh.subscribe("/mavros/setpoint_raw/local",    10, &DisplayWindow::TargetPositionCallback, displayWindow);
+    battery_state_sub   = nh.subscribe("/mavros/battery",               10, &DisplayWindow::BatteryStateCallback,   displayWindow);
+    current_state_sub   = nh.subscribe("/mavros/state",                 10, &DisplayWindow::CurrentStateCallback,   displayWindow);
+    ai_state_sub        = nh.subscribe("drone_ai/ai_state",             10, &DisplayWindow::AIStateCallback,        displayWindow);
+    drone_message_sub   = nh.subscribe("drone_ai/drone_message",        10, &MessageWindow::DroneMessageCallback,   messageWindow);
 
     ros::Rate loop(50);
     while(ros::ok())

@@ -15,10 +15,10 @@ void MoveTask::Update()
         return;
     }
 
-    float target_distance = (target_position - DRONE->GetPosition()).Magnitude();
+    double target_distance = (target_position - DRONE->GetPosition()).Magnitude();
     double rotation_diff = target_yaw - DRONE->GetYaw();
 
-    if (target_distance > 0.25f || (std::abs(rotation_diff) > 5 * DEG2RAD))
+    if (target_distance > 0.25 || (std::abs(rotation_diff) > 5 * DEG2RAD))
     {
         DRONE->MoveTo(target_position, target_yaw);
     }

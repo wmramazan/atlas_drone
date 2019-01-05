@@ -7,18 +7,13 @@ DJIDrone::DJIDrone(ros::NodeHandle& nh)
     nh.param<string>("/position_topic", position_topic, "/drone_position");
 
     altitude_sub          = nh.subscribe("/mavros/altitude",          10, &DJIDrone::altitude_callback,         this);
-    //flightStatus_sub      = nh.subscribe("dji_sdk/flight_status",       10, &DJIDrone::flight_status_callback,    this);
-    //displayMode_sub       = nh.subscribe("dji_sdk/display_mode",        10, &DJIDrone::display_mode_callback,     this);
     localPosition_sub     = nh.subscribe("/mavros/local_position/pose", 10, &DJIDrone::local_position_callback,   this);
-    //gps_sub               = nh.subscribe("dji_sdk/gps_position",        10, &DJIDrone::gps_position_callback,     this);
-    //gpsHealth_sub         = nh.subscribe("dji_sdk/gps_health",          10, &DJIDrone::gps_health_callback,       this);
     battery_state_sub     = nh.subscribe("/mavros/battery",             10, &DJIDrone::battery_state_callback,    this);
     current_state_sub     = nh.subscribe("/mavros/state",               10, &DJIDrone::current_state_callback,    this);
 
     arming_service          = nh.serviceClient<mavros_msgs::CommandBool>("mavros/cmd/arming");
     set_mode_service        = nh.serviceClient<mavros_msgs::SetMode>("mavros/set_mode");
 
-    position_control_pub    = nh.advertise<sensor_msgs::Joy>("/dji_sdk/flight_control_setpoint_generic", 10);
     local_pos_pub           = nh.advertise<mavros_msgs::PositionTarget>("mavros/setpoint_raw/local", 10);
 
     target_position.type_mask = (PositionTarget::IGNORE_VX |
@@ -96,7 +91,7 @@ void DJIDrone::MoveTo(double x, double y, double z, double yaw)
     target_position.position.x = x;
     target_position.position.y = y;
     target_position.position.z = z;
-    target_position.yaw = Math::ClampAngle(yaw);
+    target_position.yaw = static_cast<float>(Math::ClampAngle(yaw));
 }
 
 void DJIDrone::MoveTo(Vec3 position, double yaw)
@@ -104,7 +99,7 @@ void DJIDrone::MoveTo(Vec3 position, double yaw)
     target_position.position.x = position.x;
     target_position.position.y = position.y;
     target_position.position.z = position.z;
-    target_position.yaw = Math::ClampAngle(yaw);
+    target_position.yaw = static_cast<float>(Math::ClampAngle(yaw));
 }
 
 void DJIDrone::MoveBy(double x, double y, double z, double yaw)
@@ -112,7 +107,7 @@ void DJIDrone::MoveBy(double x, double y, double z, double yaw)
     MoveTo(GetPosition().x + x,
            GetPosition().y + y,
            GetPosition().z + z,
-           Math::GetYaw(GetRotation()) + yaw);
+           GetYaw() + yaw);
 }
 
 void DJIDrone::MoveBy(Vec3 position, double yaw)
@@ -142,7 +137,7 @@ Vec3 DJIDrone::GetTargetPosition()
 
 double DJIDrone::GetTargetYaw()
 {
-    return target_position.yaw;
+    return static_cast<double>(target_position.yaw);
 }
 
 string DJIDrone::GetMode()

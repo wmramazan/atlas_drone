@@ -1,4 +1,5 @@
 #include "DroneTerminal/DroneTerminal.h"
+#include "DroneAI/Math.h"
 
 DisplayWindow::DisplayWindow(DroneTerminal* terminal)
 {
@@ -15,14 +16,17 @@ void DisplayWindow::Draw()
     werase(window);
     wborder(window, ACS_VLINE, ACS_VLINE, ACS_HLINE, ACS_HLINE, ACS_ULCORNER, ACS_URCORNER, ACS_LTEE, ACS_RTEE);
 
-    mvwprintw(window, 1, 1, "Flight Status\t: %d", flight_status);
-    mvwprintw(window, 1, 1, "Flight Status\t: %d\t%s", flight_status, flight_status_str[flight_status].c_str());
-    mvwprintw(window, 2, 1, "Current Mode\t: %s", current_state.mode.c_str());
-    mvwprintw(window, 3, 1, "Battery State\t: %fV (%f\%)", battery_state.voltage, battery_state.percentage);
-    mvwprintw(window, 4, 1, "Connected\t: %s\t|\tArmed\t: %s", current_state.connected ? "True" : "False", current_state.armed ? "True" : "False");
-    mvwprintw(window, 5, 1, "Local Position\t: %f - %f - %f", local_position.pose.position.x, local_position.pose.position.y, local_position.pose.position.z);
+    mvwprintw(window, 1, 1, "Current Mode\t: %s", current_state.mode.c_str());
+    mvwprintw(window, 2, 1, "Battery State\t: %.2fV (%.2f%%)",  static_cast<double>(battery_state.voltage),  static_cast<double>(battery_state.percentage));
+    mvwprintw(window, 3, 1, "Connected\t: %s", current_state.connected ? "True" : "False");
+    mvwprintw(window, 3, 40, "Armed\t: %s", current_state.armed ? "True" : "False");
 
-    //mvwprintw(window, 6, 1, "Yaw\t: %f", gps_position.altitude, gps_position.latitude, gps_position.longitude);
+    mvwprintw(window, 4, 1, "Local Pos\t: %.2f - %.2f - %.2f", local_position.pose.position.x, local_position.pose.position.y, local_position.pose.position.z);
+    mvwprintw(window, 4, 40, "Yaw\t: %.2f", local_yaw  * RAD2DEG);
+
+    mvwprintw(window, 5, 1, "Target Pos\t: %.2f - %.2f - %.2f", target_position.position.x, target_position.position.y, target_position.position.z);
+    mvwprintw(window, 5, 40, "Yaw\t: %.2f", static_cast<double>(target_position.yaw) * RAD2DEG);
+
     mvwprintw(window, 7, 1, "Behaviour\t: %s", current_behaviour.c_str());
     mvwprintw(window, 8, 1, "Task\t: %s", current_task.c_str());
 
@@ -37,35 +41,18 @@ void DisplayWindow::AltitudeCallback(const mavros_msgs::Altitude::ConstPtr& msg)
     dirty = true;
 }
 
-/*void DisplayWindow::FlightStatusCallback(const std_msgs::UInt8::ConstPtr& msg)
-{
-    flight_status = msg->data;
-    dirty = true;
-}
-
-void DisplayWindow::DisplayModeCallback(const std_msgs::UInt8::ConstPtr& msg)
-{
-    display_mode = msg->data;
-    dirty = true;
-}*/
-
 void DisplayWindow::LocalPositionCallback(const geometry_msgs::PoseStamped::ConstPtr& msg)
 {
     local_position = *msg;
+    local_yaw = Math::GetYaw(local_position.pose.orientation);
     dirty = true;
 }
 
-/*void DisplayWindow::GPSPositionCallback(const sensor_msgs::NavSatFix::ConstPtr& msg)
+void DisplayWindow::TargetPositionCallback(const mavros_msgs::PositionTarget::ConstPtr &msg)
 {
-    gps_position = *msg;
+    target_position = *msg;
     dirty = true;
 }
-
-void DisplayWindow::GPSHealthCallback(const std_msgs::UInt8::ConstPtr& msg)
-{
-    gps_health = msg->data;
-    dirty = true;
-}*/
 
 void DisplayWindow::AIStateCallback(const atlas_drone::AIState::ConstPtr& msg)
 {
