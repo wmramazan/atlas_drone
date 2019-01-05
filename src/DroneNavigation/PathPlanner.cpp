@@ -1,6 +1,6 @@
 #include "DroneNavigation/PathPlanner.h"
 
-PathPlanner::PathPlanner(NodeHandle& nh, GlobalPlanner* global_planner, string drone_id)
+PathPlanner::PathPlanner(NodeHandle& nh, GlobalPlanner* global_planner)
 {
     size = nh.param("/size", 600);
     resolution = nh.param("/resolution", 0.1);
@@ -9,14 +9,14 @@ PathPlanner::PathPlanner(NodeHandle& nh, GlobalPlanner* global_planner, string d
     costmap = new Costmap(size, resolution);
 
     this->global_planner = global_planner;
-    local_planner = new LocalPlanner(nh, drone_id);
+    local_planner = new LocalPlanner(nh);
 
     pathfinder = new Pathfinder(global_planner, local_planner);
 
     path_pub = nh.advertise<Path>(nh.param<std::string>("/drone_path_topic", "drone_path"), 5);
 
-    request_path_service            = nh.advertiseService(nh.param<std::string>("/generate_path_service", "/path_planner/generate_path"), &PathPlanner::generate_path_service_callback, this);
-    request_path_clearence_service  = nh.advertiseService(nh.param<std::string>("/is_path_clear_service", "/path_planner/is_path_clear"), &PathPlanner::is_path_clear_service_callback, this);
+    request_path_service            = nh.advertiseService(nh.param<std::string>("/generate_path_service", "path_planner/generate_path"), &PathPlanner::generate_path_service_callback, this);
+    request_path_clearence_service  = nh.advertiseService(nh.param<std::string>("/is_path_clear_service", "path_planner/is_path_clear"), &PathPlanner::is_path_clear_service_callback, this);
 }
 
 void PathPlanner::GeneratePath(Path& path, Vec3 start_position, Vec3 target_position)

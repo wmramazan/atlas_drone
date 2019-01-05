@@ -26,7 +26,7 @@ class PathPlanner
 {
 
 public:
-    PathPlanner(NodeHandle& nh, GlobalPlanner* global_planner, string drone_id);
+    PathPlanner(NodeHandle& nh, GlobalPlanner* global_planner);
 
     void GeneratePath(Path& path, Vec3 start_position, Vec3 target_position);
     Pose GetNextPathNode();
