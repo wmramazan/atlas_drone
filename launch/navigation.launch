@@ -1,21 +1,16 @@
 <?xml version="1.0"?>
 
 <launch>
+    <rosparam file="$(find atlas_drone)/config/navigation.yaml" command="load" />
 
     <include file="$(find atlas_drone)/launch/simulation.launch" />
-<!--
-    <include file="$(find atlas_drone)/launch/ground.launch" />
--->
     <node pkg="atlas_drone" name="path_planner" type="path_planner" output="screen" />
 
     <node pkg="atlas_drone" name="uav1" type="uav1_marker.py" output="screen" />
     <node pkg="atlas_drone" name="uav2" type="uav2_marker.py" output="screen" />
     <node pkg="atlas_drone" name="uav3" type="uav3_marker.py" output="screen" />
 
-    <node pkg="atlas_drone" name="drone_navigation" type="drone_navigation" output="screen">
-        <rosparam file="$(find atlas_drone)/config/navigation.yaml" command="load" />
-    </node>
-
+    <node pkg="atlas_drone" name="drone_navigation" type="drone_navigation" output="screen" />
     <node pkg="atlas_drone" name="drone_ai" type="drone_ai" />
 
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find atlas_drone)/rviz/navigation.rviz" output="screen" />

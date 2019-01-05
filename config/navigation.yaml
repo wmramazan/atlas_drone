@@ -2,10 +2,10 @@
 # Configuration of Drone Navigation
 #
 
-frame_id:               "map"
+frame_id:               "world"
 child_frame_id:         "base_link"
 size:                   600
-resolution:             0.25
+resolution:             0.2
 inflation_radius:       5
 
 local_costmap_topic:    "/local_costmap"

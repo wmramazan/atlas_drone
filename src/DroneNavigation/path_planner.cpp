@@ -222,15 +222,17 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "path_planner");
     ros::NodeHandle nh("~");
 
-    size = nh.param("size", 600);
-    resolution = nh.param("resolution", 0.25);
-    radius = nh.param("inflation_radius", 5);
+    size = nh.param("/size", 600);
+    resolution = nh.param("/resolution", 0.25);
+    radius = nh.param("/inflation_radius", 5);
 
-    nh.param<std::string>("frame_id", frame_id, "map");
+    ROS_INFO("Path Planner: %f", resolution);
 
-    nh.param<std::string>("pointcloud_topic", pointcloud_topic, "/point_cloud_filter/filtered_cloud");
-    nh.param<std::string>("octomap_topic", octomap_topic, "/octomap_throttled");
-    nh.param<std::string>("drone_path_topic", path_topic, "drone_path");
+    nh.param<std::string>("/frame_id", frame_id, "map");
+
+    nh.param<std::string>("/pointcloud_topic", pointcloud_topic, "/point_cloud_filter/filtered_cloud");
+    nh.param<std::string>("/octomap_topic", octomap_topic, "/octomap_throttled");
+    nh.param<std::string>("/drone_path_topic", path_topic, "drone_path");
 
     costmap = new Costmap(size, resolution);
     //local_costmap = new Costmap(size, resolution);

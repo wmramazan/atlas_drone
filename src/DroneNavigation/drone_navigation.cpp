@@ -245,6 +245,8 @@ int main(int argc, char **argv)
     nh.param<double>("/resolution", resolution, RESOLUTION);
     nh.param<double>("/costmap_radius", costmap_radius, COSTMAP_RADIUS);
 
+    ROS_INFO("Drone Navigation: %f", resolution);
+
     drone_path_sub = nh.subscribe<Path>( DRONE_PATH_TOPIC, 10, dronePathCallback );
     drone_marker_sub = nh.subscribe<InteractiveMarkerFeedback>( FEEDBACK_TOPIC, 10, markerFeedbackCallback );
     path_marker_array_pub = nh.advertise<MarkerArray>( PATH_MARKER_ARRAY_TOPIC, 1 );
