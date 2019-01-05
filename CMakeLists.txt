@@ -177,10 +177,11 @@ add_executable(point_cloud_filter src/DroneNavigation/point_cloud_filter.cpp)
 
 add_executable(path_planner src/DroneNavigation/path_planner.cpp)
 add_library(pathfinder src/DroneNavigation/Pathfinder.cpp)
+add_library(pathfinder_octomap src/DroneNavigation/PathfinderOctomap.cpp)
 add_library(block_allocator src/DroneNavigation/BlockAllocator.cpp)
 add_library(costmap src/DroneNavigation/Costmap.cpp)
 
-target_link_libraries(path_planner ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${OCTOMAP_LIBRARIES} pathfinder block_allocator costmap)
+target_link_libraries(path_planner ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${OCTOMAP_LIBRARIES} pathfinder pathfinder_octomap block_allocator costmap)
 target_link_libraries(drone_navigation ${catkin_LIBRARIES} costmap)
 target_link_libraries(point_cloud_filter ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
