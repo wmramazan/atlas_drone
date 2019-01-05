@@ -33,7 +33,6 @@ public:
 
     void Update();
     void GeneratePath();
-    Pose GetNextPathNode();
     void SetCurrentPose(Pose current_pose);
     void SetTargetPose(Pose target_pose);
     bool IsPathClear();

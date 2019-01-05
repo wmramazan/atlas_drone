@@ -39,6 +39,7 @@ void PathPlanner::Update()
     if (generate_path)
     {
         GeneratePath();
+        generate_path = false;
     }
 }
 
@@ -62,7 +63,6 @@ void PathPlanner::GeneratePath()
     if (found_path.size())
     {
         path.header.frame_id = frame_id;
-
         PoseStamped pose;
 
         for (Vec3Int coordinate : found_path)
@@ -70,29 +70,16 @@ void PathPlanner::GeneratePath()
             pose.pose.position.x = costmap->ToPosition(coordinate.x);
             pose.pose.position.y = costmap->ToPosition(coordinate.y);
             pose.pose.position.z = costmap->ToPosition(coordinate.z);
-            //ROS_INFO("Coordinate: %d %d %d  %lf %lf %lf", coordinate.x, coordinate.y, coordinate.z, pose.pose.position.x, pose.pose.position.y, pose.pose.position.z);
             path.poses.push_back(pose);
         }
 
         path_pub.publish(path);
-
-        generate_path = false;
-    }
-    else
-    {
-        generate_path = false;
     }
 }
 
 bool PathPlanner::IsPathClear()
 {
     return costmap->CanPathPass(&path);
-}
-
-Pose PathPlanner::GetNextPathNode()
-{
-    // TODO: Move implementation from NavigationBehaviour
-    return path.poses[0].pose;
 }
 
 bool PathPlanner::is_path_clear_service_callback(TriggerRequest& request, TriggerResponse& response)

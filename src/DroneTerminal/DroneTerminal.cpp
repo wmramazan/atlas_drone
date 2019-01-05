@@ -41,11 +41,11 @@ void DroneTerminal::initialize_node()
 
     terminal_message_pub = nh.advertise<std_msgs::String>("drone_ai/terminal_message", 1000);
 
-    altitude_sub        = nh.subscribe("mavros/altitude",              10, &DisplayWindow::AltitudeCallback,       displayWindow);
-    local_position_sub  = nh.subscribe("mavros/local_position/pose",   10, &DisplayWindow::LocalPositionCallback,  displayWindow);
-    target_position_sub = nh.subscribe("mavros/setpoint_raw/local",    10, &DisplayWindow::TargetPositionCallback, displayWindow);
-    battery_state_sub   = nh.subscribe("mavros/battery",               10, &DisplayWindow::BatteryStateCallback,   displayWindow);
-    current_state_sub   = nh.subscribe("mavros/state",                 10, &DisplayWindow::CurrentStateCallback,   displayWindow);
+    altitude_sub        = nh.subscribe("mavros/altitude",               10, &DisplayWindow::AltitudeCallback,       displayWindow);
+    local_position_sub  = nh.subscribe("mavros/local_position/pose",    10, &DisplayWindow::LocalPositionCallback,  displayWindow);
+    target_position_sub = nh.subscribe("mavros/setpoint_raw/local",     10, &DisplayWindow::TargetPositionCallback, displayWindow);
+    battery_state_sub   = nh.subscribe("mavros/battery",                10, &DisplayWindow::BatteryStateCallback,   displayWindow);
+    current_state_sub   = nh.subscribe("mavros/state",                  10, &DisplayWindow::CurrentStateCallback,   displayWindow);
     ai_state_sub        = nh.subscribe("drone_ai/ai_state",             10, &DisplayWindow::AIStateCallback,        displayWindow);
     drone_message_sub   = nh.subscribe("drone_ai/drone_message",        10, &MessageWindow::DroneMessageCallback,   messageWindow);
 

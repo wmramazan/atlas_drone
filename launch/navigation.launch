@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 
 <launch>
-    <arg name="drone_ai" default="true" />
+    <arg name="drone_ai" default="false" />
     <rosparam file="$(find atlas_drone)/config/navigation.yaml" command="load" />
 
     <include file="$(find atlas_drone)/launch/simulation.launch" />

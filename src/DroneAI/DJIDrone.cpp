@@ -130,7 +130,7 @@ double DJIDrone::GetYaw()
 
 Vec3 DJIDrone::GetTargetPosition()
 {
-    return Vec3 (target_position.position.x, target_position.position.y, target_position.position.z);
+    return Vec3(target_position.position.x, target_position.position.y, target_position.position.z);
 }
 
 double DJIDrone::GetTargetYaw()

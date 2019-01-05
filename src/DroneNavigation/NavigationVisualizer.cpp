@@ -71,7 +71,6 @@ void NavigationVisualizer::add_marker(MarkerType marker_type, Point position)
 
 void NavigationVisualizer::generate_path_marker_array(Path path)
 {
-    dirty = true;
     vehicle_path_marker_array.markers.clear();
 
     for (uint i = 0; i < path.poses.size(); i++)
@@ -80,13 +79,34 @@ void NavigationVisualizer::generate_path_marker_array(Path path)
     }
 }
 
-void NavigationVisualizer::generate_costmap_marker_array(Pose origin)
+void NavigationVisualizer::PublishCostmapMarkers(Vec3 origin, MarkerType type)
 {
-    dirty = true;
-    costmap_marker_array.markers.clear();
-    costmap_marker_array.markers.push_back(delete_marker);
+    MarkerArray* marker_array;
+    Publisher* marker_array_pub;
 
-    Vec3Int origin_index = Vec3Int(to_index(origin.position.x), to_index(origin.position.y), to_index(origin.position.z));
+    switch (type)
+    {
+        case MarkerType::COSTMAP_MARKER:
+            marker_array = &costmap_marker_array;
+            marker_array_pub = &costmap_marker_array_pub;
+            break;
+
+        case MarkerType::LOCAL_COSTMAP_MARKER:
+            marker_array = &local_costmap_marker_array;
+            marker_array_pub = &local_costmap_marker_array_pub;
+            break;
+
+        case MarkerType::GLOBAL_COSTMAP_MARKER:
+            marker_array = &global_costmap_marker_array;
+            marker_array_pub = &global_costmap_marker_array_pub;
+            break;
+    }
+
+    marker_array->markers.clear();
+    marker_array->markers.push_back(delete_marker);
+
+
+    Vec3Int origin_index = Vec3Int(to_index(origin.x), to_index(origin.y), to_index(origin.z));
 
     Vec3Int neighbours[] =
     {
@@ -107,65 +127,35 @@ void NavigationVisualizer::generate_costmap_marker_array(Pose origin)
             for (uint k = -radius; k <= radius; k++)
             {
                 temp_vector = origin_index + Vec3Int(i, j, k);
-                if (is_occupied(temp_vector))
+                if (is_occupied(temp_vector, type))
                 {
-                    bool visibleCostmap = false;
-                    bool visibleLocalCostmap = false;
-                    bool visibleGlobalCostmap = false;
+                    bool visible = false;
 
                     for  (int a = 0; a < 6; a++)
                     {
-                        if (!visibleCostmap && !is_occupied(temp_vector + neighbours[a]))
+                        if (!visible && !is_occupied(temp_vector + neighbours[a], type))
                         {
-                            visibleCostmap = true;
+                            visible = true;
                         }
 
-                        if (!visibleLocalCostmap && !local_planner->IsOccupied(temp_vector + neighbours[a]))
-                        {
-                            visibleLocalCostmap = true;
-                        }
-
-                        if (!visibleGlobalCostmap && !global_planner->IsOccupied(temp_vector + neighbours[a]))
-                        {
-                            visibleGlobalCostmap = true;
-                        }
-
-                        if (visibleCostmap && visibleLocalCostmap && visibleGlobalCostmap)
+                        if (visible)
                         {
                             break;
                         }
                     }
 
-                    if (visibleCostmap)
+                    if (visible)
                     {
                         Point position;
                         position.x = to_position(temp_vector.x);
                         position.y = to_position(temp_vector.y);
                         position.z = to_position(temp_vector.z);
-                        add_marker(MarkerType::COSTMAP_MARKER, position);
-                    }
-
-                    if (visibleLocalCostmap)
-                    {
-                        Point position;
-                        position.x = to_position(temp_vector.x);
-                        position.y = to_position(temp_vector.y);
-                        position.z = to_position(temp_vector.z);
-                        add_marker(MarkerType::LOCAL_COSTMAP_MARKER, position);
-                    }
-
-                    if (visibleGlobalCostmap)
-                    {
-                        Point position;
-                        position.x = to_position(temp_vector.x);
-                        position.y = to_position(temp_vector.y);
-                        position.z = to_position(temp_vector.z);
-                        add_marker(MarkerType::GLOBAL_COSTMAP_MARKER, position);
+                        add_marker(type, position);
                     }
                 }
             }
         }
     }
 
-    costmap_marker_array_pub.publish(costmap_marker_array);
+    marker_array_pub->publish(marker_array);
 }
