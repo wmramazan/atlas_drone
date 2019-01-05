@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 
 <launch>
+    <arg name="drone_ai" default="false" />
     <rosparam file="$(find atlas_drone)/config/navigation.yaml" command="load" />
 
     <include file="$(find atlas_drone)/launch/simulation.launch" />
@@ -13,7 +14,10 @@
     -->
 
     <node pkg="atlas_drone" name="drone_navigation" type="drone_navigation" output="screen" />
-    <node pkg="atlas_drone" name="drone_ai" type="drone_ai" />
+
+    <group if="$(arg drone_ai)">
+        <node pkg="atlas_drone" name="drone_ai" type="drone_ai" />
+    </group>
 
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find atlas_drone)/rviz/navigation.rviz" output="screen" />
 

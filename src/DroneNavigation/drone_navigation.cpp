@@ -6,6 +6,7 @@
 #include <visualization_msgs/MarkerArray.h>
 #include <nav_msgs/Path.h>
 #include <std_srvs/Trigger.h>
+#include <std_msgs/String.h>
 #include <std_msgs/UInt8MultiArray.h>
 
 #include "DroneNavigation/Vec3.h"
@@ -28,6 +29,8 @@ Subscriber global_costmap_sub;
 Publisher path_marker_array_pub;
 Publisher costmap_marker_array_pub;
 Publisher target_pose_pub;
+Publisher terminal_message_pub;
+
 ServiceClient go_to_target_service_client;
 ServiceClient generate_path_service_client;
 
@@ -173,17 +176,30 @@ void markerFeedbackCallback(const InteractiveMarkerFeedbackConstPtr &feedback)
         case InteractiveMarkerFeedback::MENU_SELECT:
             ROS_INFO_STREAM( "menu item " << feedback->menu_entry_id << " clicked." );
 
-            if (feedback->menu_entry_id == 5)
+            switch ( feedback->menu_entry_id )
             {
-                if (go_to_target_service_client.call(trigger_srv))
+
+                case 1: // Take off
                 {
-                    ROS_INFO("Going to target..");
+                    std_msgs::String message;
+                    message.data = "init";
+                    terminal_message_pub.publish(message);
+                    break;
                 }
-                else
+                case 5: // Go to target
                 {
-                    ROS_ERROR("Failed to call service go_to_target_service_client");
+                    if (go_to_target_service_client.call(trigger_srv))
+                    {
+                        ROS_INFO("Going to target..");
+                    }
+                    else
+                    {
+                        ROS_ERROR("Failed to call service go_to_target_service_client");
+                    }
+                    break;
                 }
             }
+
             break;
 
         case InteractiveMarkerFeedback::POSE_UPDATE:
@@ -243,6 +259,7 @@ int main(int argc, char **argv)
     path_marker_array_pub = nh.advertise<MarkerArray>( nh.param<string>("/path_marker_array_topic", "path_markers"), 1 );
     costmap_marker_array_pub = nh.advertise<MarkerArray>( nh.param<string>("/costmap_marker_array_topic", "costmap_markers"), 1 );
     target_pose_pub = nh.advertise<Pose> ( nh.param<string>("/target_pose_topic", "target_pose"), 10 );
+    terminal_message_pub  = nh.advertise<std_msgs::String>(nh.param<string>("/terminal_message_topic", "drone_ai/terminal_message"), 10);
 
     go_to_target_service_client = nh.serviceClient<Trigger>( nh.param<string>("/go_to_target_service", "/drone_ai/go_to_target") );
     generate_path_service_client = nh.serviceClient<Trigger>( nh.param<string>("/generate_path_service", "/path_planner/generate_path") );

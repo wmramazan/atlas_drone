@@ -9,21 +9,31 @@ IdleBehaviour::IdleBehaviour(NodeHandle& nh)
     LOG("||-< Idle Behaviour Initialization Complete.");
 }
 
+void IdleBehaviour::OnEnter()
+{
+
+}
+
 void IdleBehaviour::Update()
 {
     AIBehaviour::Update();
 
     if (!DRONE->Ready())
     {
-        if (CurrentTask == NULL)
+        if (CurrentTask == nullptr)
         {
             AddTask(new InitializationTask());
         }
     }
-    else if (CurrentTask == NULL && DRONE->GetPosition().z > 1.9f)
+    else if (CurrentTask == nullptr && DRONE->GetPosition().z > 1.9)
     {
         AddTask(new IdleTask(true));
     }
+}
+
+void IdleBehaviour::OnExit()
+{
+
 }
 
 void IdleBehaviour::task_complete_callback(AITaskResult &result)

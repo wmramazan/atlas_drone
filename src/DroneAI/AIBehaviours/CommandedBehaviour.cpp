@@ -9,9 +9,19 @@ CommandedBehaviour::CommandedBehaviour(NodeHandle& nh)
     LOG("||-< Commanded Behaviour Initialization Complete.");
 }
 
+void CommandedBehaviour::OnEnter()
+{
+
+}
+
 void CommandedBehaviour::Update()
 {
     AIBehaviour::Update();
+}
+
+void CommandedBehaviour::OnExit()
+{
+
 }
 
 void CommandedBehaviour::task_complete_callback(AITaskResult &result)

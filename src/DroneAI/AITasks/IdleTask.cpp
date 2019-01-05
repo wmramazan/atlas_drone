@@ -20,7 +20,7 @@ void IdleTask::Update()
     double target_distance = (target_position - DRONE->GetPosition()).Magnitude();
     double rotation_diff = target_yaw - DRONE->GetYaw();
 
-    if (target_distance > 0.25 || (std::abs(rotation_diff) > 1 * DEG2RAD))
+    if (target_distance > 0.25 || (abs(rotation_diff) > 1 * DEG2RAD))
     {
         DRONE->MoveTo(target_position, target_yaw);
     }

@@ -5,12 +5,12 @@
 void InitializationTask::Start()
 {
     LOG("||-> Starting \"%s\" Task.", Name.c_str());
-    last_try_time = ros::Time::now();
+    last_try_time = Time::now();
 }
 
 void InitializationTask::Update()
 {
-    if (ros::Time::now() - task_start_time > ros::Duration(30.0))
+    if (Time::now() - task_start_time > Duration(30.0))
     {
         LOG("||-> Initialization failed in 30 seconds.");
         Terminate();
@@ -23,7 +23,7 @@ void InitializationTask::Update()
         return;
     }
 
-    if (DRONE->GetMode() != "OFFBOARD" && ros::Time::now() - last_try_time > ros::Duration(1.0))
+    if (DRONE->GetMode() != "OFFBOARD" && Time::now() - last_try_time > Duration(1.0))
     {
         LOG("||-> Drone mode is not OFFBOARD");
         if (!set_mode())
@@ -33,7 +33,7 @@ void InitializationTask::Update()
         }
     }
 
-    if (DRONE->GetMode() == "OFFBOARD" && !DRONE->IsArmed() && ros::Time::now() - last_try_time > ros::Duration(1.0))
+    if (DRONE->GetMode() == "OFFBOARD" && !DRONE->IsArmed() && Time::now() - last_try_time > Duration(1.0))
     {
         LOG("||-> Drone is not armed");
         if (!arm())
@@ -51,7 +51,7 @@ void InitializationTask::Update()
         {
             if (!air_time_set)
             {
-                in_air_time = ros::Time::now();
+                in_air_time = Time::now();
                 air_time_set = true;
             }
         }
@@ -61,7 +61,7 @@ void InitializationTask::Update()
         }
 
 
-        if (air_time_set && ros::Time::now() - in_air_time > ros::Duration(2.0))
+        if (air_time_set && Time::now() - in_air_time > Duration(2.0))
         {
             LOG("||-> Initialization succesfull.");
             task_completed = true;
@@ -78,14 +78,14 @@ void InitializationTask::End()
 
 bool InitializationTask::set_mode()
 {
-    last_try_time = ros::Time::now();
+    last_try_time = Time::now();
     bool mode_set = DRONE->SetMode("OFFBOARD");
     return mode_set && DRONE->GetMode() == "OFFBOARD";
 }
 
 bool InitializationTask::arm()
 {
-    last_try_time = ros::Time::now();
+    last_try_time = Time::now();
     bool armed = DRONE->RequestArming(ArmRequest::Arm);
     return armed && DRONE->IsArmed();
 }

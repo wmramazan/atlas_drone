@@ -51,6 +51,7 @@ Costmap* local_costmap;
 Costmap* global_costmap;
 Pose current_pose;
 Pose target_pose;
+bool generate_path;
 
 Pathfinder* pathfinder;
 
@@ -180,10 +181,14 @@ Path* GeneratePath()
 
         path_pub.publish(path);
 
+        generate_path = false;
         return &path;
     }
     else
+    {
+        generate_path = false;
         return NULL;
+    }
 }
 
 bool IsPathClear()
@@ -227,7 +232,7 @@ bool is_path_clear_service_callback(std_srvs::TriggerRequest& request, std_srvs:
 
 bool generate_path_service_callback(std_srvs::TriggerRequest& request, std_srvs::TriggerResponse& response)
 {
-    response.success = GeneratePath() != NULL;
+    generate_path = true;
     return true;
 }
 
@@ -267,6 +272,11 @@ int main(int argc, char **argv)
     while (ros::ok())
     {
         ros::spinOnce();
+
+        if (generate_path)
+        {
+            GeneratePath();
+        }
     }
 
     return 0;

@@ -2,13 +2,13 @@
 #define TASKMANAGER_H
 
 #include "AIBehaviour.h"
+#include "AITask.h"
 
 class TaskManager
 {
 public:
-  TaskManager(AIBehaviour& behaviour);
+  TaskManager();
 private:
-  AIBehaviour behaviour;
 };
 
 #endif // TASKMANAGER_H
