@@ -9,6 +9,8 @@
 #define DRONE DroneAI::Instance->Drone
 #define DRONEAI DroneAI::Instance
 
+using namespace ros;
+
 class DJIDrone;
 class Commander;
 class BehaviourManager;
@@ -30,10 +32,10 @@ class DroneAI
     BehaviourManager* behaviourManager;
 
   private:
-    ros::NodeHandle nh;
+    NodeHandle nh;
 
-    ros::Publisher ai_state_pub;
-    ros::ServiceServer trigger_service;
+    Publisher ai_state_pub;
+    ServiceServer trigger_service;
 
     bool triggerServiceCallback(std_srvs::TriggerRequest& request, std_srvs::TriggerResponse& response);
 };

@@ -1,5 +1,10 @@
 #include "DroneNavigation/Costmap.h"
 
+Costmap::Costmap()
+{
+
+}
+
 Costmap::Costmap(uint size, double resolution)
 {
     this->size = size;
@@ -54,9 +59,9 @@ uint8_t& Costmap::Get(double x, double y, double z)
     return data.data[ToIndex(x) + ToIndex(y) * size + ToIndex(z) * size_square];
 }
 
-int Costmap::ToIndex(double value)
+uint Costmap::ToIndex(double value)
 {
-    return (int) (((value) / resolution) + origin + 1);
+    return (uint) (((value) / resolution) + origin + 1);
 }
 
 double Costmap::ToPosition(int value)

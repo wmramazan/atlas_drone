@@ -5,7 +5,6 @@
     <rosparam file="$(find atlas_drone)/config/navigation.yaml" command="load" />
 
     <include file="$(find atlas_drone)/launch/simulation.launch" />
-    <node pkg="atlas_drone" name="path_planner" type="path_planner" output="screen" />
 
     <node pkg="atlas_drone" name="uav1" type="uav1_marker.py" output="screen" />
     <!--

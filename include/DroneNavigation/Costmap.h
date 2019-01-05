@@ -20,13 +20,14 @@ using namespace nav_msgs;
 class Costmap
 {
 public:
+    Costmap();
     Costmap(uint size, double resolution);
     Costmap(UInt8MultiArray& data, double resolution);
 
     uint8_t& Get(Vec3Int position);
     uint8_t& Get(uint x, uint y, uint z);
     uint8_t& Get(double x, double y, double z);
-    int ToIndex(double value);
+    uint ToIndex(double value);
     double ToPosition(int value);
     void Merge(Costmap* costmap);
     void Clear();

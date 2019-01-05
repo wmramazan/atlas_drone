@@ -82,8 +82,6 @@ void GenerateLocalCostmap(const PointCloud::ConstPtr& point_cloud)
             y = local_costmap->ToIndex(pt.y);
             z = local_costmap->ToIndex(pt.z);
 
-            //ROS_INFO("%lf %lf %lf", pt.x, pt.y, pt.z);
-            //ROS_INFO("%d %d %d", x, y, z);
             if (!local_costmap->Get(z, size - x, size - y))
             {
                 for (i = x - radius; i <= x + radius; i++)
@@ -112,8 +110,6 @@ void GenerateGlobalCostmap(const Octomap::ConstPtr& octomap)
     octree = dynamic_cast<OcTree*>(fullMsgToMap(*octomap));
     occupancy_threshold = octree->getOccupancyThres();
 
-    //ROS_INFO("%lf", occupancy_threshold);
-
     uint x, y, z;
     uint i, j, k;
 
@@ -125,9 +121,6 @@ void GenerateGlobalCostmap(const Octomap::ConstPtr& octomap)
             x = global_costmap->ToIndex(it.getX());
             y = global_costmap->ToIndex(it.getY());
             z = global_costmap->ToIndex(it.getZ());
-
-            //ROS_INFO("octomap: %lf %lf %lf", it.getX(), it.getY(), it.getZ());
-            //ROS_INFO("costmap: %d %d %d", x, y, z);
 
             // Inflation
             for (i = x - radius; i <= x + radius; i++)
@@ -249,8 +242,6 @@ int main(int argc, char **argv)
     size = nh.param("/size", 600);
     resolution = nh.param("/resolution", 0.25);
     radius = nh.param("/inflation_radius", 5);
-
-    ROS_INFO("Path Planner: %f", resolution);
 
     nh.param<std::string>("/frame_id", frame_id, "world");
 

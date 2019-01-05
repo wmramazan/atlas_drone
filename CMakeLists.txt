@@ -8,8 +8,7 @@ project(atlas_drone)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-	roscpp
-    #dji_sdk
+        roscpp
 	sensor_msgs
 	pcl_ros
 	pcl_conversions
@@ -23,7 +22,6 @@ find_package(catkin REQUIRED COMPONENTS
 	mavros_msgs
 )
 
-#find_package(DJIOSDK REQUIRED)
 find_package(Curses REQUIRED)
 find_package(PCL REQUIRED)
 find_package(octomap REQUIRED)
@@ -119,8 +117,7 @@ generate_messages(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 INCLUDE_DIRS include
-CATKIN_DEPENDS 
-#dji_sdk 
+CATKIN_DEPENDS
 message_runtime
 #  DEPENDS system_lib
 )
@@ -172,17 +169,34 @@ include_directories(
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
-add_executable(drone_navigation src/DroneNavigation/drone_navigation.cpp)
-add_executable(point_cloud_filter src/DroneNavigation/point_cloud_filter.cpp)
+add_executable(drone_navigation src/DroneNavigation/DroneNavigation.cpp)
 
-add_executable(path_planner src/DroneNavigation/path_planner.cpp)
+add_library(path_planner src/DroneNavigation/PathPlanner.cpp)
+add_library(global_planner src/DroneNavigation/GlobalPlanner.cpp)
+add_library(local_planner src/DroneNavigation/LocalPlanner.cpp)
 add_library(pathfinder src/DroneNavigation/Pathfinder.cpp)
 add_library(pathfinder_octomap src/DroneNavigation/PathfinderOctomap.cpp)
 add_library(block_allocator src/DroneNavigation/BlockAllocator.cpp)
 add_library(costmap src/DroneNavigation/Costmap.cpp)
 
-target_link_libraries(path_planner ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${OCTOMAP_LIBRARIES} pathfinder pathfinder_octomap block_allocator costmap)
-target_link_libraries(drone_navigation ${catkin_LIBRARIES} costmap)
+target_link_libraries(global_planner
+        ${OCTOMAP_LIBRARIES}
+)
+
+target_link_libraries(drone_navigation
+        ${catkin_LIBRARIES}
+        ${PCL_LIBRARIES}
+        ${OCTOMAP_LIBRARIES}
+        path_planner
+        local_planner
+        global_planner
+        pathfinder
+        block_allocator
+        costmap
+)
+
+add_executable(point_cloud_filter src/DroneNavigation/point_cloud_filter.cpp)
+
 target_link_libraries(point_cloud_filter ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
 add_executable(drone_ai src/DroneAI/DroneAI.cpp)
@@ -201,8 +215,7 @@ add_library(movetask src/DroneAI/AITasks/MoveTask.cpp)
 add_library(idletask src/DroneAI/AITasks/IdleTask.cpp)
 
 target_link_libraries(drone_ai
-	${catkin_LIBRARIES}
-	#${DJIOSDK_LIBRARIES}
+        ${catkin_LIBRARIES}
 	commander
 	djidrone
 	behaviourmanager
@@ -222,8 +235,7 @@ add_library(displayWindow src/DroneTerminal/DisplayWindow.cpp)
 add_library(messageWindow src/DroneTerminal/MessageWindow.cpp)
 add_library(inputWindow src/DroneTerminal/InputWindow.cpp)
 target_link_libraries(drone_terminal
-	${catkin_LIBRARIES}
-	#${DJIOSDK_LIBRARIES}
+        ${catkin_LIBRARIES}
 	${CURSES_LIBRARIES}
 	displayWindow
 	messageWindow
