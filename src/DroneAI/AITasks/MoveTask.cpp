@@ -18,7 +18,7 @@ void MoveTask::Update()
     double target_position_distance = (target_position - DRONE->GetPosition()).Magnitude();
     double target_rotation_distance =  (target_rotation - DRONE->GetYaw());
 
-    if (target_position_distance > 0.25 || (abs(target_rotation_distance) > 5 * DEG2RAD))
+    if (target_position_distance > 0.1 || (abs(target_rotation_distance) > 5 * DEG2RAD))
     {
         if (!moving_step)
         {
@@ -48,7 +48,7 @@ void MoveTask::Update()
             time_set = true;
         }
 
-        if (time_set && Time::now() - last_try_time > Duration(3.0))
+        if (time_set && Time::now() - last_try_time > Duration(0.0))
         {
             LOG("||- Move Task completed, terminating task.");
             task_completed = true;

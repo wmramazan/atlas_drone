@@ -17,6 +17,8 @@
 #include "DroneNavigation/Costmap.h"
 #include "DroneNavigation/Pathfinder.h"
 
+#include "DroneNavigation/Vec3.h"
+
 using namespace ros;
 using namespace octomap;
 using namespace octomap_msgs;
@@ -60,6 +62,8 @@ std::string frame_id;
 std::string octomap_topic;
 std::string pointcloud_topic;
 std::string path_topic;
+
+Vec3 local_position;
 
 uint radius;
 
@@ -161,7 +165,7 @@ Path* GeneratePath()
 
     ROS_INFO("to %d %d %d %lf %lf %lf", end.x, end.y, end.z, target_pose.position.x, target_pose.position.y, target_pose.position.z);
 
-    int current_timestamp = ros::Time::now().toSec();
+    double current_timestamp = ros::Time::now().toSec();
     vector<Vec3Int> found_path = pathfinder->Find(start, end);
     ROS_INFO("Execution time: %lf s", ros::Time::now().toSec() - current_timestamp);
     if (found_path.size())
@@ -217,6 +221,7 @@ void octomap_callback(const Octomap::ConstPtr& msg)
 void current_pose_callback(const PoseStamped::ConstPtr& msg)
 {
     current_pose = msg->pose;
+    local_position = Vec3(current_pose.position.x, current_pose.position.y, current_pose.position.z);
 }
 
 void target_pose_callback(const Pose::ConstPtr& msg)
@@ -277,6 +282,17 @@ int main(int argc, char **argv)
         {
             GeneratePath();
         }
+
+
+
+        ROS_INFO("%f - %f - %f", local_position.x, local_position.y, local_position.z);
+
+        Vec3Int start;
+        start.x = costmap->ToIndex(local_position.x);
+        start.y = costmap->ToIndex(local_position.y);
+        start.z = costmap->ToIndex(local_position.z);
+
+        ROS_INFO("%d - %d - %d", start.x, start.y, start.z);
     }
 
     return 0;

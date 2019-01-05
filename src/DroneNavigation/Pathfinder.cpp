@@ -52,9 +52,9 @@ bool Pathfinder::get_node_index(Node *node, size_t *index)
     return false;
 }
 
-int Pathfinder::to_map_index(const Vec3Int position)
+uint Pathfinder::to_map_index(Vec3Int position)
 {
-  return position.z * costmap->size_square + position.y * costmap->size + position.x;
+    return position.z * costmap->size_square + position.y * costmap->size + position.x;
 }
 
 void Pathfinder::percolate_up(size_t hole)
@@ -191,8 +191,8 @@ vector<Vec3Int> Pathfinder::Find(Vec3Int start, Vec3Int end)
 
     last_direction = {0, 0, 0};
 
-    execution_time = ros::Time::now();
-    while (!open_list.empty() && ros::Time::now() - execution_time < ros::Duration(TimeOut))
+    execution_time = Time::now();
+    while (!open_list.empty() && Time::now() - execution_time < Duration(TimeOut))
     {
         Node *current = open_list.front();
         pop_heap(open_list.begin(), open_list.end(), [](const Node *a, const Node *b)->bool
@@ -209,6 +209,8 @@ vector<Vec3Int> Pathfinder::Find(Vec3Int start, Vec3Int end)
                 path.push_back(current->pos);
                 current = current->parent;
             }
+
+            path.push_back(current->pos);
             reverse(path.begin(), path.end());
             break;
         }

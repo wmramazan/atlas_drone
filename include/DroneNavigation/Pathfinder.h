@@ -25,6 +25,8 @@
 class BlockAllocator;
 
 using namespace std;
+using namespace ros;
+using namespace geometry_msgs;
 
 class Pathfinder
 {
@@ -78,7 +80,7 @@ public:
     void set_oblique_value(int value);
 
     //
-    std::vector<Vec3Int> Find(Vec3Int start, Vec3Int end);
+    vector<Vec3Int> Find(Vec3Int start, Vec3Int end);
 
 private:
     void clear();
@@ -90,7 +92,7 @@ private:
     //
     bool get_node_index(Node *node, size_t *index);
 
-    int to_map_index(const Vec3Int position);
+    uint to_map_index(Vec3Int position);
 
     //
     uint16_t calculate_g_value(Node *parent, const Vec3Int &current);
@@ -108,7 +110,7 @@ private:
     bool can_pass(const Vec3Int &current, const Vec3Int &destination);
 
     //
-    void find_can_pass_nodes(const Vec3Int &current, std::vector<Vec3Int> *out_lists);
+    void find_can_pass_nodes(const Vec3Int &current, vector<Vec3Int> *out_lists);
 
     //
     void handle_found_node(Node *current, Node *destination);
@@ -118,18 +120,18 @@ private:
 
 
 private:
-    std::vector<Vec3Int>    directions;
-    std::vector<Node*>      mapping;
-    std::vector<Node*>      open_list;
-    BlockAllocator*         allocator;
-    Vec3Int                 last_direction;
-    ros::Time               execution_time;
+    vector<Vec3Int>     directions;
+    vector<Node*>       mapping;
+    vector<Node*>       open_list;
+    BlockAllocator*     allocator;
+    Vec3Int             last_direction;
+    Time                execution_time;
 
-    Costmap*                costmap;
-    const int               StepValue = 10;
-    const int               ChangedDirectionValue = 30;
-    const double            TimeOut = 5.0;
-    const int               heightPenalty = 1;
+    Costmap*            costmap;
+    const int           StepValue = 10;
+    const int           ChangedDirectionValue = 30;
+    const double        TimeOut = 5.0;
+    const int           heightPenalty = 1;
 
     int penalty_matrix[3][3][3] = {
         {

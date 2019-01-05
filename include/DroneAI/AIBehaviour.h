@@ -153,6 +153,8 @@ class NavigationBehaviour : public AIBehaviour
     bool request_path();
     bool request_path_clearence();
 
+    uint calculate_next_node_index(uint start_index, Vec3& path_direction);
+
   private:
 
     ServiceClient generate_path_service_client;

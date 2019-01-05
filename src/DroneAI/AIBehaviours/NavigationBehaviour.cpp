@@ -13,8 +13,8 @@ NavigationBehaviour::NavigationBehaviour(NodeHandle& nh)
     navigation_target_sub   = nh.subscribe(nh.param<string>("/target_pose", "target_pose"),     1, &NavigationBehaviour::navigation_target_callback,    this);
     path_sub                = nh.subscribe(nh.param<string>("/drone_path_topic", "drone_path"), 1, &NavigationBehaviour::path_callback,                 this);
 
-    generate_path_service_client = nh.serviceClient<Trigger>( nh.param<string>("/generate_path_service", "/path_planner/generate_path") );
-    is_path_clear_service_client = nh.serviceClient<Trigger>( nh.param<string>("/is_path_clear_service", "/path_planner/is_path_clear") );
+    generate_path_service_client = nh.serviceClient<Trigger>( nh.param<string>("/generate_path_service", "/path_planner/generate_path"));
+    is_path_clear_service_client = nh.serviceClient<Trigger>( nh.param<string>("/is_path_clear_service", "/path_planner/is_path_clear"));
     LOG("||-< Navigation Behaviour Initialization Complete.");
 }
 
@@ -32,49 +32,23 @@ void NavigationBehaviour::Update()
 
     if (!path_found)
     {
-        ROS_INFO("No path");
-
-        if (CurrentTask == nullptr)
-        {
-            //AddTask(new IdleTask(true));
-        }
-
         return;
     }
 
-    if (CurrentTask == nullptr || CurrentTask->Name == "\"Initialization Task\"")
+    if (CurrentTask == nullptr)
     {
-        Vec3 current_position = DRONE->GetPosition();
-        Vec3 direction = Vec3::FromPose(path.poses[1].pose) - Vec3::FromPose(path.poses[0].pose);
-
-        //LOG("Direction = %f %f %f", direction.x, direction.y, direction.z);
-
-        Vec3 currentDirection;
-
-        int target_node_index = 1;
-        do
-        {
-            Vec3 curP = Vec3::FromPoint(path.poses[target_node_index].pose.position);
-            Vec3 nextP = Vec3::FromPoint(path.poses[target_node_index + 1].pose.position);
-            currentDirection = nextP - curP;
-            target_node_index++;
-            ROS_INFO("%f %f %f from %f %f %f",  nextP.x, nextP.y, nextP.z, curP.x, curP.y, curP.z);
-            ROS_INFO("Current Direction: %f %f %f index: %d", currentDirection.x, currentDirection.y, currentDirection.z, target_node_index);
-        } while (currentDirection == direction && target_node_index < 20);
-
-        Pose target_pose = path.poses[target_node_index - 1].pose;
+        Vec3 path_direction;
+        uint target_node_index = calculate_next_node_index(0, path_direction);
+        Pose target_pose = path.poses[target_node_index].pose;
         Vec3 target_position = Vec3::FromPoint(target_pose.position);
 
-        ROS_INFO("Next position is from %f - %f - %f to %f - %f - %f", current_position.x, current_position.y, current_position.z, target_position.x, target_position.y, target_position.z);
-
+        Vec3 current_position = DRONE->GetPosition();
         double distance = current_position.Distance(target_position);
 
-
-        ROS_INFO("Distance is: %lf", distance);
-        if (distance > 0.1f && request_path_clearence())
+        if (distance > 0.1 && request_path_clearence())
         {
             LOG("||-> Adding task with pose: %f - %f - %f", target_pose.position.x, target_pose.position.y, target_pose.position.z);
-            AddTask(new MoveTask(target_position, atan2(direction.y, direction.x), 0.5));
+            AddTask(new MoveTask(target_position, atan2(path_direction.y, path_direction.x), 100000));
         }
     }
     else
@@ -90,6 +64,25 @@ void NavigationBehaviour::Update()
 void NavigationBehaviour::OnExit()
 {
 
+}
+
+uint NavigationBehaviour::calculate_next_node_index(uint start_index, Vec3& path_direction)
+{
+    path_direction = Vec3::FromPose(path.poses[start_index + 1].pose) - Vec3::FromPose(path.poses[start_index].pose);
+
+    Vec3 current_direction = path_direction;
+    uint target_node_index = start_index;
+
+    while (current_direction == path_direction && target_node_index - start_index < 20);
+    {
+        target_node_index++;
+        Vec3 current_node   = Vec3::FromPose(path.poses[target_node_index].pose);
+        Vec3 next_node      = Vec3::FromPose(path.poses[target_node_index + 1].pose);
+
+        current_direction = next_node - current_node;
+    }
+
+    return target_node_index;
 }
 
 void NavigationBehaviour::on_task_added()

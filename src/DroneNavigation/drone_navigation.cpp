@@ -41,6 +41,8 @@ Pose start_pose;
 MarkerArray marker_array;
 MarkerArray vehicle_path_marker_array;
 MarkerArray costmap_marker_array;
+MarkerArray local_costmap_marker_array;
+MarkerArray global_costmap_marker_array;
 
 Marker ground_path_marker;
 Marker drone_path_marker;
@@ -59,9 +61,10 @@ int radius;
 int id;
 bool dirty;
 
-enum MarkerType {
-  VEHICLE_PATH_MARKER,
-  COSTMAP_MARKER
+enum MarkerType
+{
+    VEHICLE_PATH_MARKER,
+    COSTMAP_MARKER
 };
 
 void add_marker(MarkerType marker_type, Point position)
@@ -233,7 +236,9 @@ void draw_paths()
         marker_array.markers.push_back(delete_marker);
 
         for (Marker marker : vehicle_path_marker_array.markers)
+        {
             marker_array.markers.push_back(marker);
+        }
 
         path_marker_array_pub.publish(marker_array);
 

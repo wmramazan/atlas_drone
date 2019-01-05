@@ -56,9 +56,7 @@ uint8_t& Costmap::Get(double x, double y, double z)
 
 int Costmap::ToIndex(double value)
 {
-    int index = ((int) ((value + offset) / resolution)) + origin;
-    //ROS_INFO("to index : %d", index);
-    return index;
+    return (int) (((value) / resolution) + origin + 1);
 }
 
 double Costmap::ToPosition(int value)
