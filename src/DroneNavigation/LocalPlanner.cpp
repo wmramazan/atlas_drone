@@ -12,6 +12,16 @@ LocalPlanner::LocalPlanner(NodeHandle& nh, string drone_id)
     point_cloud_sub = nh.subscribe(drone_id + point_cloud_topic, 5, &LocalPlanner::point_cloud_callback, this);
 }
 
+bool LocalPlanner::IsOccupied(Vec3Int index)
+{
+    return local_costmap.Get(index) == 1;
+}
+
+uint LocalPlanner::GetMapSize()
+{
+    return local_costmap.size;
+}
+
 void LocalPlanner::generate_local_costmap(const PointCloud::ConstPtr& point_cloud)
 {
     local_costmap.Clear();

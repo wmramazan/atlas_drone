@@ -20,7 +20,9 @@
 
 #include "BlockAllocator.h"
 #include "Vec3Int.h"
-#include "Costmap.h"
+
+#include <DroneNavigation/GlobalPlanner.h>
+#include <DroneNavigation/LocalPlanner.h>
 
 class BlockAllocator;
 
@@ -59,7 +61,7 @@ public:
     };
 
 public:
-    Pathfinder(Costmap* costmap);
+    Pathfinder(GlobalPlanner* global_planner, LocalPlanner* local_planner);
 
     ~Pathfinder()
     {
@@ -127,11 +129,17 @@ private:
     Vec3Int             last_direction;
     Time                execution_time;
 
-    Costmap*            costmap;
+    GlobalPlanner*      global_planner;
+    LocalPlanner*       local_planner;
+
     const int           StepValue = 10;
     const int           ChangedDirectionValue = 30;
     const double        TimeOut = 5.0;
     const int           heightPenalty = 1;
+
+    uint size;
+    uint size_squared;
+    uint size_cubed;
 
     int penalty_matrix[3][3][3] = {
         {

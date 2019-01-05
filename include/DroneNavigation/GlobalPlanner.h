@@ -24,6 +24,8 @@ class GlobalPlanner
 {
 public:
     GlobalPlanner(NodeHandle& nh);
+    bool IsOccupied(Vec3Int index);
+    uint GetMapSize();
 
 private:
     void generate_global_costmap(const Octomap::ConstPtr& octomap);

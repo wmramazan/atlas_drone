@@ -11,6 +11,16 @@ GlobalPlanner::GlobalPlanner(NodeHandle& nh)
     octomap_sub = nh.subscribe(octomap_topic, 5, &GlobalPlanner::octomap_callback, this);
 }
 
+bool GlobalPlanner::IsOccupied(Vec3Int index)
+{
+    return global_costmap.Get(index) == 1;
+}
+
+uint GlobalPlanner::GetMapSize()
+{
+    return global_costmap.size;
+}
+
 void GlobalPlanner::generate_global_costmap(const Octomap::ConstPtr &octomap)
 {
     global_costmap.Clear();

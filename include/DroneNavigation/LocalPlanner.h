@@ -18,6 +18,8 @@ class LocalPlanner
 {
 public:
     LocalPlanner(NodeHandle& nh, string drone_id);
+    bool IsOccupied(Vec3Int index);
+    uint GetMapSize();
 
 private:
     void generate_local_costmap(const PointCloud::ConstPtr& point_cloud);

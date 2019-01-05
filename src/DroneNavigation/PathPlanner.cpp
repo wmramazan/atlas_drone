@@ -4,21 +4,19 @@ PathPlanner::PathPlanner(NodeHandle& nh, GlobalPlanner* global_planner, string d
 {
     size = nh.param("/size", 600);
     resolution = nh.param("/resolution", 0.1);
-
     frame_id = nh.param<string>("/frame_id", "world");
 
-    string path_topic = nh.param<std::string>("/drone_path_topic", "drone_path");
-
-    this->costmap = new Costmap(size, resolution);
-    this->pathfinder = new Pathfinder(costmap);
-
-    path_pub = nh.advertise<Path>(path_topic, 5);
+    costmap = new Costmap(size, resolution);
 
     this->global_planner = global_planner;
     local_planner = new LocalPlanner(nh, drone_id);
 
-    //generate_path_service = nh.advertiseService(nh.param<std::string>("/generate_path_service", "/path_planner/generate_path"), &generate_path_service_callback);
-    //is_path_clear_service = nh.advertiseService(nh.param<std::string>("/is_path_clear_service", "/path_planner/is_path_clear"), &is_path_clear_service_callback);
+    pathfinder = new Pathfinder(global_planner, local_planner);
+
+    path_pub = nh.advertise<Path>(nh.param<std::string>("/drone_path_topic", "drone_path"), 5);
+
+    request_path_service            = nh.advertiseService(nh.param<std::string>("/generate_path_service", "/path_planner/generate_path"), &PathPlanner::generate_path_service_callback, this);
+    request_path_clearence_service  = nh.advertiseService(nh.param<std::string>("/is_path_clear_service", "/path_planner/is_path_clear"), &PathPlanner::is_path_clear_service_callback, this);
 }
 
 void PathPlanner::GeneratePath(Path& path, Vec3 start_position, Vec3 target_position)
@@ -72,5 +70,17 @@ Pose PathPlanner::GetNextPathNode()
 {
     // TODO: Move implementation from NavigationBehaviour
     return path.poses[0].pose;
+}
+
+bool PathPlanner::is_path_clear_service_callback(TriggerRequest& request, TriggerResponse& response)
+{
+    response.success = IsPathClear();
+    return true;
+}
+
+bool PathPlanner::generate_path_service_callback(TriggerRequest& request, TriggerResponse& response)
+{
+    generate_path = true;
+    return true;
 }
 

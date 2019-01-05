@@ -1,12 +1,19 @@
 #include "DroneNavigation/Pathfinder.h"
 
-Pathfinder::Pathfinder(Costmap* costmap)
+Pathfinder::Pathfinder(GlobalPlanner* global_planner, LocalPlanner* local_planner)
 {
     allocator = new BlockAllocator();
 
-    this->costmap = costmap;
+    this->global_planner = global_planner;
+    this->local_planner = local_planner;
 
-    mapping.resize(costmap->size_cube, nullptr);
+    assert(global_planner->GetMapSize() == local_planner->GetMapSize());
+
+    size = global_planner->GetMapSize();
+    size_squared = size * size;
+    size_cubed = size_squared * size;
+
+    mapping.resize(size_cubed, nullptr);
 
     directions.reserve(27);
     std::vector<int> vec = {-1, 0, 1};
@@ -25,7 +32,7 @@ void Pathfinder::clear()
 {
     size_t index = 0;
 
-    while (index < costmap->size_cube)
+    while (index < size_cubed)
     {
         allocator->Free(mapping[index++], sizeof(Node));
     }
@@ -54,7 +61,7 @@ bool Pathfinder::get_node_index(Node *node, size_t *index)
 
 uint Pathfinder::to_map_index(Vec3Int position)
 {
-    return position.z * costmap->size_square + position.y * costmap->size + position.x;
+    return position.z * size_squared + position.y * size + position.x;
 }
 
 void Pathfinder::percolate_up(size_t hole)
@@ -108,16 +115,16 @@ inline bool Pathfinder::in_closed_list(const Vec3Int &pos)
 
 bool Pathfinder::can_pass(const Vec3Int &current, const Vec3Int &destination)
 {
-    if (destination.x >= 0 && destination.x < costmap->size
-        && destination.y >= 0 && destination.y < costmap->size
-        && destination.z >= 0 && destination.z < costmap->size)
+    if (destination.x >= 0 && destination.x < size
+        && destination.y >= 0 && destination.y < size
+        && destination.z >= 0 && destination.z < size)
     {
         if (in_closed_list(destination))
         {
             return false;
         }
 
-        return !costmap->Get(destination);
+        return !global_planner->IsOccupied(destination) && !local_planner->IsOccupied(destination);
     }
     return false;
 }
