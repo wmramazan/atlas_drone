@@ -46,7 +46,7 @@ server = None
 menu_handler = MenuHandler()
 br = None
 counter = 0
-pub = rospy.Publisher('/uav3_marker/position_string', String, queue_size=10)
+pub = rospy.Publisher('/uav3/marker/position_string', String, queue_size=10)
 
 def frameCallback( msg ):
     global counter, br
@@ -136,7 +136,7 @@ def makedroneMarker(position):
     menu_handler.apply( server, int_marker.name )
 
 if __name__=="__main__":
-    rospy.init_node("uav3_marker")
+    rospy.init_node("uav3/marker")
     br = TransformBroadcaster()
     
     # create a timer to update the published transforms

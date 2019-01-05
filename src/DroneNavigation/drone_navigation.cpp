@@ -10,18 +10,7 @@
 #include "DroneNavigation/Vec3.h"
 #include "DroneNavigation/Vec3Int.h"
 
-#define FRAME_ID "world"
-#define RESOLUTION 0.25
-#define COSTMAP_RADIUS 5
-#define FEEDBACK_TOPIC "/uav1_marker/feedback"
-#define PATH_MARKER_ARRAY_TOPIC "path_markers"
-#define COSTMAP_MARKER_ARRAY_TOPIC "costmap_markers"
-#define DRONE_PATH_TOPIC "/path_planner/drone_path"
-#define DRONE_POSITION_TOPIC "/mavros/local_position/pose"
-#define TARGET_POSE_TOPIC "/target_pose"
-#define GO_TO_TARGET_SERVICE "/drone_ai/go_to_target"
-#define GENERATE_PATH_SERVICE "/path_planner/generate_path"
-
+using namespace std;
 using namespace ros;
 using namespace std_srvs;
 using namespace geometry_msgs;
@@ -239,22 +228,22 @@ void draw_paths()
 int main(int argc, char **argv)
 {
     init(argc, argv, "drone_navigation");
-    NodeHandle nh("~");
+    NodeHandle nh("uav1");
 
-    nh.param<std::string>("/frame_id", frame_id, FRAME_ID);
-    nh.param<double>("/resolution", resolution, RESOLUTION);
-    nh.param<double>("/costmap_radius", costmap_radius, COSTMAP_RADIUS);
+    nh.param<std::string>("/frame_id", frame_id, "world");
+    nh.param<double>("/resolution", resolution, 0.1);
+    nh.param<double>("/costmap_radius", costmap_radius, 1);
 
     ROS_INFO("Drone Navigation: %f", resolution);
 
-    drone_path_sub = nh.subscribe<Path>( DRONE_PATH_TOPIC, 10, dronePathCallback );
-    drone_marker_sub = nh.subscribe<InteractiveMarkerFeedback>( FEEDBACK_TOPIC, 10, markerFeedbackCallback );
-    path_marker_array_pub = nh.advertise<MarkerArray>( PATH_MARKER_ARRAY_TOPIC, 1 );
-    costmap_marker_array_pub = nh.advertise<MarkerArray>( COSTMAP_MARKER_ARRAY_TOPIC, 1 );
-    target_pose_pub = nh.advertise<Pose> ( TARGET_POSE_TOPIC, 10 );
+    drone_path_sub = nh.subscribe<Path>( nh.param<string>("/drone_path_topic", "drone_path"), 10, dronePathCallback );
+    drone_marker_sub = nh.subscribe<InteractiveMarkerFeedback>( nh.param<string>("/marker_feedback_topic", "marker/feedback"), 10, markerFeedbackCallback );
+    path_marker_array_pub = nh.advertise<MarkerArray>( nh.param<string>("/path_marker_array_topic", "path_markers"), 1 );
+    //costmap_marker_array_pub = nh.advertise<MarkerArray>( nh.param<string>("/", ""), 1 );
+    target_pose_pub = nh.advertise<Pose> ( nh.param<string>("/target_pose_topic", "target_pose"), 10 );
 
-    go_to_target_service_client = nh.serviceClient<Trigger>( GO_TO_TARGET_SERVICE );
-    generate_path_service_client = nh.serviceClient<Trigger>( GENERATE_PATH_SERVICE );
+    go_to_target_service_client = nh.serviceClient<Trigger>( nh.param<string>("/go_to_target_service", "/drone_ai/go_to_target") );
+    generate_path_service_client = nh.serviceClient<Trigger>( nh.param<string>("/generate_path_service", "/path_planner/generate_path") );
 
     id = 0;
     radius = costmap_radius / resolution;

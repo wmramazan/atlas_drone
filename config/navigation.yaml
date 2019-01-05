@@ -1,23 +1,42 @@
 #
-# Configuration of Drone Navigation
+# Configuration of Atlas Drone
 #
 
-frame_id:               "world"
-child_frame_id:         "base_link"
-size:                   600
-resolution:             0.2
-inflation_radius:       5
+frame_id:                       "world"
+child_frame_id:                 "base_link"
+size:                           600
+resolution:                     0.2
+inflation_radius:               1
 
-local_costmap_topic:    "/local_costmap"
-pointcloud_topic:       "/filtered_cloud"
-filtered_cloud_topic:   "/point_cloud_filter/filtered_cloud"
-ground_path_topic:      "ground_path"
-drone_path_topic:       "drone_path"
+marker_feedback_topic:          "marker/feedback"
+drone_position_topic:           "mavros/local_position/pose"
 
-global_costmap_topic:   "/global_costmap"
-octomap_topic:          "/octomap_throttled"
+# DroneNavigation
+octomap_topic:                  "/octomap_full"
+throttled_octomap_topic:        "/octomap_throttled"
+pointcloud_topic:               "camera/depth/points"
+throttled_pointcloud_topic:     "pointcloud_throttled"
+filtered_pointcloud_topic:      "pointcloud_filtered"
+local_costmap_topic:            "local_costmap"
+global_costmap_topic:           "global_costmap"
+path_marker_array_topic:        "path_markers"
 
-position_topic:         "/mavros/local_position/pose"
+# PathPlanner
+drone_path_topic:               "drone_path"
+current_pose_topic:             "current_pose"
+target_pose_topic:              "target_pose"
+is_path_clear_service:          "/path_planner/is_path_clear"
+generate_path_service:          "/path_planner/generate_path"
+
+# DroneAI
+navigation_target_pose_topic:   "navigation_target_pose"
+terminal_message_topic:         "drone_ai/terminal_message"
+drone_message_topic:            "drone_ai/drone_message"
+ai_state_topic:                 "drone_ai/ai_state"
+go_to_target_service:           "/drone_ai/go_to_target"
 
 # Visualization
-costmap_radius:         0.5
+costmap_radius:                 0.5
+
+# Gazebo
+gui:                            false

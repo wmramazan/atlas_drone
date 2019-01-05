@@ -27,6 +27,6 @@
     <include file="$(find atlas_drone)/launch/simulation_octomap.launch"/>
 
     <node name="octomap_throttler" type="throttle" pkg="topic_tools" args="messages /octomap_full 1 /octomap_throttled" />
-    <node name="pointcloud_throttler" type="throttle" pkg="topic_tools" args="messages /camera/depth/points 1 /pointcloud_throttled" />
+    <node name="pointcloud_throttler" type="throttle" pkg="topic_tools" args="messages /uav1/camera/depth/points 1 /uav1/pointcloud_throttled" />
     <node name="pointcloud_filter" type="point_cloud_filter" pkg="atlas_drone" />
 </launch>

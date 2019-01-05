@@ -18,7 +18,7 @@
         <param name="height_map" value="false" />
         <param name="publish_free_space" value="false" />
         -->
-        <remap from="cloud_in" to="/camera/depth/points" />
+        <remap from="cloud_in" to="uav1/camera/depth/points" />
         <!--
         <remap from="cloud_in1" to="/camera_1/depth/points" />
         <remap from="cloud_in2" to="/camera_2/depth/points" />

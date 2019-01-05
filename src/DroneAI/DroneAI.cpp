@@ -23,8 +23,8 @@ DroneAI::DroneAI()
 
     nh = ros::NodeHandle("uav" + to_string(nh.param("/drone_id", 1)));
 
-    ai_state_pub = nh.advertise<atlas_drone::AIState>("/drone_ai/ai_state", 10);
-    trigger_service = nh.advertiseService("/drone_ai/go_to_target", &DroneAI::triggerServiceCallback, this);
+    ai_state_pub = nh.advertise<atlas_drone::AIState>(nh.param<string>("/ai_state_topic", "/drone_ai/ai_state"), 10);
+    trigger_service = nh.advertiseService(nh.param<string>("/go_to_target_service", "/drone_ai/go_to_target"), &DroneAI::triggerServiceCallback, this);
 
     commander = new Commander(nh);
     Drone = new DJIDrone(nh);

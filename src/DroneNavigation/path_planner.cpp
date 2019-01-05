@@ -70,20 +70,28 @@ void GenerateLocalCostmap(const PointCloud::ConstPtr& point_cloud)
 
     BOOST_FOREACH (const pcl::PointXYZ& pt, point_cloud->points)
     {   
-       if (!isnan(pt.x))
-       {
-           x = local_costmap->ToIndex(pt.x);
-           y = local_costmap->ToIndex(pt.y);
-           z = local_costmap->ToIndex(pt.z);
+        if (!isnan(pt.x))
+        {
+            x = local_costmap->ToIndex(pt.x);
+            y = local_costmap->ToIndex(pt.y);
+            z = local_costmap->ToIndex(pt.z);
 
-           //ROS_INFO("%lf %lf %lf", pt.x, pt.y, pt.z);
-           //ROS_INFO("%d %d %d", x, y, z);
-           if (!local_costmap->Get(z, size - x, size - y))
-             for (i = x - radius; i <= x + radius; i++)
-                 for (j = y - radius; j <= y + radius; j++)
-                     for (k = z - radius; k <= z + radius; k++)
-                         local_costmap->Get(k, size - i, size - j) = 1;
-       }
+            //ROS_INFO("%lf %lf %lf", pt.x, pt.y, pt.z);
+            //ROS_INFO("%d %d %d", x, y, z);
+            if (!local_costmap->Get(z, size - x, size - y))
+            {
+                for (i = x - radius; i <= x + radius; i++)
+                {
+                    for (j = y - radius; j <= y + radius; j++)
+                    {
+                        for (k = z - radius; k <= z + radius; k++)
+                        {
+                            local_costmap->Get(k, size - i, size - j) = 1;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     costmap->Merge(local_costmap);
@@ -108,20 +116,25 @@ void GenerateGlobalCostmap(const Octomap::ConstPtr& octomap)
         octree_node = octree->search(it.getKey());
         if (NULL != octree_node && octree_node->getOccupancy() > occupancy_threshold)
         {
-          x = global_costmap->ToIndex(it.getX());
-          y = global_costmap->ToIndex(it.getY());
-          z = global_costmap->ToIndex(it.getZ());
+            x = global_costmap->ToIndex(it.getX());
+            y = global_costmap->ToIndex(it.getY());
+            z = global_costmap->ToIndex(it.getZ());
 
-          //ROS_INFO("octomap: %lf %lf %lf", it.getX(), it.getY(), it.getZ());
-          //ROS_INFO("costmap: %d %d %d", x, y, z);
+            //ROS_INFO("octomap: %lf %lf %lf", it.getX(), it.getY(), it.getZ());
+            //ROS_INFO("costmap: %d %d %d", x, y, z);
 
-          // Inflation
-          for (i = x - radius; i <= x + radius; i++)
-              for (j = y - radius; j <= y + radius; j++)
-                  for (k = z - radius; k <= z + radius; k++)
-                      global_costmap->Get(i, j, k) = 1;
+            // Inflation
+            for (i = x - radius; i <= x + radius; i++)
+            {
+                for (j = y - radius; j <= y + radius; j++)
+                {
+                    for (k = z - radius; k <= z + radius; k++)
+                    {
+                        global_costmap->Get(i, j, k) = 1;
+                    }
+                }
+            }
         }
-
     }
 
     costmap->Merge(global_costmap);
@@ -220,7 +233,7 @@ bool generate_path_service_callback(std_srvs::TriggerRequest& request, std_srvs:
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "path_planner");
-    ros::NodeHandle nh("~");
+    ros::NodeHandle nh("uav1");
 
     size = nh.param("/size", 600);
     resolution = nh.param("/resolution", 0.25);
@@ -228,10 +241,10 @@ int main(int argc, char **argv)
 
     ROS_INFO("Path Planner: %f", resolution);
 
-    nh.param<std::string>("/frame_id", frame_id, "map");
+    nh.param<std::string>("/frame_id", frame_id, "world");
 
-    nh.param<std::string>("/pointcloud_topic", pointcloud_topic, "/point_cloud_filter/filtered_cloud");
-    nh.param<std::string>("/octomap_topic", octomap_topic, "/octomap_throttled");
+    nh.param<std::string>("/filtered_pointcloud_topic", pointcloud_topic, "pointcloud_filtered");
+    nh.param<std::string>("/throttled_octomap_topic", octomap_topic, "/octomap_throttled");
     nh.param<std::string>("/drone_path_topic", path_topic, "drone_path");
 
     costmap = new Costmap(size, resolution);
@@ -241,13 +254,13 @@ int main(int argc, char **argv)
 
     octomap_sub         = nh.subscribe(octomap_topic, 5, &octomap_callback);
     //pointcloud_sub      = nh.subscribe(pointcloud_topic, 5, &pointcloud_callback);
-    current_pose_sub    = nh.subscribe("/mavros/local_position/pose", 5, &current_pose_callback);
-    target_pose_sub     = nh.subscribe("/target_pose", 5, &target_pose_callback);
+    current_pose_sub    = nh.subscribe(nh.param<std::string>("/drone_position_topic", "mavros/local_position/pose"), 5, &current_pose_callback);
+    target_pose_sub     = nh.subscribe(nh.param<std::string>("/target_pose_topic", "target_pose"), 5, &target_pose_callback);
 
     path_pub = nh.advertise<Path>(path_topic, 5);
 
-    generate_path_service = nh.advertiseService("/path_planner/generate_path", &generate_path_service_callback);
-    is_path_clear_service = nh.advertiseService("/path_planner/is_path_clear", &is_path_clear_service_callback);
+    generate_path_service = nh.advertiseService(nh.param<std::string>("/generate_path_service", "/path_planner/generate_path"), &generate_path_service_callback);
+    is_path_clear_service = nh.advertiseService(nh.param<std::string>("/is_path_clear_service", "/path_planner/is_path_clear"), &is_path_clear_service_callback);
 
     while (ros::ok())
     {

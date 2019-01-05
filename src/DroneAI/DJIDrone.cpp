@@ -3,13 +3,10 @@
 
 DJIDrone::DJIDrone(ros::NodeHandle& nh)
 {
-    string position_topic;
-    nh.param<string>("/position_topic", position_topic, "/drone_position");
-
-    altitude_sub          = nh.subscribe("/mavros/altitude",          10, &DJIDrone::altitude_callback,         this);
-    localPosition_sub     = nh.subscribe("/mavros/local_position/pose", 10, &DJIDrone::local_position_callback,   this);
-    battery_state_sub     = nh.subscribe("/mavros/battery",             10, &DJIDrone::battery_state_callback,    this);
-    current_state_sub     = nh.subscribe("/mavros/state",               10, &DJIDrone::current_state_callback,    this);
+    altitude_sub          = nh.subscribe("mavros/altitude",          10, &DJIDrone::altitude_callback,         this);
+    localPosition_sub     = nh.subscribe("mavros/local_position/pose", 10, &DJIDrone::local_position_callback,   this);
+    battery_state_sub     = nh.subscribe("mavros/battery",             10, &DJIDrone::battery_state_callback,    this);
+    current_state_sub     = nh.subscribe("mavros/state",               10, &DJIDrone::current_state_callback,    this);
 
     arming_service          = nh.serviceClient<mavros_msgs::CommandBool>("mavros/cmd/arming");
     set_mode_service        = nh.serviceClient<mavros_msgs::SetMode>("mavros/set_mode");
@@ -23,6 +20,7 @@ DJIDrone::DJIDrone(ros::NodeHandle& nh)
                                  PositionTarget::IGNORE_AFY |
                                  PositionTarget::IGNORE_AFZ |
                                  PositionTarget::IGNORE_YAW_RATE);
+
     target_position.coordinate_frame = PositionTarget::FRAME_LOCAL_NED;
 }
 

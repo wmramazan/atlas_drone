@@ -125,17 +125,24 @@ class NavigationBehaviour : public AIBehaviour
     }
   private:
     virtual void task_complete_callback(AITaskResult& result);
+
     void navigation_target_callback(const geometry_msgs::Pose::ConstPtr& msg);
-    bool generatePath();
-    bool isPathClear();
+    void path_callback(const Path::ConstPtr& msg);
+
+    bool request_path();
+    bool request_path_clearence();
 
   private:
-    Trigger trigger_srv;
+
     ServiceClient generate_path_service_client;
     ServiceClient is_path_clear_service_client;
     Subscriber navigation_target_sub;
+    Subscriber path_sub;
     Publisher target_pose_pub;
     Pose navigation_target;
-    Path* path;
+
+    Path path;
+    bool path_found;
+    ros::Time path_time;
 };
 #endif // AIBEHAVIOUR_H

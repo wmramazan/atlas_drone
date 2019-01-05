@@ -44,6 +44,8 @@ class DroneTerminal
     void initialize_terminal();
     void draw();
 
+    ros::NodeHandle nh;
+
     ros::Subscriber altitude_sub;
     ros::Subscriber local_position_sub;
     ros::Subscriber target_position_sub;

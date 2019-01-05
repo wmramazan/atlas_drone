@@ -46,7 +46,7 @@ server = None
 menu_handler = MenuHandler()
 br = None
 counter = 0
-pub = rospy.Publisher('/uav1_marker/position_string', String, queue_size=10)
+pub = rospy.Publisher('/uav1/position_string', String, queue_size=10)
 
 def frameCallback( msg ):
     global counter, br
@@ -142,7 +142,7 @@ if __name__=="__main__":
     # create a timer to update the published transforms
     rospy.Timer(rospy.Duration(0.01), frameCallback)
 
-    server = InteractiveMarkerServer("uav1_marker")
+    server = InteractiveMarkerServer("uav1/marker")
 
     menu_handler.insert( "Take-off", callback=processFeedback )
     menu_handler.insert( "Land", callback=processFeedback )

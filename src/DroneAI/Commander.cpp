@@ -4,8 +4,8 @@
 
 Commander::Commander(ros::NodeHandle& nh)
 {
-    terminal_message_sub  = nh.subscribe("drone_ai/terminal_message", 10, &Commander::terminal_message_callback, this);
-    drone_message_pub = nh.advertise<std_msgs::String>("drone_ai/drone_message", 1000);
+    terminal_message_sub  = nh.subscribe(nh.param<string>("/terminal_message_topic", "drone_ai/terminal_message"), 10, &Commander::terminal_message_callback, this);
+    drone_message_pub = nh.advertise<std_msgs::String>(nh.param<string>("/drone_message_topic", "drone_ai/drone_message"), 1000);
     ros::Duration(2.0).sleep();
 }
 
