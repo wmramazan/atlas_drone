@@ -19,9 +19,6 @@ DroneNavigation::DroneNavigation()
     navigation_target_pub   = nh.advertise<Pose>(nh.param<string>("/target_pose_topic", "target_pose"), 10);
     terminal_message_pub    = nh.advertise<std_msgs::String>(nh.param<string>("/terminal_message_topic", "drone_ai/terminal_message"), 1000);
 
-    go_to_target_service_client     = nh.serviceClient<Trigger>(nh.param<string>("/go_to_target_service", "/drone_ai/go_to_target"));
-    generate_path_service_client    = nh.serviceClient<Trigger>(nh.param<string>("/generate_path_service", "/path_planner/generate_path"));
-
     global_planner = new GlobalPlanner(nh);
 
     vehicle1_planner = new PathPlanner(nh, global_planner, "uav1");
