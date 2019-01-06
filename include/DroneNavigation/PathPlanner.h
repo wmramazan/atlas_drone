@@ -28,6 +28,13 @@ using namespace geometry_msgs;
 using namespace visualization_msgs;
 using namespace atlas_drone;
 
+struct VisualizationRequest
+{
+    bool path_request = false;
+    bool costmap_request = false;
+    int costmap_type = -1;
+};
+
 class PathPlanner
 {
 
@@ -42,6 +49,10 @@ public:
 
     GlobalPlanner* global_planner;
     LocalPlanner* local_planner;
+
+    Path path;
+
+    VisualizationRequest request;
 
 private:
     bool is_path_clear_service_callback(TriggerRequest& request, TriggerResponse& response);
@@ -67,10 +78,9 @@ private:
     ServiceServer request_path_clearance_service;
     ServiceServer request_path_service;
 
-    Path path;
-
     Vec3 current_position;
     Vec3 target_position;
+    Vec3 start_position;
 
     Costmap* costmap;
     Pathfinder* pathfinder;

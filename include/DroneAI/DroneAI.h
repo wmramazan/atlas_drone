@@ -4,6 +4,7 @@
 #include <ros/ros.h>
 #include <DroneAI/Commander.h>
 #include <std_srvs/Trigger.h>
+#include <DroneNavigation/Vec3.h>
 
 #define LOG DroneAI::Instance->commander->SendMessage
 #define DRONE DroneAI::Instance->Drone

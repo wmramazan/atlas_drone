@@ -21,6 +21,7 @@
 #include <mavros_msgs/PositionTarget.h>
 
 #include <atlas_drone/AIState.h>
+#include <DroneNavigation/Vec3.h>
 #include <ncurses.h>
 
 #define DISPLAY_SIZE 10
@@ -39,6 +40,8 @@ class DroneTerminal
     DisplayWindow* displayWindow;
     MessageWindow* messageWindow;
     InputWindow* inputWindow;
+
+    Vec3 start_position;
   private:
     void initialize_node();
     void initialize_terminal();

@@ -1,7 +1,7 @@
 #include "DroneAI/DJIDrone.h"
 #include "DroneAI/DroneAI.h"
 
-DJIDrone::DJIDrone(ros::NodeHandle& nh)
+DJIDrone::DJIDrone(ros::NodeHandle& nh, Vec3 start_position)
 {
     altitude_sub          = nh.subscribe("mavros/altitude",          10, &DJIDrone::altitude_callback,         this);
     localPosition_sub     = nh.subscribe("mavros/local_position/pose", 10, &DJIDrone::local_position_callback,   this);
@@ -22,6 +22,8 @@ DJIDrone::DJIDrone(ros::NodeHandle& nh)
                                  PositionTarget::IGNORE_YAW_RATE);
 
     target_position.coordinate_frame = PositionTarget::FRAME_LOCAL_NED;
+
+    this->start_position = start_position;
 }
 
 bool DJIDrone::SetMode(string mode)
@@ -86,17 +88,17 @@ void DJIDrone::Move()
 
 void DJIDrone::MoveTo(double x, double y, double z, double yaw)
 {
-    target_position.position.x = x;
-    target_position.position.y = y;
-    target_position.position.z = z;
+    target_position.position.x = x - start_position.x;
+    target_position.position.y = y - start_position.y;
+    target_position.position.z = z - start_position.z;
     target_position.yaw = static_cast<float>(Math::ClampAngle(yaw));
 }
 
 void DJIDrone::MoveTo(Vec3 position, double yaw)
 {
-    target_position.position.x = position.x;
-    target_position.position.y = position.y;
-    target_position.position.z = position.z;
+    target_position.position.x = position.x - start_position.x;
+    target_position.position.y = position.y - start_position.y;
+    target_position.position.z = position.z - start_position.z;
     target_position.yaw = static_cast<float>(Math::ClampAngle(yaw));
 }
 
@@ -115,7 +117,7 @@ void DJIDrone::MoveBy(Vec3 position, double yaw)
 
 Vec3 DJIDrone::GetPosition()
 {
-    return Vec3(local_position.pose.position.x, local_position.pose.position.y, local_position.pose.position.z);
+    return start_position + Vec3(local_position.pose.position.x, local_position.pose.position.y, local_position.pose.position.z);
 }
 
 geometry_msgs::Quaternion DJIDrone::GetRotation()
@@ -125,7 +127,7 @@ geometry_msgs::Quaternion DJIDrone::GetRotation()
 
 double DJIDrone::GetYaw()
 {
-    return Math::GetYaw(local_position.pose.orientation);
+    return Math::GetYaw(GetRotation());
 }
 
 Vec3 DJIDrone::GetTargetPosition()

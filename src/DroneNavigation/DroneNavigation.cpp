@@ -30,9 +30,6 @@ DroneNavigation::DroneNavigation()
 
     navigation_visualizer->SwitchPathPlanner(0);
 
-    path_marker_service    = nh.advertiseService(nh.param<string>("/path_marker_service", "/path_marker"), &DroneNavigation::path_marker_service_callback, this);
-    costmap_marker_service = nh.advertiseService(nh.param<string>("/costmap_marker_service", "/costmap_marker"), &DroneNavigation::costmap_marker_service_callback, this);
-
     ros::Rate loop_rate(40);
     while (ok())
     {
@@ -42,21 +39,31 @@ DroneNavigation::DroneNavigation()
         vehicle2_planner->Update();
         vehicle3_planner->Update();
 
+        VisualizationRequest request;
+        request.path_request = vehicle1_planner->request.path_request || vehicle2_planner->request.path_request || vehicle3_planner->request.path_request;
+
+        if (vehicle1_planner->request.costmap_request)
+        {
+            request.costmap_request = true;
+            request.costmap_type = vehicle1_planner->request.costmap_type;
+            navigation_visualizer->SwitchPathPlanner(0);
+        }
+        else if (vehicle2_planner->request.costmap_request)
+        {
+            request.costmap_request = true;
+            request.costmap_type = vehicle2_planner->request.costmap_type;
+            navigation_visualizer->SwitchPathPlanner(1);
+        }
+        else if (vehicle3_planner->request.costmap_request)
+        {
+            request.costmap_request = true;
+            request.costmap_type = vehicle3_planner->request.costmap_type;
+            navigation_visualizer->SwitchPathPlanner(2);
+        }
+
+        navigation_visualizer->Update(request);
+
         loop_rate.sleep();
     }
 }
-
-bool DroneNavigation::path_marker_service_callback(MarkerServiceRequest& request, MarkerServiceResponse& response)
-{
-    ROS_INFO("path_marker_service_callback");
-    navigation_visualizer->PublishPathMarkers();
-    return true;
-}
-
-bool DroneNavigation::costmap_marker_service_callback(MarkerServiceRequest& request, MarkerServiceResponse& response)
-{
-
-}
-
-
 

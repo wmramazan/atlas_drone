@@ -7,17 +7,21 @@
     <include file="$(find atlas_drone)/launch/simulation.launch" />
 
     <node pkg="atlas_drone" name="uav1" type="uav1_marker.py" output="screen" />
-    <!--
     <node pkg="atlas_drone" name="uav2" type="uav2_marker.py" output="screen" />
     <node pkg="atlas_drone" name="uav3" type="uav3_marker.py" output="screen" />
-    -->
 
-    <!--
     <node pkg="atlas_drone" name="drone_navigation" type="drone_navigation" output="screen" />
-    -->
 
     <group if="$(arg drone_ai)">
-        <node pkg="atlas_drone" name="drone_ai" type="drone_ai" />
+        <node pkg="atlas_drone" name="drone_ai_1" type="drone_ai">
+            <param name="drone_id" value="1" />
+        </node>
+        <node pkg="atlas_drone" name="drone_ai_2" type="drone_ai">
+            <param name="drone_id" value="2" />
+        </node>
+        <node pkg="atlas_drone" name="drone_ai_3" type="drone_ai">
+            <param name="drone_id" value="3" />
+        </node>
     </group>
 
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find atlas_drone)/rviz/navigation.rviz" output="screen" />

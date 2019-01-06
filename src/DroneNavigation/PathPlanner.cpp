@@ -3,6 +3,12 @@
 PathPlanner::PathPlanner(NodeHandle& nh, GlobalPlanner* global_planner)
 {
     generate_path = false;
+    this->start_position = Vec3(
+                nh.param("start_position_x", 0),
+                nh.param("start_position_y", 0),
+                nh.param("start_position_z", 0)
+    );
+
     size = nh.param("/size", 600);
     resolution = nh.param("/resolution", 0.1);
     frame_id = nh.param<string>("/frame_id", "world");
@@ -31,6 +37,8 @@ PathPlanner::PathPlanner(NodeHandle& nh, GlobalPlanner* global_planner)
 
 void PathPlanner::Update()
 {
+    request = VisualizationRequest();
+
     if (generate_path)
     {
         GeneratePath();
@@ -40,7 +48,7 @@ void PathPlanner::Update()
 
 void PathPlanner::GeneratePath()
 {
-    Path path;
+    path.poses.clear();
 
     Vec3Int start;
     start.x = costmap->ToIndex(current_position.x);
@@ -70,6 +78,7 @@ void PathPlanner::GeneratePath()
 
         ROS_INFO("publishing path");
         path_pub.publish(path);
+        request.path_request = true;
     }
     else
     {
@@ -90,14 +99,13 @@ bool PathPlanner::is_path_clear_service_callback(TriggerRequest& request, Trigge
 
 bool PathPlanner::generate_path_service_callback(TriggerRequest& request, TriggerResponse& response)
 {
-    ROS_INFO("generate_path_service_callback");
     generate_path = true;
     return true;
 }
 
 void PathPlanner::drone_position_callback(const PoseStamped::ConstPtr& msg)
 {
-    current_position = Vec3::FromPose(msg->pose);
+    current_position = Vec3::FromPose(msg->pose) + start_position;
 }
 
 void PathPlanner::marker_feedback_callback(const InteractiveMarkerFeedbackConstPtr &feedback)
@@ -133,7 +141,18 @@ void PathPlanner::marker_feedback_callback(const InteractiveMarkerFeedbackConstP
 
                 case 7: // Local Costmap
                 {
-
+                    request.costmap_request = true;
+                    request.costmap_type = 1;
+                }
+                case 8: // Local Costmap
+                {
+                    request.costmap_request = true;
+                    request.costmap_type = 2;
+                }
+                case 9: // Local Costmap
+                {
+                    request.costmap_request = true;
+                    request.costmap_type = 0;
                 }
             }
 
@@ -141,7 +160,7 @@ void PathPlanner::marker_feedback_callback(const InteractiveMarkerFeedbackConstP
         }
         case InteractiveMarkerFeedback::POSE_UPDATE:
         {
-            ROS_INFO("POSE_UPDATE");
+            //ROS_INFO("POSE_UPDATE");
             break;
         }
         case InteractiveMarkerFeedback::MOUSE_DOWN:
@@ -151,7 +170,7 @@ void PathPlanner::marker_feedback_callback(const InteractiveMarkerFeedbackConstP
         }
         case InteractiveMarkerFeedback::MOUSE_UP:
         {
-            ROS_INFO("MOUSE_UP");
+            //ROS_INFO("MOUSE_UP");
             target_position = Vec3::FromPose(feedback->pose);
             generate_path = true;
             break;

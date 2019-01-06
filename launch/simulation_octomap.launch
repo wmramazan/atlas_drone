@@ -19,7 +19,9 @@
         <param name="publish_free_space" value="false" />
         -->
         <remap from="cloud_in1" to="uav1/camera/depth/points" />
+        <!--
         <remap from="cloud_in2" to="uav2/camera/depth/points" />
         <remap from="cloud_in3" to="uav3/camera/depth/points" />
+        -->
     </node>
 </launch>

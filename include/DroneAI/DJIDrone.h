@@ -81,7 +81,7 @@ class DJIDrone
 {
   // VARIABLES
   public:
-    DJIDrone(ros::NodeHandle& nh);
+    DJIDrone(ros::NodeHandle& nh, Vec3 start_position);
 
     Altitude CurrentAltitude;
     sensor_msgs::BatteryState BatteryState;
@@ -111,6 +111,7 @@ class DJIDrone
     ros::ServiceClient set_mode_service;
 
     PoseStamped local_position;
+    Vec3 start_position;
     sensor_msgs::NavSatFix gps_position;
     State current_state;
 

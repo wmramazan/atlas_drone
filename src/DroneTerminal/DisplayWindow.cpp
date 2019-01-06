@@ -45,6 +45,9 @@ void DisplayWindow::AltitudeCallback(const mavros_msgs::Altitude::ConstPtr& msg)
 void DisplayWindow::LocalPositionCallback(const geometry_msgs::PoseStamped::ConstPtr& msg)
 {
     local_position = *msg;
+    local_position.pose.position.x += terminal->start_position.x;
+    local_position.pose.position.y += terminal->start_position.y;
+    local_position.pose.position.z += terminal->start_position.z;
     local_yaw = Math::GetYaw(local_position.pose.orientation);
     dirty = true;
 }

@@ -29,12 +29,6 @@ private:
     PathPlanner* vehicle3_planner;
 
     NavigationVisualizer* navigation_visualizer;
-
-    bool path_marker_service_callback(MarkerServiceRequest& request, MarkerServiceResponse& response);
-    bool costmap_marker_service_callback(MarkerServiceRequest& request, MarkerServiceResponse& response);
-
-    ServiceServer path_marker_service;
-    ServiceServer costmap_marker_service;
 };
 
 #endif // DRONENAVIGATION_H

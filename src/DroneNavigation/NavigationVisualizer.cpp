@@ -14,19 +14,37 @@ NavigationVisualizer::NavigationVisualizer(NodeHandle& nh)
     delete_marker         = create_marker(frame_id, "delete",         Marker::SPHERE, Marker::DELETEALL, Vec3(0, 0, 0), 0, Vec3(0, 0, 0));
 
     id = 0;
+    path_marker_request = 0;
+    costmap_marker_request = 0;
 
-    drone_1_path_sub = nh.subscribe<Path>("uav1/drone_path", 10, &NavigationVisualizer::drone_1_path_callback, this);
-    vehicle_path_marker_array_pub = nh.advertise<MarkerArray>("uav1/path_marker_array", 1);
+    vehicle_path_marker_array_pub = nh.advertise<MarkerArray>("path_marker_array", 1);
+}
+
+void NavigationVisualizer::Update(VisualizationRequest request)
+{
+    if (request.path_request)
+    {
+        ROS_INFO("PublishPathMarkers");
+        PublishPathMarkers();
+    }
+
+    if (request.costmap_request)
+    {
+        //PublishCostmapMarkers(origin, )
+    }
 }
 
 void NavigationVisualizer::PublishPathMarkers()
 {
-    ROS_INFO("publishing_markers");
     vehicle_path_marker_array.markers.clear();
+    vehicle_path_marker_array.markers.push_back(delete_marker);
 
-    for (uint i = 0; i < drone_1_path.poses.size(); i++)
+    for (uint k = 0; k < path_planners.size(); k++)
     {
-        add_marker(MarkerType::VEHICLE_PATH_MARKER, drone_1_path.poses[i].pose.position);
+        for (uint i = 0; i < path_planners[k]->path.poses.size(); i++)
+        {
+            add_marker(MarkerType::VEHICLE_PATH_MARKER, path_planners[k]->path.poses[i].pose.position);
+        }
     }
 
     vehicle_path_marker_array_pub.publish(vehicle_path_marker_array);
@@ -34,8 +52,6 @@ void NavigationVisualizer::PublishPathMarkers()
 
 void NavigationVisualizer::PublishCostmapMarkers(Vec3 origin, int path_planner, MarkerType costmap_type)
 {
-    SwitchPathPlanner(path_planner);
-
     MarkerArray* marker_array;
     Publisher* marker_array_pub;
 
@@ -124,11 +140,6 @@ void NavigationVisualizer::SwitchPathPlanner(uint index)
 {
     global_planner = path_planners[index]->global_planner;
     local_planner = path_planners[index]->local_planner;
-}
-
-void NavigationVisualizer::drone_1_path_callback(const PathConstPtr &path)
-{
-    drone_1_path = *path;
 }
 
 Marker NavigationVisualizer::create_marker(string frame_id, string ns, int type, int action, Vec3 scale, float alpha, Vec3 color)

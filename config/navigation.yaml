@@ -11,6 +11,18 @@ inflation_radius:               1
 marker_feedback_topic:          "marker/feedback"
 drone_position_topic:           "mavros/local_position/pose"
 
+uav1/start_position_x:          0
+uav1/start_position_y:          0
+uav1/start_position_z:          0
+
+uav2/start_position_x:          0
+uav2/start_position_y:          4
+uav2/start_position_z:          0
+
+uav3/start_position_x:          0
+uav3/start_position_y:          8
+uav3/start_position_z:          0
+
 # DroneNavigation
 octomap_topic:                  "/octomap_full"
 throttled_octomap_topic:        "/octomap_throttled"

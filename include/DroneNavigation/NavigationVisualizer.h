@@ -34,6 +34,7 @@ class NavigationVisualizer
 public:
     NavigationVisualizer(NodeHandle& nh);
 
+    void Update(VisualizationRequest request);
     void PublishPathMarkers();
     void PublishCostmapMarkers(Vec3 origin, int path_planner, MarkerType costmap_type);
     void AddPathPlanner(PathPlanner* path_planner);
@@ -42,15 +43,10 @@ public:
 private:
     Marker create_marker(string frame_id, string ns, int type, int action, Vec3 scale, float alpha, Vec3 color);
     void add_marker(MarkerType marker_type, Point position);
-    void drone_1_path_callback(const PathConstPtr &path);
 
     uint to_index(double value);
     double to_position(int value);
     bool is_occupied(Vec3Int index, int type);
-
-    Subscriber drone_1_path_sub;
-    Subscriber drone_2_path_sub;
-    Subscriber drone_3_path_sub;
 
     Publisher vehicle_path_marker_array_pub;
     Publisher costmap_marker_array_pub;
@@ -82,7 +78,8 @@ private:
     uint radius;
 
     int id;
-    bool dirty;
+    int path_marker_request;
+    int costmap_marker_request;
 };
 
 #endif // NAVIGATIONVISUALIZER_H

@@ -46,7 +46,7 @@ server = None
 menu_handler = MenuHandler()
 br = None
 counter = 0
-pub = rospy.Publisher('/uav2/marker/position_string', String, queue_size=10)
+pub = rospy.Publisher('/uav2/position_string', String, queue_size=10)
 
 def frameCallback( msg ):
     global counter, br
@@ -136,13 +136,13 @@ def makedroneMarker(position):
     menu_handler.apply( server, int_marker.name )
 
 if __name__=="__main__":
-    rospy.init_node("uav2/marker")
+    rospy.init_node("uav2_marker")
     br = TransformBroadcaster()
-    
+
     # create a timer to update the published transforms
     rospy.Timer(rospy.Duration(0.01), frameCallback)
 
-    server = InteractiveMarkerServer("uav2_marker")
+    server = InteractiveMarkerServer("uav2/marker")
 
     menu_handler.insert( "Take-off", callback=processFeedback )
     menu_handler.insert( "Land", callback=processFeedback )
@@ -153,8 +153,8 @@ if __name__=="__main__":
     menu_handler.insert( "Local Costmap", parent=costmap_sub_menu_handle, callback=processFeedback )
     menu_handler.insert( "Global Costmap", parent=costmap_sub_menu_handle, callback=processFeedback )
     menu_handler.insert( "Merged Costmap", parent=costmap_sub_menu_handle, callback=processFeedback )
-  
-    position = Point( 0, 0, 0)
+
+    position = Point( 0, 4, 0)
     makedroneMarker( position )
 
     server.applyChanges()
