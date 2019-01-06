@@ -3,10 +3,13 @@
 
 #include <ros/ros.h>
 
+#include <vector>
+
 #include <nav_msgs/Path.h>
 #include <geometry_msgs/PointStamped.h>
 #include <visualization_msgs/MarkerArray.h>
 
+#include <DroneNavigation/PathPlanner.h>
 #include <DroneNavigation/GlobalPlanner.h>
 #include <DroneNavigation/LocalPlanner.h>
 #include <DroneNavigation/Vec3.h>
@@ -29,38 +32,21 @@ enum MarkerType
 class NavigationVisualizer
 {
 public:
-    NavigationVisualizer(NodeHandle& nh, GlobalPlanner* global_planner, LocalPlanner* local_planner);
+    NavigationVisualizer(NodeHandle& nh);
 
     void PublishPathMarkers();
-    void PublishCostmapMarkers(Vec3 origin, MarkerType type);
+    void PublishCostmapMarkers(Vec3 origin, int path_planner, MarkerType costmap_type);
+    void AddPathPlanner(PathPlanner* path_planner);
+    void SwitchPathPlanner(uint index);
 
 private:
     Marker create_marker(string frame_id, string ns, int type, int action, Vec3 scale, float alpha, Vec3 color);
     void add_marker(MarkerType marker_type, Point position);
     void drone_1_path_callback(const PathConstPtr &path);
 
-    uint to_index(double value)
-    {
-        return (uint) (((value) / resolution) + size / 2 + 1);
-    }
-
-    double to_position(int value)
-    {
-        return (double) (value - size / 2) * resolution - resolution / 2;
-    }
-
-    bool is_occupied(Vec3Int index, int type)
-    {
-        switch  (type)
-        {
-            case 0:
-                return global_planner->IsOccupied(index) || local_planner->IsOccupied(index);
-            case 1:
-                return local_planner->IsOccupied(index);
-            case 2:
-                return global_planner->IsOccupied(index);
-        }
-    }
+    uint to_index(double value);
+    double to_position(int value);
+    bool is_occupied(Vec3Int index, int type);
 
     Subscriber drone_1_path_sub;
     Subscriber drone_2_path_sub;
@@ -87,6 +73,7 @@ private:
     Path drone_2_path;
     Path drone_3_path;
 
+    vector<PathPlanner*> path_planners;
     GlobalPlanner* global_planner;
     LocalPlanner*  local_planner;
 

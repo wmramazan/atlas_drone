@@ -1,14 +1,11 @@
 #include "DroneNavigation/NavigationVisualizer.h"
 
-NavigationVisualizer::NavigationVisualizer(NodeHandle& nh, GlobalPlanner* global_planner, LocalPlanner* local_planner)
+NavigationVisualizer::NavigationVisualizer(NodeHandle& nh)
 {
     size = nh.param("/size", 600);
     resolution = nh.param("/resolution", 0.1);
     radius = nh.param("/inflation_radius", 5);
     string frame_id = nh.param<string>("/frame_id", "world");
-
-    this->global_planner = global_planner;
-    this->local_planner  = local_planner;
 
     vehicle_path_marker   = create_marker(frame_id, "drone_path",     Marker::SPHERE, Marker::ADD, Vec3(resolution / 2, resolution / 2, resolution / 2), 1.0f, Vec3(1, 0, 0));
     costmap_marker        = create_marker(frame_id, "costmap",        Marker::SPHERE, Marker::ADD, Vec3(resolution / 2, resolution / 2, resolution / 2), 0.1f, Vec3(1, 1, 0));
@@ -35,12 +32,14 @@ void NavigationVisualizer::PublishPathMarkers()
     vehicle_path_marker_array_pub.publish(vehicle_path_marker_array);
 }
 
-void NavigationVisualizer::PublishCostmapMarkers(Vec3 origin, MarkerType type)
+void NavigationVisualizer::PublishCostmapMarkers(Vec3 origin, int path_planner, MarkerType costmap_type)
 {
+    SwitchPathPlanner(path_planner);
+
     MarkerArray* marker_array;
     Publisher* marker_array_pub;
 
-    switch (type)
+    switch (costmap_type)
     {
         case MarkerType::COSTMAP_MARKER:
             marker_array = &costmap_marker_array;
@@ -83,13 +82,13 @@ void NavigationVisualizer::PublishCostmapMarkers(Vec3 origin, MarkerType type)
             for (uint k = -radius; k <= radius; k++)
             {
                 temp_vector = origin_index + Vec3Int(i, j, k);
-                if (is_occupied(temp_vector, type))
+                if (is_occupied(temp_vector, costmap_type))
                 {
                     bool visible = false;
 
                     for  (int a = 0; a < 6; a++)
                     {
-                        if (!visible && !is_occupied(temp_vector + neighbours[a], type))
+                        if (!visible && !is_occupied(temp_vector + neighbours[a], costmap_type))
                         {
                             visible = true;
                         }
@@ -106,7 +105,7 @@ void NavigationVisualizer::PublishCostmapMarkers(Vec3 origin, MarkerType type)
                         position.x = to_position(temp_vector.x);
                         position.y = to_position(temp_vector.y);
                         position.z = to_position(temp_vector.z);
-                        add_marker(type, position);
+                        add_marker(costmap_type, position);
                     }
                 }
             }
@@ -114,6 +113,17 @@ void NavigationVisualizer::PublishCostmapMarkers(Vec3 origin, MarkerType type)
     }
 
     marker_array_pub->publish(*marker_array);
+}
+
+void NavigationVisualizer::AddPathPlanner(PathPlanner* path_planner)
+{
+    path_planners.push_back(path_planner);
+}
+
+void NavigationVisualizer::SwitchPathPlanner(uint index)
+{
+    global_planner = path_planners[index]->global_planner;
+    local_planner = path_planners[index]->local_planner;
 }
 
 void NavigationVisualizer::drone_1_path_callback(const PathConstPtr &path)
@@ -171,4 +181,27 @@ void NavigationVisualizer::add_marker(MarkerType marker_type, Point position)
     marker->id = id++;
     marker->pose.position = position;
     marker_array->markers.push_back(*marker);
+}
+
+uint NavigationVisualizer::to_index(double value)
+{
+    return (uint) (((value) / resolution) + size / 2 + 1);
+}
+
+double NavigationVisualizer::to_position(int value)
+{
+    return (double) (value - size / 2) * resolution - resolution / 2;
+}
+
+bool NavigationVisualizer::is_occupied(Vec3Int index, int type)
+{
+    switch  (type)
+    {
+        case 0:
+            return global_planner->IsOccupied(index) || local_planner->IsOccupied(index);
+        case 1:
+            return local_planner->IsOccupied(index);
+        case 2:
+            return global_planner->IsOccupied(index);
+    }
 }

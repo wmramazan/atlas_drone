@@ -67,8 +67,6 @@ private:
     ServiceServer request_path_clearance_service;
     ServiceServer request_path_service;
 
-
-
     Path path;
 
     Vec3 current_position;

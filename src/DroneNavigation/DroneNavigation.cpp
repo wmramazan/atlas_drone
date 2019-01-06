@@ -23,7 +23,12 @@ DroneNavigation::DroneNavigation()
     vehicle2_planner = new PathPlanner(uav2_nh, global_planner);
     vehicle3_planner = new PathPlanner(uav3_nh, global_planner);
 
-    navigation_visualizer = new NavigationVisualizer(nh, global_planner, vehicle1_planner->local_planner);
+    navigation_visualizer = new NavigationVisualizer(nh);
+    navigation_visualizer->AddPathPlanner(vehicle1_planner);
+    navigation_visualizer->AddPathPlanner(vehicle2_planner);
+    navigation_visualizer->AddPathPlanner(vehicle3_planner);
+
+    navigation_visualizer->SwitchPathPlanner(0);
 
     path_marker_service    = nh.advertiseService(nh.param<string>("/path_marker_service", "/path_marker"), &DroneNavigation::path_marker_service_callback, this);
     costmap_marker_service = nh.advertiseService(nh.param<string>("/costmap_marker_service", "/costmap_marker"), &DroneNavigation::costmap_marker_service_callback, this);

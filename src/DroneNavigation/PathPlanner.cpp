@@ -31,10 +31,8 @@ PathPlanner::PathPlanner(NodeHandle& nh, GlobalPlanner* global_planner)
 
 void PathPlanner::Update()
 {
-    //ROS_INFO("updating");
     if (generate_path)
     {
-        //ROS_INFO("generating path");
         GeneratePath();
         generate_path = false;
     }
@@ -72,15 +70,6 @@ void PathPlanner::GeneratePath()
 
         ROS_INFO("publishing path");
         path_pub.publish(path);
-        marker_srv.request.type = 1;
-        if (path_marker_service_client.call(marker_srv))
-        {
-            ROS_INFO("Marker service: success");
-        }
-        else
-        {
-            ROS_INFO("Marker service: fail");
-        }
     }
     else
     {
@@ -144,8 +133,7 @@ void PathPlanner::marker_feedback_callback(const InteractiveMarkerFeedbackConstP
 
                 case 7: // Local Costmap
                 {
-                    marker_srv.request.type = 1;
-                    costmap_marker_service_client.call(marker_srv);
+
                 }
             }
 
