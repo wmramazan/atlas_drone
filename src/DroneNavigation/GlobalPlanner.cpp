@@ -7,8 +7,7 @@ GlobalPlanner::GlobalPlanner(NodeHandle& nh)
     radius = nh.param("/inflation_radius", 5);
     global_costmap = Costmap(size, resolution);
 
-    string octomap_topic = nh.param<std::string>("/throttled_octomap_topic", "/octomap_throttled");
-    octomap_sub = nh.subscribe(octomap_topic, 5, &GlobalPlanner::octomap_callback, this);
+    octomap_sub = nh.subscribe(nh.param<string>("/throttled_octomap_topic", "/octomap_throttled"), 5, &GlobalPlanner::octomap_callback, this);
 }
 
 bool GlobalPlanner::IsOccupied(Vec3Int index)
@@ -57,6 +56,5 @@ void GlobalPlanner::generate_global_costmap(const Octomap::ConstPtr &octomap)
 
 void GlobalPlanner::octomap_callback(const Octomap::ConstPtr& msg)
 {
-    //ROS_INFO("octomap_callback");
     generate_global_costmap(msg);
 }

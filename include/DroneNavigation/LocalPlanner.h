@@ -4,6 +4,8 @@
 // ROS Includes
 #include <ros/ros.h>
 
+#include <string>
+
 // PCL Includes
 #include <pcl_ros/point_cloud.h>
 
@@ -17,7 +19,7 @@ typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
 class LocalPlanner
 {
 public:
-    LocalPlanner(NodeHandle& nh);
+    LocalPlanner(NodeHandle& nh, string ns);
     bool IsOccupied(Vec3Int index);
     uint GetMapSize();
 

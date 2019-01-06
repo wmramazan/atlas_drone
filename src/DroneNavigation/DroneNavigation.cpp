@@ -1,4 +1,5 @@
 #include "DroneNavigation/DroneNavigation.h"
+#include "std_srvs/Trigger.h"
 
 int main(int argc, char **argv)
 {
@@ -15,13 +16,9 @@ DroneNavigation::DroneNavigation()
 
     global_planner = new GlobalPlanner(nh);
 
-    ros::NodeHandle uav1_nh(nh, "uav1");
-    ros::NodeHandle uav2_nh(nh, "uav2");
-    ros::NodeHandle uav3_nh(nh, "uav3");
-
-    vehicle1_planner = new PathPlanner(uav1_nh, global_planner);
-    vehicle2_planner = new PathPlanner(uav2_nh, global_planner);
-    vehicle3_planner = new PathPlanner(uav3_nh, global_planner);
+    vehicle1_planner = new PathPlanner(nh, global_planner, "/uav1/");
+    vehicle2_planner = new PathPlanner(nh, global_planner, "/uav2/");
+    vehicle3_planner = new PathPlanner(nh, global_planner, "/uav3/");
 
     navigation_visualizer = new NavigationVisualizer(nh);
     navigation_visualizer->AddPathPlanner(vehicle1_planner);

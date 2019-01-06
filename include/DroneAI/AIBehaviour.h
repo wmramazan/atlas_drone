@@ -147,7 +147,6 @@ class NavigationBehaviour : public AIBehaviour
     virtual void task_complete_callback(AITaskResult& result);
     virtual void on_task_added();
 
-    void navigation_target_callback(const geometry_msgs::Pose::ConstPtr& msg);
     void path_callback(const Path::ConstPtr& msg);
 
     bool request_path();
@@ -159,10 +158,7 @@ class NavigationBehaviour : public AIBehaviour
 
     ServiceClient generate_path_service_client;
     ServiceClient is_path_clear_service_client;
-    Subscriber navigation_target_sub;
     Subscriber path_sub;
-    Publisher target_pose_pub;
-    Pose navigation_target;
 
     Path path;
     bool path_found;

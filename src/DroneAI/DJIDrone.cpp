@@ -88,17 +88,17 @@ void DJIDrone::Move()
 
 void DJIDrone::MoveTo(double x, double y, double z, double yaw)
 {
-    target_position.position.x = x - start_position.x;
-    target_position.position.y = y - start_position.y;
-    target_position.position.z = z - start_position.z;
+    target_position.position.x = x + start_position.x;
+    target_position.position.y = y + start_position.y;
+    target_position.position.z = z + start_position.z;
     target_position.yaw = static_cast<float>(Math::ClampAngle(yaw));
 }
 
 void DJIDrone::MoveTo(Vec3 position, double yaw)
 {
-    target_position.position.x = position.x - start_position.x;
-    target_position.position.y = position.y - start_position.y;
-    target_position.position.z = position.z - start_position.z;
+    target_position.position.x = position.x + start_position.x;
+    target_position.position.y = position.y + start_position.y;
+    target_position.position.z = position.z + start_position.z;
     target_position.yaw = static_cast<float>(Math::ClampAngle(yaw));
 }
 

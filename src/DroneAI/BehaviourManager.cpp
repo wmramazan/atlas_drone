@@ -29,6 +29,7 @@ void BehaviourManager::Update()
 
 void BehaviourManager::SetBehaviour(string behaviourName, bool forceSet)
 {
+    ROS_INFO("SetBehaviour(%d): %s", DRONEAI->id, behaviourName.c_str());
     if (forceSet)
     {
         LOG("||-> Force setting new behaviour : %s", behaviourName.c_str());

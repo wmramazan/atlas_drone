@@ -32,9 +32,9 @@ class DroneAI
     Commander* commander;
     BehaviourManager* behaviourManager;
 
-  private:
-    NodeHandle nh;
+    int id;
 
+  private:
     Publisher ai_state_pub;
     ServiceServer trigger_service;
 

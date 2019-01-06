@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 
 <launch>
-    <arg name="drone_ai" default="false" />
+    <arg name="drone_ai" default="true" />
     <rosparam file="$(find atlas_drone)/config/navigation.yaml" command="load" />
 
     <include file="$(find atlas_drone)/launch/simulation.launch" />
@@ -13,14 +13,14 @@
     <node pkg="atlas_drone" name="drone_navigation" type="drone_navigation" output="screen" />
 
     <group if="$(arg drone_ai)">
-        <node pkg="atlas_drone" name="drone_ai_1" type="drone_ai">
-            <param name="drone_id" value="1" />
+        <node pkg="atlas_drone" name="drone_ai_1" type="drone_ai" output="screen">
+            <param name="/drone_id" value="1" />
         </node>
-        <node pkg="atlas_drone" name="drone_ai_2" type="drone_ai">
-            <param name="drone_id" value="2" />
+        <node pkg="atlas_drone" name="drone_ai_2" type="drone_ai" output="screen">
+            <param name="/drone_id" value="2" />
         </node>
-        <node pkg="atlas_drone" name="drone_ai_3" type="drone_ai">
-            <param name="drone_id" value="3" />
+        <node pkg="atlas_drone" name="drone_ai_3" type="drone_ai" output="screen">
+            <param name="/drone_id" value="3" />
         </node>
     </group>
 

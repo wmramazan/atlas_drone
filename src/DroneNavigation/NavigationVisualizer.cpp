@@ -24,7 +24,6 @@ void NavigationVisualizer::Update(VisualizationRequest request)
 {
     if (request.path_request)
     {
-        ROS_INFO("PublishPathMarkers");
         PublishPathMarkers();
     }
 

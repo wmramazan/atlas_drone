@@ -8,11 +8,8 @@
 #include <DroneNavigation/GlobalPlanner.h>
 #include <DroneNavigation/NavigationVisualizer.h>
 
-#include <atlas_drone/MarkerService.h>
-
 using namespace std;
 using namespace ros;
-using namespace atlas_drone;
 
 class DroneNavigation
 {

@@ -10,9 +10,7 @@ NavigationBehaviour::NavigationBehaviour(NodeHandle& nh)
     LOG("||-> Initializing Navigation Behaviour.");
     name = "Navigation Behaviour";
 
-    navigation_target_sub   = nh.subscribe(nh.param<string>("/target_pose", "target_pose"),     1, &NavigationBehaviour::navigation_target_callback,    this);
-    path_sub                = nh.subscribe(nh.param<string>("/drone_path_topic", "drone_path"), 1, &NavigationBehaviour::path_callback,                 this);
-
+    path_sub = nh.subscribe(nh.param<string>("/drone_path_topic", "drone_path"), 1, &NavigationBehaviour::path_callback, this);
     generate_path_service_client = nh.serviceClient<Trigger>(nh.param<string>("/generate_path_service", "path_planner/generate_path"));
     is_path_clear_service_client = nh.serviceClient<Trigger>(nh.param<string>("/is_path_clear_service", "path_planner/is_path_clear"));
     LOG("||-< Navigation Behaviour Initialization Complete.");
@@ -41,7 +39,6 @@ void NavigationBehaviour::Update()
         uint target_node_index = calculate_next_node_index(0, path_direction);
         Pose target_pose = path.poses[target_node_index].pose;
         Vec3 target_position = Vec3::FromPoint(target_pose.position);
-
         Vec3 current_position = DRONE->GetPosition();
         double distance = current_position.Distance(target_position);
 
@@ -73,12 +70,11 @@ uint NavigationBehaviour::calculate_next_node_index(uint start_index, Vec3& path
     Vec3 current_direction = path_direction;
     uint target_node_index = start_index;
 
-    while (current_direction == path_direction && target_node_index - start_index < 20);
+    while (current_direction == path_direction && target_node_index - start_index < 20)
     {
         target_node_index++;
         Vec3 current_node   = Vec3::FromPose(path.poses[target_node_index].pose);
         Vec3 next_node      = Vec3::FromPose(path.poses[target_node_index + 1].pose);
-
         current_direction = next_node - current_node;
     }
 
@@ -97,21 +93,6 @@ void NavigationBehaviour::task_complete_callback(AITaskResult &result)
 {
     request_path();
     AIBehaviour::task_complete_callback(result);
-}
-
-void NavigationBehaviour::navigation_target_callback(const Pose::ConstPtr &msg)
-{
-    navigation_target = *msg;
-    //LOG("||-> Navigation target set to: %f - %f - %f", navigation_target.position.x, navigation_target.position.y, navigation_target.position.z);
-
-    if (request_path())
-    {
-        //LOG("||- Path found, should recieve soon.");
-    }
-    else
-    {
-        //LOG("||- No path has found to navigation target.");
-    }
 }
 
 void NavigationBehaviour::path_callback(const Path::ConstPtr &msg)

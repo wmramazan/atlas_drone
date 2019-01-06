@@ -56,6 +56,7 @@ class DroneTerminal
     ros::Subscriber current_state_sub;
     ros::Subscriber drone_message_sub;
     ros::Subscriber ai_state_sub;
+    ros::Subscriber navigation_target_sub;
 
     ros::Publisher terminal_message_pub;
 };
@@ -72,6 +73,7 @@ class DisplayWindow
         void AltitudeCallback(const mavros_msgs::Altitude::ConstPtr& msg);
         void CurrentStateCallback(const mavros_msgs::State::ConstPtr& msg);
         void AIStateCallback(const atlas_drone::AIState::ConstPtr& msg);
+        void NavigationTargetCallback(const geometry_msgs::Pose::ConstPtr &msg);
 
     private:
         DroneTerminal* terminal;
@@ -81,6 +83,7 @@ class DisplayWindow
         geometry_msgs::PoseStamped local_position;
         double local_yaw;
         mavros_msgs::PositionTarget target_position;
+        geometry_msgs::Pose navigation_target;
         mavros_msgs::State current_state;
         sensor_msgs::BatteryState battery_state;
         mavros_msgs::Altitude current_altitude;

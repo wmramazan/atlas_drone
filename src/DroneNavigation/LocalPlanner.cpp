@@ -1,15 +1,13 @@
 #include "DroneNavigation/LocalPlanner.h"
 
-LocalPlanner::LocalPlanner(NodeHandle& nh)
+LocalPlanner::LocalPlanner(NodeHandle& nh, string ns)
 {
     size = nh.param("/size", 600);
     resolution = nh.param("/resolution", 0.1);
     radius = nh.param("/inflation_radius", 5);
     local_costmap = Costmap(size, resolution);
 
-    string point_cloud_topic = nh.param<std::string>("/filtered_pointcloud_topic", "pointcloud_filtered");
-
-    point_cloud_sub = nh.subscribe(point_cloud_topic, 5, &LocalPlanner::point_cloud_callback, this);
+    point_cloud_sub = nh.subscribe(ns + nh.param<string>("/filtered_pointcloud_topic", "pointcloud_filtered"), 5, &LocalPlanner::point_cloud_callback, this);
 }
 
 bool LocalPlanner::IsOccupied(Vec3Int index)

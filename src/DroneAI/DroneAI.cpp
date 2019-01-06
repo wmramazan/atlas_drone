@@ -21,7 +21,11 @@ DroneAI::DroneAI()
     if (Instance == NULL)
         Instance = this;
 
-    nh = ros::NodeHandle("uav" + to_string(nh.param("/drone_id", 1)));
+    NodeHandle nh("~");
+    id = nh.param("drone_id", 1);
+    ROS_INFO("Id: %d", id);
+
+    nh = NodeHandle("uav" + to_string(id));
     Vec3 start_position = Vec3(nh.param("start_position_x", 0), nh.param("start_position_y", 0), nh.param("start_position_z", 0));
 
     ai_state_pub = nh.advertise<atlas_drone::AIState>(nh.param<string>("/ai_state_topic", "/drone_ai/ai_state"), 10);
@@ -72,8 +76,6 @@ void DroneAI::UpdateAI()
 
 bool DroneAI::triggerServiceCallback(std_srvs::TriggerRequest& request, std_srvs::TriggerResponse& response)
 {
-    //LOG("Trigger Service Callback");
-
     behaviourManager->SetBehaviour("Navigation Behaviour", true);
 
     response.success = true;

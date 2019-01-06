@@ -98,11 +98,11 @@ Visualization Manager:
         local_origin:
           Value: false
         local_origin_1:
-          Value: true
+          Value: false
         local_origin_2:
-          Value: true
+          Value: false
         local_origin_3:
-          Value: true
+          Value: false
         local_origin_ned:
           Value: false
         moving_frame:
@@ -210,7 +210,7 @@ Visualization Manager:
       Marker Topic: /path_marker_array
       Name: MarkerArray
       Namespaces:
-        drone_path: true
+        {}
       Queue Size: 1
       Value: true
     - Alpha: 1
@@ -321,25 +321,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 24.3116512
+      Distance: 11.932497
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 2.37435031
-        Y: 4.32516241
-        Z: -1.21690583
+        X: 2.49797678
+        Y: 4.05618143
+        Z: -1.02623641
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.84979713
+      Pitch: 0.549797416
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 3.35001349
+      Yaw: 3.1400125
     Saved: ~
 Window Geometry:
   Displays:

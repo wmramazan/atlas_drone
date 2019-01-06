@@ -28,6 +28,8 @@ void DisplayWindow::Draw()
     mvwprintw(window, 5, 40, "Yaw\t: %.2f", static_cast<double>(target_position.yaw) * RAD2DEG);
     mvwprintw(window, 5, 60 , "Rate:  %.2f", static_cast<double>(target_position.yaw_rate));
 
+    mvwprintw(window, 6, 1, "Nav Target\t: %.2f - %.2f - %.2f", navigation_target.position.x, navigation_target.position.y, navigation_target.position.z);
+
     mvwprintw(window, 7, 1, "Behaviour\t: %s", current_behaviour.c_str());
     mvwprintw(window, 8, 1, "Task\t\t: %s", current_task.c_str());
 
@@ -74,4 +76,9 @@ void DisplayWindow::BatteryStateCallback(const sensor_msgs::BatteryState::ConstP
 void DisplayWindow::CurrentStateCallback(const mavros_msgs::State::ConstPtr& msg)
 {
     current_state = *msg;
+}
+
+void DisplayWindow::NavigationTargetCallback(const Pose::ConstPtr &msg)
+{
+    navigation_target = *msg;
 }
