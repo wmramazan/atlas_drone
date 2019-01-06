@@ -72,6 +72,7 @@ class InitializationTask : public AITask
     Time last_try_time;
     Time in_air_time;
     bool air_time_set;
+    Vec3 start_position;
 
     bool set_mode();
     bool arm();

@@ -36,7 +36,7 @@ public:
 
     void Update(VisualizationRequest request);
     void PublishPathMarkers();
-    void PublishCostmapMarkers(Vec3 origin, int path_planner, MarkerType costmap_type);
+    void PublishCostmapMarkers(Vec3 origin, MarkerType costmap_type);
     void AddPathPlanner(PathPlanner* path_planner);
     void SwitchPathPlanner(uint index);
 

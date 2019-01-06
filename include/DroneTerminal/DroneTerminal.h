@@ -42,12 +42,11 @@ class DroneTerminal
     InputWindow* inputWindow;
 
     Vec3 start_position;
+    int id;
   private:
     void initialize_node();
     void initialize_terminal();
     void draw();
-
-    ros::NodeHandle nh;
 
     ros::Subscriber altitude_sub;
     ros::Subscriber local_position_sub;

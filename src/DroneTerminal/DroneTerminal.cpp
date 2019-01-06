@@ -37,7 +37,9 @@ void DroneTerminal::initialize_terminal()
 
 void DroneTerminal::initialize_node()
 {
-    nh = ros::NodeHandle("uav" + to_string(nh.param("/drone_id", 1)));
+    ros::NodeHandle nh("~");
+    id = nh.param("drone_id", 1);
+    nh = ros::NodeHandle("uav" + to_string(id));
     start_position = Vec3(nh.param("start_position_x", 0), nh.param("start_position_y", 0), nh.param("start_position_z", 0));
 
     terminal_message_pub = nh.advertise<std_msgs::String>("drone_ai/terminal_message", 1000);

@@ -33,6 +33,8 @@ void DisplayWindow::Draw()
     mvwprintw(window, 7, 1, "Behaviour\t: %s", current_behaviour.c_str());
     mvwprintw(window, 8, 1, "Task\t\t: %s", current_task.c_str());
 
+    mvwprintw(window, 1, COLS - 4, "%d", terminal->id);
+
     wrefresh(window);
 
     dirty = false;

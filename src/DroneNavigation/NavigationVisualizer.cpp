@@ -49,7 +49,7 @@ void NavigationVisualizer::PublishPathMarkers()
     vehicle_path_marker_array_pub.publish(vehicle_path_marker_array);
 }
 
-void NavigationVisualizer::PublishCostmapMarkers(Vec3 origin, int path_planner, MarkerType costmap_type)
+void NavigationVisualizer::PublishCostmapMarkers(Vec3 origin, MarkerType costmap_type)
 {
     MarkerArray* marker_array;
     Publisher* marker_array_pub;

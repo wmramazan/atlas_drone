@@ -6,6 +6,7 @@ void InitializationTask::Start()
 {
     LOG("||-> Starting \"%s\" Task.", Name.c_str());
     last_try_time = Time::now();
+    start_position = DRONE->GetPosition();
 }
 
 void InitializationTask::Update()
@@ -45,7 +46,7 @@ void InitializationTask::Update()
 
     if (DRONE->Ready())
     {
-        DRONE->MoveTo(0, 0, 2, 0);
+        DRONE->MoveTo(start_position.x, start_position.y, 2, 0);
 
         if (DRONE->GetPosition().z > 1.9)
         {
