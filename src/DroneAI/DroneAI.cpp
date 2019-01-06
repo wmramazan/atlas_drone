@@ -38,6 +38,7 @@ DroneAI::DroneAI()
     ros::Rate loop_rate(40);
     while (ros::ok())
     {
+        ros::spinOnce();
         UpdateAI();
         loop_rate.sleep();
     }
@@ -45,7 +46,6 @@ DroneAI::DroneAI()
 
 void DroneAI::UpdateAI()
 {
-    ros::spinOnce();
     Drone->Move();
     behaviourManager->Update();
 

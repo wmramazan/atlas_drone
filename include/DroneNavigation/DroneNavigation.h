@@ -6,6 +6,7 @@
 
 #include <DroneNavigation/PathPlanner.h>
 #include <DroneNavigation/GlobalPlanner.h>
+#include <DroneNavigation/NavigationVisualizer.h>
 
 #include <atlas_drone/MarkerService.h>
 
@@ -27,8 +28,10 @@ private:
     PathPlanner* vehicle2_planner;
     PathPlanner* vehicle3_planner;
 
-    bool pathMarkerServiceCallback(MarkerServiceRequest& request, MarkerServiceResponse& response);
-    bool costmapMarkerServiceCallback(MarkerServiceRequest& request, MarkerServiceResponse& response);
+    NavigationVisualizer* navigation_visualizer;
+
+    bool path_marker_service_callback(MarkerServiceRequest& request, MarkerServiceResponse& response);
+    bool costmap_marker_service_callback(MarkerServiceRequest& request, MarkerServiceResponse& response);
 
     ServiceServer path_marker_service;
     ServiceServer costmap_marker_service;

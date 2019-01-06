@@ -12,7 +12,9 @@
     <node pkg="atlas_drone" name="uav3" type="uav3_marker.py" output="screen" />
     -->
 
+    <!--
     <node pkg="atlas_drone" name="drone_navigation" type="drone_navigation" output="screen" />
+    -->
 
     <group if="$(arg drone_ai)">
         <node pkg="atlas_drone" name="drone_ai" type="drone_ai" />

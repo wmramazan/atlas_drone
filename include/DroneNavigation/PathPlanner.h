@@ -40,6 +40,9 @@ public:
     void SetTargetPose(Pose target_pose);
     bool IsPathClear();
 
+    GlobalPlanner* global_planner;
+    LocalPlanner* local_planner;
+
 private:
     bool is_path_clear_service_callback(TriggerRequest& request, TriggerResponse& response);
     bool generate_path_service_callback(TriggerRequest& request, TriggerResponse& response);
@@ -64,8 +67,7 @@ private:
     ServiceServer request_path_clearance_service;
     ServiceServer request_path_service;
 
-    GlobalPlanner* global_planner;
-    LocalPlanner* local_planner;
+
 
     Path path;
 

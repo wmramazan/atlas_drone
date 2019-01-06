@@ -19,32 +19,9 @@
         <param name="publish_free_space" value="false" />
         -->
         <remap from="cloud_in1" to="uav1/camera/depth/points" />
+        <!--
         <remap from="cloud_in2" to="uav2/camera/depth/points" />
         <remap from="cloud_in3" to="uav3/camera/depth/points" />
+        -->
     </node>
-<!--
-    <group ns="uav1">
-        <node pkg="octomap_server" type="octomap_server_node" name="octomap_server_1">
-            <param name="resolution" value="$(arg resolution)" />
-            <param name="frame_id" type="string" value="world" />
-            <remap from="cloud_in" to="/camera_1/depth/points" />
-        </node>
-    </group>
-
-    <group ns="uav2">
-        <node pkg="octomap_server" type="octomap_server_node" name="octomap_server_2">
-            <param name="resolution" value="$(arg resolution)" />
-            <param name="frame_id" type="string" value="world" />
-            <remap from="cloud_in" to="/camera_2/depth/points" />
-        </node>
-    </group>
-
-    <group ns="uav3">
-        <node pkg="octomap_server" type="octomap_server_node" name="octomap_server_3">
-            <param name="resolution" value="$(arg resolution)" />
-            <param name="frame_id" type="string" value="world" />
-            <remap from="cloud_in" to="/camera_3/depth/points" />
-        </node>
-    </group>
--->
 </launch>

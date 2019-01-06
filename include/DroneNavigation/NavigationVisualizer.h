@@ -30,12 +30,14 @@ class NavigationVisualizer
 {
 public:
     NavigationVisualizer(NodeHandle& nh, GlobalPlanner* global_planner, LocalPlanner* local_planner);
+
+    void PublishPathMarkers();
     void PublishCostmapMarkers(Vec3 origin, MarkerType type);
 
 private:
     Marker create_marker(string frame_id, string ns, int type, int action, Vec3 scale, float alpha, Vec3 color);
     void add_marker(MarkerType marker_type, Point position);
-    void generate_path_marker_array(Path path);
+    void drone_1_path_callback(const PathConstPtr &path);
 
     uint to_index(double value)
     {

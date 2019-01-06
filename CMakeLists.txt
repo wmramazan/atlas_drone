@@ -170,6 +170,7 @@ add_definitions(${PCL_DEFINITIONS})
 
 add_executable(drone_navigation src/DroneNavigation/DroneNavigation.cpp)
 
+add_library(navigation_visualizer src/DroneNavigation/NavigationVisualizer.cpp)
 add_library(path_planner src/DroneNavigation/PathPlanner.cpp)
 add_library(global_planner src/DroneNavigation/GlobalPlanner.cpp)
 add_library(local_planner src/DroneNavigation/LocalPlanner.cpp)
@@ -192,6 +193,7 @@ target_link_libraries(drone_navigation
         pathfinder
         block_allocator
         costmap
+        navigation_visualizer
 )
 
 add_executable(point_cloud_filter src/DroneNavigation/point_cloud_filter.cpp)
