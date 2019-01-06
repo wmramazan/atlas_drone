@@ -26,15 +26,15 @@ costmap_marker_array_topic:     "costmap_markers"
 drone_path_topic:               "drone_path"
 current_pose_topic:             "current_pose"
 target_pose_topic:              "target_pose"
-is_path_clear_service:          "/path_planner/is_path_clear"
-generate_path_service:          "/path_planner/generate_path"
+is_path_clear_service:          "path_planner/is_path_clear"
+generate_path_service:          "path_planner/generate_path"
 
 # DroneAI
 navigation_target_pose_topic:   "navigation_target_pose"
 terminal_message_topic:         "drone_ai/terminal_message"
 drone_message_topic:            "drone_ai/drone_message"
 ai_state_topic:                 "drone_ai/ai_state"
-go_to_target_service:           "/drone_ai/go_to_target"
+go_to_target_service:           "drone_ai/go_to_target"
 
 # NavigationVisualizer
 path_marker_service:            "/path_marker"

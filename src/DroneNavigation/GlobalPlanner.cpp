@@ -57,6 +57,6 @@ void GlobalPlanner::generate_global_costmap(const Octomap::ConstPtr &octomap)
 
 void GlobalPlanner::octomap_callback(const Octomap::ConstPtr& msg)
 {
-    ROS_INFO("octomap_callback");
+    //ROS_INFO("octomap_callback");
     generate_global_costmap(msg);
 }

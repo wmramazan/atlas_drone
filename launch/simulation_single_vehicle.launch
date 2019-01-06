@@ -12,7 +12,7 @@
     <arg name="gcs_url" default="" />   <!-- GCS link is provided by SITL -->
     <arg name="tgt_system" default="1" />
     <arg name="tgt_component" default="1" />
-    <arg name="vehicle" default="ris"/>
+    <arg name="vehicle" default="iris"/>
 
     <!-- Launch PX4 SITL -->
     <include file="$(find px4)/launch/px4.launch">

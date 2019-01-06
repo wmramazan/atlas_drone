@@ -13,8 +13,8 @@ NavigationBehaviour::NavigationBehaviour(NodeHandle& nh)
     navigation_target_sub   = nh.subscribe(nh.param<string>("/target_pose", "target_pose"),     1, &NavigationBehaviour::navigation_target_callback,    this);
     path_sub                = nh.subscribe(nh.param<string>("/drone_path_topic", "drone_path"), 1, &NavigationBehaviour::path_callback,                 this);
 
-    generate_path_service_client = nh.serviceClient<Trigger>( nh.param<string>("/generate_path_service", "/path_planner/generate_path"));
-    is_path_clear_service_client = nh.serviceClient<Trigger>( nh.param<string>("/is_path_clear_service", "/path_planner/is_path_clear"));
+    generate_path_service_client = nh.serviceClient<Trigger>(nh.param<string>("/generate_path_service", "path_planner/generate_path"));
+    is_path_clear_service_client = nh.serviceClient<Trigger>(nh.param<string>("/is_path_clear_service", "path_planner/is_path_clear"));
     LOG("||-< Navigation Behaviour Initialization Complete.");
 }
 
