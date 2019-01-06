@@ -84,9 +84,21 @@ Visualization Manager:
           Value: true
         fcu:
           Value: true
+        fcu1:
+          Value: false
+        fcu2:
+          Value: false
+        fcu3:
+          Value: false
         fcu_frd:
           Value: false
         local_origin:
+          Value: false
+        local_origin_1:
+          Value: false
+        local_origin_2:
+          Value: false
+        local_origin_3:
           Value: false
         local_origin_ned:
           Value: false
@@ -101,18 +113,18 @@ Visualization Manager:
       Show Names: true
       Tree:
         world:
-          local_origin:
-            fcu:
+          local_origin_1:
+            fcu1:
               camera_link1:
                 {}
+          local_origin_2:
+            fcu2:
               camera_link2:
                 {}
+          local_origin_3:
+            fcu3:
               camera_link3:
                 {}
-              fcu_frd:
-                {}
-            local_origin_ned:
-              {}
           moving_frame:
             {}
       Update Interval: 0
