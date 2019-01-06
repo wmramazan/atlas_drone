@@ -28,7 +28,9 @@ PathPlanner::PathPlanner(NodeHandle& nh, GlobalPlanner* global_planner)
     string path_topic = nh.param<std::string>("/drone_path_topic", "drone_path");
     path_pub = nh.advertise<Path>(path_topic, 5);
 
-    go_to_target_service_client     = nh.serviceClient<Trigger>(nh.param<string>("/go_to_target_service", "/drone_ai/go_to_target"));
+    go_to_target_service_client     = nh.serviceClient<Trigger>(nh.param<string>("/go_to_target_service", "drone_ai/go_to_target"));
+    path_marker_service_client     = nh.serviceClient<MarkerService>(nh.param<string>("/path_marker_service", "/path_marker"));
+    costmap_marker_service_client     = nh.serviceClient<MarkerService>(nh.param<string>("/costmap_marker_service", "/costmap_marker"));
 
     request_path_service            = nh.advertiseService(nh.param<std::string>("/generate_path_service", "path_planner/generate_path"), &PathPlanner::generate_path_service_callback, this);
     request_path_clearance_service  = nh.advertiseService(nh.param<std::string>("/is_path_clear_service", "path_planner/is_path_clear"), &PathPlanner::is_path_clear_service_callback, this);
@@ -114,6 +116,7 @@ void PathPlanner::marker_feedback_callback(const InteractiveMarkerFeedbackConstP
                     terminal_message_pub.publish(message);
                     break;
                 }
+
                 case 5: // Go to target
                 {
                     navigation_target_pub.publish(feedback->pose);
@@ -127,6 +130,12 @@ void PathPlanner::marker_feedback_callback(const InteractiveMarkerFeedbackConstP
                         ROS_ERROR("Failed to call service go_to_target_service_client");
                     }
                     break;
+                }
+
+                case 7: // Local Costmap
+                {
+                    marker_srv.request.type = 1;
+                    costmap_marker_service_client.call(marker_srv);
                 }
             }
 

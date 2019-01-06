@@ -23,6 +23,9 @@ DroneNavigation::DroneNavigation()
     vehicle2_planner = new PathPlanner(uav2_nh, global_planner);
     vehicle3_planner = new PathPlanner(uav3_nh, global_planner);
 
+    path_marker_service    = nh.advertiseService(nh.param<string>("/path_marker_service", "/path_marker"), &DroneNavigation::pathMarkerServiceCallback, this);
+    costmap_marker_service = nh.advertiseService(nh.param<string>("/costmap_marker_service", "/costmap_marker"), &DroneNavigation::costmapMarkerServiceCallback, this);
+
     ros::Rate loop_rate(40);
     while (ok())
     {
@@ -30,5 +33,16 @@ DroneNavigation::DroneNavigation()
         loop_rate.sleep();
     }
 }
+
+bool DroneNavigation::pathMarkerServiceCallback(MarkerServiceRequest& request, MarkerServiceResponse& response)
+{
+
+}
+
+bool DroneNavigation::costmapMarkerServiceCallback(MarkerServiceRequest& request, MarkerServiceResponse& response)
+{
+
+}
+
 
 

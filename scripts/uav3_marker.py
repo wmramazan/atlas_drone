@@ -149,6 +149,10 @@ if __name__=="__main__":
     sub_menu_handle = menu_handler.insert( "Actions" )
     menu_handler.insert( "Plan path", parent=sub_menu_handle, callback=processFeedback )
     menu_handler.insert( "Go to target", parent=sub_menu_handle, callback=processFeedback )
+    costmap_sub_menu_handle = menu_handler.insert( "Costmaps" )
+    menu_handler.insert( "Local Costmap", parent=costmap_sub_menu_handle, callback=processFeedback )
+    menu_handler.insert( "Global Costmap", parent=costmap_sub_menu_handle, callback=processFeedback )
+    menu_handler.insert( "Merged Costmap", parent=costmap_sub_menu_handle, callback=processFeedback )
   
     position = Point( 0, 0, 0)
     makedroneMarker( position )

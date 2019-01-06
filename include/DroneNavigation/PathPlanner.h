@@ -18,12 +18,15 @@
 #include "DroneNavigation/Costmap.h"
 #include "DroneNavigation/Pathfinder.h"
 
+#include <atlas_drone/MarkerService.h>
+
 using namespace std;
 using namespace ros;
 using namespace std_srvs;
 using namespace nav_msgs;
 using namespace geometry_msgs;
 using namespace visualization_msgs;
+using namespace atlas_drone;
 
 class PathPlanner
 {
@@ -52,8 +55,11 @@ private:
     Publisher path_pub;
 
     Trigger trigger_srv;
+    MarkerService marker_srv;
 
     ServiceClient go_to_target_service_client;
+    ServiceClient path_marker_service_client;
+    ServiceClient costmap_marker_service_client;
 
     ServiceServer request_path_clearance_service;
     ServiceServer request_path_service;

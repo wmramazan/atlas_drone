@@ -36,6 +36,10 @@ drone_message_topic:            "drone_ai/drone_message"
 ai_state_topic:                 "drone_ai/ai_state"
 go_to_target_service:           "/drone_ai/go_to_target"
 
+# NavigationVisualizer
+path_marker_service:            "/path_marker"
+costmap_marker_service:         "/costmap_marker"
+
 # Visualization
 costmap_radius:                 0.5
 
