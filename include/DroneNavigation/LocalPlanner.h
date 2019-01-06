@@ -17,7 +17,7 @@ typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
 class LocalPlanner
 {
 public:
-    LocalPlanner(NodeHandle& nh, string drone_id);
+    LocalPlanner(NodeHandle& nh);
     bool IsOccupied(Vec3Int index);
     uint GetMapSize();
 

@@ -7,7 +7,7 @@ GlobalPlanner::GlobalPlanner(NodeHandle& nh)
     radius = nh.param("/inflation_radius", 5);
     global_costmap = Costmap(size, resolution);
 
-    string octomap_topic = nh.param<std::string>("octomap_topic", "/rtabmap/octomap_full");
+    string octomap_topic = nh.param<std::string>("/throttled_octomap_topic", "/octomap_throttled");
     octomap_sub = nh.subscribe(octomap_topic, 5, &GlobalPlanner::octomap_callback, this);
 }
 
