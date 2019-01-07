@@ -34,15 +34,16 @@ public:
     bool IsPathClear(Path* path);
 
     UInt8MultiArray data;
-    uint size;
-    uint size_square;
-    uint size_cube;
+
+    int size;
+    int size_square;
+    int size_cube;
     int origin;
+
+    double resolution;
     double offset;
 
 private:
-    double resolution;
-
     class CostmapMergeJob
     {
           private:
