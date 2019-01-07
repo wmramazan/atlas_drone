@@ -5,7 +5,7 @@ PathPlanner::PathPlanner(NodeHandle& nh, GlobalPlanner* global_planner, string n
     generate_path = false;
     go_to_target = false;
 
-    this->start_position = Vec3(
+    this->drone_start_position = Vec3(
                 nh.param(ns + "start_position_x", 0),
                 nh.param(ns + "start_position_y", 0),
                 nh.param(ns + "start_position_z", 0)
@@ -26,6 +26,7 @@ PathPlanner::PathPlanner(NodeHandle& nh, GlobalPlanner* global_planner, string n
 
     drone_position_sub      = nh.subscribe(ns + nh.param<string>("/drone_position_topic", "mavros/local_position/pose"), 10, &PathPlanner::drone_position_callback, this);
     feedback_marker_sub     = nh.subscribe(ns + nh.param<string>("/marker_feedback_topic", "marker/feedback"), 10, &PathPlanner::marker_feedback_callback, this);
+    drone_target_sub        = nh.subscribe(ns + "/mavros/setpoint_raw/local", 10, &PathPlanner::drone_target_callback, this);
 
     navigation_target_pub   = nh.advertise<Pose>(ns + nh.param<string>("/target_pose_topic", "target_pose"), 10);
     terminal_message_pub    = nh.advertise<String>(ns + nh.param<string>("/terminal_message_topic", "drone_ai/terminal_message"), 100);
@@ -67,7 +68,6 @@ void PathPlanner::GeneratePath()
     ROS_INFO("Execution time: %lf s", ros::Time::now().toSec() - current_timestamp);
     if (found_path.size())
     {
-        ROS_INFO("Path size: %d", found_path.size());
         path.header.frame_id = frame_id;
         PoseStamped pose;
 
@@ -90,7 +90,9 @@ void PathPlanner::GeneratePath()
 
 bool PathPlanner::IsPathClear()
 {
-    return local_planner->IsPathClear(&path);
+    bool is_path_clear = local_planner->IsPathClear(&path);
+    ROS_INFO("Path Clear: %d", is_path_clear);
+    return is_path_clear;
 }
 
 bool PathPlanner::is_path_clear_service_callback(TriggerRequest& request, TriggerResponse& response)
@@ -107,7 +109,7 @@ bool PathPlanner::generate_path_service_callback(TriggerRequest& request, Trigge
 
 void PathPlanner::drone_position_callback(const PoseStamped::ConstPtr& msg)
 {
-    current_position = Vec3::FromPose(msg->pose) + start_position;
+    current_position = Vec3::FromPose(msg->pose) + drone_start_position;
 
     Vec3Int current_index(to_index(current_position.x), to_index(current_position.y), to_index(current_position.z));
     for (int i = current_index.x - 1; i <= current_index.x + 1; i++)
@@ -187,6 +189,11 @@ void PathPlanner::marker_feedback_callback(const InteractiveMarkerFeedbackConstP
             break;
         }
     }
+}
+
+void  PathPlanner::drone_target_callback(const PositionTarget::ConstPtr& msg)
+{
+    drone_target_position = Vec3(msg->position.x, msg->position.y, msg->position.z) + drone_start_position;
 }
 
 uint PathPlanner::to_index(double value)

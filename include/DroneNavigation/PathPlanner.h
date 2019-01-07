@@ -11,6 +11,7 @@
 #include <geometry_msgs/PoseStamped.h>
 #include <visualization_msgs/InteractiveMarkerFeedback.h>
 #include <std_srvs/Trigger.h>
+#include <mavros_msgs/PositionTarget.h>
 
 #include "DroneNavigation/Vec3.h"
 #include "DroneNavigation/GlobalPlanner.h"
@@ -22,15 +23,16 @@ using namespace std;
 using namespace ros;
 using namespace std_srvs;
 using namespace nav_msgs;
+using namespace mavros_msgs;
 using namespace geometry_msgs;
 using namespace visualization_msgs;
 
 struct VisualizationRequest
 {
-    bool path_request = false;
-    bool costmap_request = false;
-    int costmap_type = -1;
-    Vec3 origin;
+    bool    path_request = false;
+    bool    costmap_request = false;
+    int     costmap_type = -1;
+    Vec3    origin;
 };
 
 class PathPlanner
@@ -56,15 +58,20 @@ public:
 
     VisualizationRequest request;
 
+    Vec3 drone_start_position;
+    Vec3 drone_target_position;
+
 private:
     bool is_path_clear_service_callback(TriggerRequest& request, TriggerResponse& response);
     bool generate_path_service_callback(TriggerRequest& request, TriggerResponse& response);
 
     void drone_position_callback(const PoseStamped::ConstPtr& msg);
     void marker_feedback_callback(const InteractiveMarkerFeedbackConstPtr &feedback);
+    void drone_target_callback(const PositionTarget::ConstPtr& msg);
 
     Subscriber drone_position_sub;
     Subscriber feedback_marker_sub;
+    Subscriber drone_target_sub;
 
     Publisher navigation_target_pub;
     Publisher terminal_message_pub;
@@ -79,7 +86,6 @@ private:
 
     Vec3 current_position;
     Vec3 target_position;
-    Vec3 start_position;
 
     Pathfinder* pathfinder;
     bool generate_path;

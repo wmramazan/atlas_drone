@@ -26,7 +26,8 @@ enum MarkerType
     COSTMAP_MARKER          = 0,
     LOCAL_COSTMAP_MARKER    = 1,
     GLOBAL_COSTMAP_MARKER   = 2,
-    VEHICLE_PATH_MARKER     = 3
+    VEHICLE_PATH_MARKER     = 3,
+    VEHICLE_TARGET_MARKER   = 4
 };
 
 class NavigationVisualizer
@@ -35,6 +36,7 @@ public:
     NavigationVisualizer(NodeHandle& nh);
 
     void Update(VisualizationRequest request);
+    void PublishTargetMarkers();
     void PublishPathMarkers();
     void PublishCostmapMarkers(Vec3 origin, MarkerType costmap_type);
     void AddPathPlanner(PathPlanner* path_planner);
@@ -45,25 +47,24 @@ private:
     void add_marker(MarkerType marker_type, Point position);
 
     Publisher vehicle_path_marker_array_pub;
+    Publisher vehicle_target_marker_array_pub;
     Publisher costmap_marker_array_pub;
     Publisher global_costmap_marker_array_pub;
     Publisher local_costmap_marker_array_pub;
 
     MarkerArray marker_array;
     MarkerArray vehicle_path_marker_array;
+    MarkerArray vehicle_target_marker_array;
     MarkerArray costmap_marker_array;
     MarkerArray local_costmap_marker_array;
     MarkerArray global_costmap_marker_array;
 
     Marker vehicle_path_marker;
+    Marker vehicle_target_marker;
     Marker costmap_marker;
     Marker local_costmap_marker;
     Marker global_costmap_marker;
     Marker delete_marker;
-
-    Path drone_1_path;
-    Path drone_2_path;
-    Path drone_3_path;
 
     vector<PathPlanner*> path_planners;
     PathPlanner* path_planner;

@@ -8,6 +8,7 @@ NavigationVisualizer::NavigationVisualizer(NodeHandle& nh)
     string frame_id = nh.param<string>("/frame_id", "world");
 
     vehicle_path_marker   = create_marker(frame_id, "drone_path",     Marker::SPHERE, Marker::ADD, Vec3(resolution / 2, resolution / 2, resolution / 2), 1.0f, Vec3(1, 0, 0));
+    vehicle_target_marker = create_marker(frame_id, "drone_target",   Marker::SPHERE, Marker::ADD, Vec3(resolution / 2, resolution / 2, resolution / 2), 1.0f, Vec3(0, 0, 0));
     costmap_marker        = create_marker(frame_id, "costmap",        Marker::SPHERE, Marker::ADD, Vec3(resolution / 2, resolution / 2, resolution / 2), 0.1f, Vec3(1, 1, 0));
     local_costmap_marker  = create_marker(frame_id, "local_costmap",  Marker::SPHERE, Marker::ADD, Vec3(resolution / 2, resolution / 2, resolution / 2), 0.1f, Vec3(0, 1, 1));
     global_costmap_marker = create_marker(frame_id, "global_costmap", Marker::SPHERE, Marker::ADD, Vec3(resolution / 2, resolution / 2, resolution / 2), 0.1f, Vec3(1, 0, 1));
@@ -17,7 +18,8 @@ NavigationVisualizer::NavigationVisualizer(NodeHandle& nh)
     path_marker_request = 0;
     costmap_marker_request = 0;
 
-    vehicle_path_marker_array_pub = nh.advertise<MarkerArray>("path_marker_array", 1);
+    vehicle_path_marker_array_pub   = nh.advertise<MarkerArray>("drone_path_marker_array", 1);
+    vehicle_target_marker_array_pub = nh.advertise<MarkerArray>("drone_target_marker_array", 1);
 }
 
 void NavigationVisualizer::Update(VisualizationRequest request)
@@ -31,6 +33,26 @@ void NavigationVisualizer::Update(VisualizationRequest request)
     {
         PublishCostmapMarkers(request.origin, MarkerType(request.costmap_type));
     }
+
+    PublishTargetMarkers();
+}
+
+void NavigationVisualizer::PublishTargetMarkers()
+{
+    vehicle_target_marker_array.markers.clear();
+    vehicle_target_marker_array.markers.push_back(delete_marker);
+
+    for (uint k = 0; k < path_planners.size(); k++)
+    {
+        Point target_position;
+        target_position.x = path_planners[k]->drone_target_position.x;
+        target_position.y = path_planners[k]->drone_target_position.y;
+        target_position.z = path_planners[k]->drone_target_position.z;
+
+        add_marker(MarkerType::VEHICLE_TARGET_MARKER, target_position);
+    }
+
+    vehicle_target_marker_array_pub.publish(vehicle_target_marker_array);
 }
 
 void NavigationVisualizer::PublishPathMarkers()
@@ -171,6 +193,11 @@ void NavigationVisualizer::add_marker(MarkerType marker_type, Point position)
         case VEHICLE_PATH_MARKER:
             marker = &vehicle_path_marker;
             marker_array = &vehicle_path_marker_array;
+            break;
+
+        case VEHICLE_TARGET_MARKER:
+            marker = &vehicle_target_marker;
+            marker_array = &vehicle_target_marker_array;
             break;
 
         case COSTMAP_MARKER:

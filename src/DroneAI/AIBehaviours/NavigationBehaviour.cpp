@@ -42,10 +42,11 @@ void NavigationBehaviour::Update()
         Vec3 current_position = DRONE->GetPosition();
         double distance = current_position.Distance(target_position);
 
-        if (distance > 0.1 && request_path_clearence())
+        ROS_INFO("%f", distance);
+        if (distance >= 0.25 && request_path_clearence())
         {
             LOG("||-> Adding task with pose: %f - %f - %f", target_pose.position.x, target_pose.position.y, target_pose.position.z);
-            AddTask(new MoveTask(target_position, atan2(path_direction.y, path_direction.x), 100000));
+            AddTask(new MoveTask(target_position, atan2(path_direction.y, path_direction.x), 10000));
         }
     }
     else
@@ -78,15 +79,17 @@ uint NavigationBehaviour::calculate_next_node_index(uint start_index, Vec3& path
         current_direction = next_node - current_node;
     }
 
+    if (target_node_index < 2 && path.poses.size() > 2)
+    {
+        target_node_index = calculate_next_node_index(2, path_direction);
+    }
+
     return target_node_index;
 }
 
 void NavigationBehaviour::on_task_added()
 {
-    if (CurrentTask == nullptr || CurrentTask->Name == "\"Initialization Task\"")
-    {
-        next_task();
-    }
+
 }
 
 void NavigationBehaviour::task_complete_callback(AITaskResult &result)
