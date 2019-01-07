@@ -15,8 +15,6 @@ PathPlanner::PathPlanner(NodeHandle& nh, GlobalPlanner* global_planner, string n
     resolution = nh.param("/resolution", 0.1);
     frame_id = nh.param<string>("/frame_id", "world");
 
-    costmap = new Costmap(size, resolution);
-
     this->global_planner = global_planner;
     local_planner = new LocalPlanner(nh, ns);
 
@@ -51,14 +49,14 @@ void PathPlanner::GeneratePath()
     path.poses.clear();
 
     Vec3Int start;
-    start.x = costmap->ToIndex(current_position.x);
-    start.y = costmap->ToIndex(current_position.y);
-    start.z = costmap->ToIndex(current_position.z);
+    start.x = to_index(current_position.x);
+    start.y = to_index(current_position.y);
+    start.z = to_index(current_position.z);
 
     Vec3Int end;
-    end.x = costmap->ToIndex(target_position.x);
-    end.y = costmap->ToIndex(target_position.y);
-    end.z = costmap->ToIndex(target_position.z);
+    end.y = to_index(target_position.y);
+    end.x = to_index(target_position.x);
+    end.z = to_index(target_position.z);
 
     double current_timestamp = ros::Time::now().toSec();
     vector<Vec3Int> found_path = pathfinder->Find(start, end);
@@ -70,9 +68,9 @@ void PathPlanner::GeneratePath()
 
         for (Vec3Int coordinate : found_path)
         {
-            pose.pose.position.x = costmap->ToPosition(coordinate.x);
-            pose.pose.position.y = costmap->ToPosition(coordinate.y);
-            pose.pose.position.z = costmap->ToPosition(coordinate.z);
+            pose.pose.position.x = to_position(coordinate.x);
+            pose.pose.position.y = to_position(coordinate.y);
+            pose.pose.position.z = to_position(coordinate.z);
             path.poses.push_back(pose);
         }
 
@@ -87,7 +85,7 @@ void PathPlanner::GeneratePath()
 
 bool PathPlanner::IsPathClear()
 {
-    return costmap->CanPathPass(&path);
+    return local_planner->IsPathClear(&path);
 }
 
 bool PathPlanner::is_path_clear_service_callback(TriggerRequest& request, TriggerResponse& response)
@@ -105,6 +103,19 @@ bool PathPlanner::generate_path_service_callback(TriggerRequest& request, Trigge
 void PathPlanner::drone_position_callback(const PoseStamped::ConstPtr& msg)
 {
     current_position = Vec3::FromPose(msg->pose) + start_position;
+
+    Vec3Int current_index(to_index(current_position.x), to_index(current_position.y), to_index(current_position.z));
+    for (int i = current_index.x - 1; i <= current_index.x + 1; i++)
+    {
+        for (int j = current_index.y - 1; j <= current_index.y + 1; j++)
+        {
+            for (int k = current_index.z - 1; k <= current_index.z + 1; k++)
+            {
+                local_planner->SetOccupancy(Vec3Int(i, j, k), 0);
+                global_planner->SetOccupancy(Vec3Int(i, j, k), 0);
+            }
+        }
+    }
 }
 
 void PathPlanner::marker_feedback_callback(const InteractiveMarkerFeedbackConstPtr &feedback)
@@ -173,3 +184,25 @@ void PathPlanner::marker_feedback_callback(const InteractiveMarkerFeedbackConstP
     }
 }
 
+uint PathPlanner::to_index(double value)
+{
+    return (uint) (((value) / resolution) + size / 2 + 1);
+}
+
+double PathPlanner::to_position(int value)
+{
+    return (double) (value - size / 2) * resolution - resolution / 2;
+}
+
+bool PathPlanner::is_occupied(Vec3Int index, int type)
+{
+    switch  (type)
+    {
+        case 0:
+            return global_planner->IsOccupied(index) || local_planner->IsOccupied(index);
+        case 1:
+            return local_planner->IsOccupied(index);
+        case 2:
+            return global_planner->IsOccupied(index);
+    }
+}

@@ -15,9 +15,19 @@ bool LocalPlanner::IsOccupied(Vec3Int index)
     return local_costmap.Get(index) == 1;
 }
 
+bool LocalPlanner::IsPathClear(Path *path)
+{
+    return local_costmap.IsPathClear(path);
+}
+
 uint LocalPlanner::GetMapSize()
 {
     return local_costmap.size;
+}
+
+void LocalPlanner::SetOccupancy(Vec3Int index, uint8_t value)
+{
+    local_costmap.Get(index) = value;
 }
 
 void LocalPlanner::generate_local_costmap(const PointCloud::ConstPtr& point_cloud)
@@ -44,7 +54,7 @@ void LocalPlanner::generate_local_costmap(const PointCloud::ConstPtr& point_clou
                     {
                         for (k = z - radius; k <= z + radius; k++)
                         {
-                            local_costmap.Get(k, size - i, size - j) = 1;
+                            SetOccupancy(Vec3Int(k, size-i, size-j), 1);
                         }
                     }
                 }

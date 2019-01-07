@@ -25,7 +25,9 @@ class GlobalPlanner
 public:
     GlobalPlanner(NodeHandle& nh);
     bool IsOccupied(Vec3Int index);
+    bool IsPathClear(Path* path);
     uint GetMapSize();
+    void SetOccupancy(Vec3Int index, uint8_t value);
 
 private:
     void generate_global_costmap(const Octomap::ConstPtr& octomap);

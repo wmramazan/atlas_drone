@@ -15,9 +15,19 @@ bool GlobalPlanner::IsOccupied(Vec3Int index)
     return global_costmap.Get(index) == 1;
 }
 
+bool GlobalPlanner::IsPathClear(Path *path)
+{
+    return global_costmap.IsPathClear(path);
+}
+
 uint GlobalPlanner::GetMapSize()
 {
     return global_costmap.size;
+}
+
+void GlobalPlanner::SetOccupancy(Vec3Int index, uint8_t value)
+{
+    global_costmap.Get(index) = value;
 }
 
 void GlobalPlanner::generate_global_costmap(const Octomap::ConstPtr &octomap)
@@ -46,7 +56,7 @@ void GlobalPlanner::generate_global_costmap(const Octomap::ConstPtr &octomap)
                 {
                     for (k = z - radius; k <= z + radius; k++)
                     {
-                        global_costmap.Get(i, j, k) = 1;
+                        SetOccupancy(Vec3Int(i, j, k), 1);
                     }
                 }
             }

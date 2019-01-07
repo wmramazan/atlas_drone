@@ -36,7 +36,8 @@ DroneAI::DroneAI()
     behaviourManager = new BehaviourManager(nh);
 
     behaviourManager->SetBehaviour("Commanded Behaviour", true);
-    //behaviourManager->SetBehaviour("Idle Behaviour", true);
+    Duration(3.0).sleep();
+    behaviourManager->SetBehaviour("Idle Behaviour", true);
 
     LOG("Drone AI Initialized. Beginning AI cycle.");
 

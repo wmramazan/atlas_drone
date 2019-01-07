@@ -45,6 +45,10 @@ public:
     void SetTargetPose(Pose target_pose);
     bool IsPathClear();
 
+    uint to_index(double value);
+    double to_position(int value);
+    bool is_occupied(Vec3Int index, int type);
+
     GlobalPlanner* global_planner;
     LocalPlanner* local_planner;
 
@@ -77,7 +81,6 @@ private:
     Vec3 target_position;
     Vec3 start_position;
 
-    Costmap* costmap;
     Pathfinder* pathfinder;
     bool generate_path;
     bool go_to_target;

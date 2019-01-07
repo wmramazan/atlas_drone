@@ -14,16 +14,16 @@
     <node pkg="tf" type="static_transform_publisher" name="tf_local_origin1"
           args="0 0 0 $(arg mavros_transformation) 0 0 world local_origin_1 10"/>
   <node pkg="tf" type="static_transform_publisher" name="tf_local_origin2"
-        args="0 2 0 $(arg mavros_transformation) 0 0 world local_origin_2 10"/>
+        args="0 4 0 $(arg mavros_transformation) 0 0 world local_origin_2 10"/>
         <node pkg="tf" type="static_transform_publisher" name="tf_local_origin3"
-              args="0 4 0 $(arg mavros_transformation) 0 0 world local_origin_3 10"/>
+              args="0 8 0 $(arg mavros_transformation) 0 0 world local_origin_3 10"/>
 
     <node pkg="tf" type="static_transform_publisher" name="tf_camera1"
           args="0 0 0 -1.57 0 -1.57 fcu1 camera_link1 10"/>
     <node pkg="tf" type="static_transform_publisher" name="tf_camera2"
-          args="0 2 0 -1.57 0 -1.57 fcu2 camera_link2 10"/>
+          args="0 0 0 -1.57 0 -1.57 fcu2 camera_link2 10"/>
     <node pkg="tf" type="static_transform_publisher" name="tf_camera3"
-          args="0 4 0 -1.57 0 -1.57 fcu3 camera_link3 10"/>
+          args="0 0 0 -1.57 0 -1.57 fcu3 camera_link3 10"/>
 
     <!-- Mavros and Sitl -->
     <include file="$(find atlas_drone)/launch/simulation_mavros_sitl.launch" >

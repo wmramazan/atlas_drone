@@ -115,7 +115,7 @@ void Costmap::Clear()
     data.data.resize(size_cube);
 }
 
-bool Costmap::CanPathPass(Path* path)
+bool Costmap::IsPathClear(Path* path)
 {
   for (int i = 0; i < path->poses.size(); i++)
   {

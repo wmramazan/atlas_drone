@@ -44,10 +44,6 @@ private:
     Marker create_marker(string frame_id, string ns, int type, int action, Vec3 scale, float alpha, Vec3 color);
     void add_marker(MarkerType marker_type, Point position);
 
-    uint to_index(double value);
-    double to_position(int value);
-    bool is_occupied(Vec3Int index, int type);
-
     Publisher vehicle_path_marker_array_pub;
     Publisher costmap_marker_array_pub;
     Publisher global_costmap_marker_array_pub;
@@ -70,12 +66,13 @@ private:
     Path drone_3_path;
 
     vector<PathPlanner*> path_planners;
+    PathPlanner* path_planner;
     GlobalPlanner* global_planner;
     LocalPlanner*  local_planner;
 
     uint size;
     double resolution;
-    uint radius;
+    uint costmap_radius;
 
     int id;
     int path_marker_request;

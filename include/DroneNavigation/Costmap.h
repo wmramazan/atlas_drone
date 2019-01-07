@@ -31,7 +31,7 @@ public:
     double ToPosition(int value);
     void Merge(Costmap* costmap);
     void Clear();
-    bool CanPathPass(Path* path);
+    bool IsPathClear(Path* path);
 
     UInt8MultiArray data;
     uint size;

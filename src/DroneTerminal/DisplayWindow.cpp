@@ -59,6 +59,9 @@ void DisplayWindow::LocalPositionCallback(const geometry_msgs::PoseStamped::Cons
 void DisplayWindow::TargetPositionCallback(const mavros_msgs::PositionTarget::ConstPtr &msg)
 {
     target_position = *msg;
+    target_position.position.x += terminal->start_position.x;
+    target_position.position.y += terminal->start_position.y;
+    target_position.position.z += terminal->start_position.z;
     dirty = true;
 }
 

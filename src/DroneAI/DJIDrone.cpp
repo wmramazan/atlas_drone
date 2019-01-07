@@ -3,7 +3,7 @@
 
 DJIDrone::DJIDrone(ros::NodeHandle& nh, Vec3 start_position)
 {
-    altitude_sub          = nh.subscribe("mavros/altitude",          10, &DJIDrone::altitude_callback,         this);
+    altitude_sub          = nh.subscribe("mavros/altitude",            10, &DJIDrone::altitude_callback,         this);
     localPosition_sub     = nh.subscribe("mavros/local_position/pose", 10, &DJIDrone::local_position_callback,   this);
     battery_state_sub     = nh.subscribe("mavros/battery",             10, &DJIDrone::battery_state_callback,    this);
     current_state_sub     = nh.subscribe("mavros/state",               10, &DJIDrone::current_state_callback,    this);
@@ -117,7 +117,7 @@ void DJIDrone::MoveBy(Vec3 position, double yaw)
 
 Vec3 DJIDrone::GetPosition()
 {
-    return start_position + Vec3(local_position.pose.position.x, local_position.pose.position.y, local_position.pose.position.z);
+    return Vec3(local_position.pose.position.x, local_position.pose.position.y, local_position.pose.position.z);
 }
 
 geometry_msgs::Quaternion DJIDrone::GetRotation()

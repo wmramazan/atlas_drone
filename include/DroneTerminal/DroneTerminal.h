@@ -42,7 +42,7 @@ class DroneTerminal
     InputWindow* inputWindow;
 
     Vec3 start_position;
-    int id;
+    int id = 0;
   private:
     void initialize_node();
     void initialize_terminal();

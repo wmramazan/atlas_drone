@@ -21,7 +21,9 @@ class LocalPlanner
 public:
     LocalPlanner(NodeHandle& nh, string ns);
     bool IsOccupied(Vec3Int index);
+    bool IsPathClear(Path* path);
     uint GetMapSize();
+    void SetOccupancy(Vec3Int index, uint8_t value);
 
 private:
     void generate_local_costmap(const PointCloud::ConstPtr& point_cloud);

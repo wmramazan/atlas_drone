@@ -161,6 +161,9 @@ class DJIDrone
     void local_position_callback(const PoseStamped::ConstPtr& msg)
     {
         local_position = *msg;
+        local_position.pose.position.x += start_position.x;
+        local_position.pose.position.y += start_position.y;
+        local_position.pose.position.z += start_position.z;
     }
 
     void gps_position_callback(const sensor_msgs::NavSatFix::ConstPtr& msg)

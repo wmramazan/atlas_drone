@@ -4,7 +4,7 @@ NavigationVisualizer::NavigationVisualizer(NodeHandle& nh)
 {
     size = nh.param("/size", 600);
     resolution = nh.param("/resolution", 0.1);
-    radius = nh.param("/inflation_radius", 5);
+    costmap_radius = nh.param("/costmap_radius", 5);
     string frame_id = nh.param<string>("/frame_id", "world");
 
     vehicle_path_marker   = create_marker(frame_id, "drone_path",     Marker::SPHERE, Marker::ADD, Vec3(resolution / 2, resolution / 2, resolution / 2), 1.0f, Vec3(1, 0, 0));
@@ -76,7 +76,7 @@ void NavigationVisualizer::PublishCostmapMarkers(Vec3 origin, MarkerType costmap
     marker_array->markers.push_back(delete_marker);
 
 
-    Vec3Int origin_index = Vec3Int(to_index(origin.x), to_index(origin.y), to_index(origin.z));
+    Vec3Int origin_index = Vec3Int(path_planner->to_index(origin.x), path_planner->to_index(origin.y), path_planner->to_index(origin.z));
 
     Vec3Int neighbours[] =
     {
@@ -90,20 +90,20 @@ void NavigationVisualizer::PublishCostmapMarkers(Vec3 origin, MarkerType costmap
 
     Vec3Int temp_vector;
 
-    for (uint i = -radius; i <= radius; i++)
+    for (uint i = -costmap_radius; i <= costmap_radius; i++)
     {
-        for (uint j = -radius; j <= radius; j++)
+        for (uint j = -costmap_radius; j <= costmap_radius; j++)
         {
-            for (uint k = -radius; k <= radius; k++)
+            for (uint k = -costmap_radius; k <= costmap_radius; k++)
             {
                 temp_vector = origin_index + Vec3Int(i, j, k);
-                if (is_occupied(temp_vector, costmap_type))
+                if (path_planner->is_occupied(temp_vector, costmap_type))
                 {
                     bool visible = false;
 
                     for  (int a = 0; a < 6; a++)
                     {
-                        if (!visible && !is_occupied(temp_vector + neighbours[a], costmap_type))
+                        if (!visible && !path_planner->is_occupied(temp_vector + neighbours[a], costmap_type))
                         {
                             visible = true;
                         }
@@ -117,9 +117,9 @@ void NavigationVisualizer::PublishCostmapMarkers(Vec3 origin, MarkerType costmap
                     if (visible)
                     {
                         Point position;
-                        position.x = to_position(temp_vector.x);
-                        position.y = to_position(temp_vector.y);
-                        position.z = to_position(temp_vector.z);
+                        position.x = path_planner->to_position(temp_vector.x);
+                        position.y = path_planner->to_position(temp_vector.y);
+                        position.z = path_planner->to_position(temp_vector.z);
                         add_marker(costmap_type, position);
                     }
                 }
@@ -137,8 +137,9 @@ void NavigationVisualizer::AddPathPlanner(PathPlanner* path_planner)
 
 void NavigationVisualizer::SwitchPathPlanner(uint index)
 {
-    global_planner = path_planners[index]->global_planner;
-    local_planner = path_planners[index]->local_planner;
+    path_planner = path_planners[index];
+    global_planner = path_planner->global_planner;
+    local_planner = path_planner->local_planner;
 }
 
 Marker NavigationVisualizer::create_marker(string frame_id, string ns, int type, int action, Vec3 scale, float alpha, Vec3 color)
@@ -191,27 +192,4 @@ void NavigationVisualizer::add_marker(MarkerType marker_type, Point position)
     marker->id = id++;
     marker->pose.position = position;
     marker_array->markers.push_back(*marker);
-}
-
-uint NavigationVisualizer::to_index(double value)
-{
-    return (uint) (((value) / resolution) + size / 2 + 1);
-}
-
-double NavigationVisualizer::to_position(int value)
-{
-    return (double) (value - size / 2) * resolution - resolution / 2;
-}
-
-bool NavigationVisualizer::is_occupied(Vec3Int index, int type)
-{
-    switch  (type)
-    {
-        case 0:
-            return global_planner->IsOccupied(index) || local_planner->IsOccupied(index);
-        case 1:
-            return local_planner->IsOccupied(index);
-        case 2:
-            return global_planner->IsOccupied(index);
-    }
 }
