@@ -135,16 +135,19 @@ void PathPlanner::marker_feedback_callback(const InteractiveMarkerFeedbackConstP
                 {
                     request.costmap_request = true;
                     request.costmap_type = 1;
+                    request.origin = Vec3::FromPose(feedback->pose);
                 }
-                case 8: // Local Costmap
+                case 8: // Global Costmap
                 {
                     request.costmap_request = true;
                     request.costmap_type = 2;
+                    request.origin = Vec3::FromPose(feedback->pose);
                 }
-                case 9: // Local Costmap
+                case 9: // Merged Costmap
                 {
                     request.costmap_request = true;
                     request.costmap_type = 0;
+                    request.origin = Vec3::FromPose(feedback->pose);
                 }
             }
 

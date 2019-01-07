@@ -29,7 +29,7 @@ void NavigationVisualizer::Update(VisualizationRequest request)
 
     if (request.costmap_request)
     {
-        //PublishCostmapMarkers(origin, )
+        PublishCostmapMarkers(request.origin, MarkerType(request.costmap_type));
     }
 }
 

@@ -30,6 +30,7 @@ struct VisualizationRequest
     bool path_request = false;
     bool costmap_request = false;
     int costmap_type = -1;
+    Vec3 origin;
 };
 
 class PathPlanner
