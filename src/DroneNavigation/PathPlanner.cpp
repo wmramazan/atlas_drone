@@ -12,7 +12,11 @@ PathPlanner::PathPlanner(NodeHandle& nh, GlobalPlanner* global_planner, string n
     );
 
     size = nh.param("/size", 600);
+    half_size = size / 2;
+
     resolution = nh.param("/resolution", 0.1);
+    half_resolution = resolution / 2;
+
     frame_id = nh.param<string>("/frame_id", "world");
 
     this->global_planner = global_planner;
@@ -63,6 +67,7 @@ void PathPlanner::GeneratePath()
     ROS_INFO("Execution time: %lf s", ros::Time::now().toSec() - current_timestamp);
     if (found_path.size())
     {
+        ROS_INFO("Path size: %d", found_path.size());
         path.header.frame_id = frame_id;
         PoseStamped pose;
 
@@ -186,12 +191,16 @@ void PathPlanner::marker_feedback_callback(const InteractiveMarkerFeedbackConstP
 
 uint PathPlanner::to_index(double value)
 {
-    return (uint) (((value) / resolution) + size / 2 + 1);
+    uint result = (uint) (((value) / resolution) + half_size + 1);
+    //ROS_INFO("toIndex: %lf %d", value, result);
+    return result;
 }
 
 double PathPlanner::to_position(int value)
 {
-    return (double) (value - size / 2) * resolution - resolution / 2;
+    double result = (double) (value - half_size) * resolution - half_resolution;
+    //ROS_INFO("toPosition: %d %lf", value, result);
+    return result;
 }
 
 bool PathPlanner::is_occupied(Vec3Int index, int type)

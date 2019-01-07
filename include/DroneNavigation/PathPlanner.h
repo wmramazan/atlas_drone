@@ -85,8 +85,10 @@ private:
     bool generate_path;
     bool go_to_target;
 
-    uint size;
+    int size;
+    int half_size;
     double resolution;
+    double half_resolution;
 
     string frame_id;
 };
