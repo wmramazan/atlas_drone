@@ -19,7 +19,7 @@ typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
 class LocalPlanner
 {
 public:
-    LocalPlanner(NodeHandle& nh, string ns);
+    LocalPlanner(NodeHandle& nh);
     bool IsOccupied(Vec3Int index);
     bool IsPathClear(Path* path);
     uint GetMapSize();

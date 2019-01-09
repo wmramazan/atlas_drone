@@ -33,7 +33,7 @@ class PathPlanner
 {
 
 public:
-    PathPlanner(NodeHandle& nh, GlobalPlanner* global_planner, int drone_id);
+    PathPlanner(GlobalPlanner* global_planner, int drone_id);
 
     void Update();
     void GeneratePath();

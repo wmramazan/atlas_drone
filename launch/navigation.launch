@@ -24,6 +24,8 @@
         </node>
     </group>
 
+    <node pkg="atlas_drone" name="trigger" type="trigger" output="screen" />
+
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find atlas_drone)/rviz/navigation.rviz" output="screen" />
 
 </launch>

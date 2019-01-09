@@ -16,9 +16,9 @@ DroneNavigation::DroneNavigation()
 
     global_planner = new GlobalPlanner(nh);
 
-    vehicle1_planner = new PathPlanner(nh, global_planner, 1);
-    vehicle2_planner = new PathPlanner(nh, global_planner, 2);
-    vehicle3_planner = new PathPlanner(nh, global_planner, 3);
+    vehicle1_planner = new PathPlanner(global_planner, 1);
+    vehicle2_planner = new PathPlanner(global_planner, 2);
+    vehicle3_planner = new PathPlanner(global_planner, 3);
 
     navigation_visualizer = new NavigationVisualizer(nh);
     navigation_visualizer->AddPathPlanner(vehicle1_planner);

@@ -68,8 +68,8 @@ add_message_files(
 
 ## Generate services in the 'srv' folder
 add_service_files(
-   FILES
-   VisualizerMessage.srv
+   DIRECTORY srv
+   FILES VisualizerMessage.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -197,6 +197,10 @@ target_link_libraries(drone_navigation
         costmap
         navigation_visualizer
 )
+
+add_executable(test_node src/DroneNavigation/test_node.cpp)
+
+target_link_libraries(test_node ${catkin_LIBRARIES})
 
 add_executable(point_cloud_filter src/DroneNavigation/point_cloud_filter.cpp)
 

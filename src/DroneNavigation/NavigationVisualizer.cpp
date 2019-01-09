@@ -21,8 +21,8 @@ NavigationVisualizer::NavigationVisualizer(NodeHandle& nh)
     vehicle_path_marker_array_pub   = nh.advertise<MarkerArray>("drone_path_marker_array", 1);
     vehicle_target_marker_array_pub = nh.advertise<MarkerArray>("drone_target_marker_array", 1);
 
-    visualize_path_service      = nh.advertiseService(nh.param<string>("/visualize_path_service", "visualizer/visualize_path"), &NavigationVisualizer::visualize_path_callback, this);
-    visualize_costmap_service   = nh.advertiseService(nh.param<string>("/is_path_clear_service", "visualizer/visualize_costmap"), &NavigationVisualizer::visualize_costmap_callback, this);
+    visualize_path_service      = nh.advertiseService(nh.param<string>("/visualize_path_service", "/visualizer/visualize_path"), &NavigationVisualizer::visualize_path_callback, this);
+    visualize_costmap_service   = nh.advertiseService(nh.param<string>("/is_path_clear_service", "/visualizer/visualize_costmap"), &NavigationVisualizer::visualize_costmap_callback, this);
 }
 
 void NavigationVisualizer::Update()

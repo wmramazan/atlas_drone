@@ -51,6 +51,8 @@ go_to_target_service:           "drone_ai/go_to_target"
 # NavigationVisualizer
 path_marker_service:            "/path_marker"
 costmap_marker_service:         "/costmap_marker"
+visualize_path_service:         "/visualizer/visualize_path"
+visualize_costmap_service:      "/visualizer/visualize_costmap"
 
 # Visualization
 costmap_radius:                 1

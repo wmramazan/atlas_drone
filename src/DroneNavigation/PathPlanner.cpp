@@ -1,16 +1,16 @@
 #include "DroneNavigation/PathPlanner.h"
 
-PathPlanner::PathPlanner(NodeHandle& nh, GlobalPlanner* global_planner, int drone_id)
+PathPlanner::PathPlanner(GlobalPlanner* global_planner, int drone_id)
 {
     generate_path = false;
     go_to_target = false;
 
-    string ns = "/uav" + to_string(drone_id) + "/";
+    NodeHandle nh("/uav" + to_string(drone_id) + "/");
 
     this->drone_start_position = Vec3(
-                nh.param(ns + "start_position_x", 0),
-                nh.param(ns + "start_position_y", 0),
-                nh.param(ns + "start_position_z", 0)
+                nh.param("start_position_x", 0),
+                nh.param("start_position_y", 0),
+                nh.param("start_position_z", 0)
     );
 
     this->drone_id = drone_id;
@@ -24,24 +24,24 @@ PathPlanner::PathPlanner(NodeHandle& nh, GlobalPlanner* global_planner, int dron
     frame_id = nh.param<string>("/frame_id", "world");
 
     this->global_planner = global_planner;
-    local_planner = new LocalPlanner(nh, ns);
+    local_planner = new LocalPlanner(nh);
 
     pathfinder = new Pathfinder(global_planner, local_planner);
 
-    drone_position_sub      = nh.subscribe(ns + nh.param<string>("/drone_position_topic", "mavros/local_position/pose"), 10, &PathPlanner::drone_position_callback, this);
-    feedback_marker_sub     = nh.subscribe(ns + nh.param<string>("/marker_feedback_topic", "marker/feedback"), 10, &PathPlanner::marker_feedback_callback, this);
-    drone_target_sub        = nh.subscribe(ns + "/mavros/setpoint_raw/local", 10, &PathPlanner::drone_target_callback, this);
+    drone_position_sub      = nh.subscribe(nh.param<string>("/drone_position_topic", "mavros/local_position/pose"), 10, &PathPlanner::drone_position_callback, this);
+    feedback_marker_sub     = nh.subscribe(nh.param<string>("/marker_feedback_topic", "marker/feedback"), 10, &PathPlanner::marker_feedback_callback, this);
+    drone_target_sub        = nh.subscribe("/mavros/setpoint_raw/local", 10, &PathPlanner::drone_target_callback, this);
 
-    navigation_target_pub   = nh.advertise<Pose>(ns + nh.param<string>("/target_pose_topic", "target_pose"), 10);
-    terminal_message_pub    = nh.advertise<String>(ns + nh.param<string>("/terminal_message_topic", "drone_ai/terminal_message"), 100);
-    path_pub                = nh.advertise<Path>(ns + nh.param<string>("/drone_path_topic", "drone_path"), 5);
+    navigation_target_pub   = nh.advertise<Pose>(nh.param<string>("/target_pose_topic", "target_pose"), 10);
+    terminal_message_pub    = nh.advertise<String>(nh.param<string>("/terminal_message_topic", "drone_ai/terminal_message"), 100);
+    path_pub                = nh.advertise<Path>(nh.param<string>("/drone_path_topic", "drone_path"), 5);
 
-    go_to_target_service_client     = nh.serviceClient<Trigger>(ns + nh.param<string>("/go_to_target_service", "drone_ai/go_to_target"));
-    visualize_path_service          = nh.serviceClient<VisualizerMessage>(nh.param<string>("/visualize_path_service", "visualizer/visualize_path"));
-    visualize_costmap_service       = nh.serviceClient<VisualizerMessage>(nh.param<string>("/visualize_costmap_service", "visualizer/visualize_costmap"));
+    go_to_target_service_client     = nh.serviceClient<Trigger>(nh.param<string>("/go_to_target_service", "drone_ai/go_to_target"));
+    visualize_path_service          = nh.serviceClient<VisualizerMessage>(nh.param<string>("/visualize_path_service", "/visualizer/visualize_path"));
+    visualize_costmap_service       = nh.serviceClient<VisualizerMessage>(nh.param<string>("/visualize_costmap_service", "/visualizer/visualize_costmap"));
 
-    request_path_service            = nh.advertiseService(ns + nh.param<string>("/generate_path_service", "path_planner/generate_path"), &PathPlanner::generate_path_service_callback, this);
-    request_path_clearance_service  = nh.advertiseService(ns + nh.param<string>("/is_path_clear_service", "path_planner/is_path_clear"), &PathPlanner::is_path_clear_service_callback, this);
+    request_path_service            = nh.advertiseService(nh.param<string>("/generate_path_service", "path_planner/generate_path"), &PathPlanner::generate_path_service_callback, this);
+    request_path_clearance_service  = nh.advertiseService(nh.param<string>("/is_path_clear_service", "path_planner/is_path_clear"), &PathPlanner::is_path_clear_service_callback, this);
 }
 
 void PathPlanner::Update()
@@ -87,7 +87,7 @@ void PathPlanner::GeneratePath()
         path_pub.publish(path);
         VisualizerMessage message;
         ROS_INFO("visualize_path before");
-        visualize_path_service.call(message);
+        //visualize_path_service.call(message);
         ROS_INFO("visualize_path after");
     }
     else
