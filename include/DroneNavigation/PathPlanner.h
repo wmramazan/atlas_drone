@@ -18,6 +18,7 @@
 #include "DroneNavigation/LocalPlanner.h"
 #include "DroneNavigation/Costmap.h"
 #include "DroneNavigation/Pathfinder.h"
+#include "atlas_drone/VisualizerMessage.h"
 
 using namespace std;
 using namespace ros;
@@ -26,20 +27,13 @@ using namespace nav_msgs;
 using namespace mavros_msgs;
 using namespace geometry_msgs;
 using namespace visualization_msgs;
-
-struct VisualizationRequest
-{
-    bool    path_request = false;
-    bool    costmap_request = false;
-    int     costmap_type = -1;
-    Vec3    origin;
-};
+using namespace atlas_drone;
 
 class PathPlanner
 {
 
 public:
-    PathPlanner(NodeHandle& nh, GlobalPlanner* global_planner, string ns);
+    PathPlanner(NodeHandle& nh, GlobalPlanner* global_planner, int drone_id);
 
     void Update();
     void GeneratePath();
@@ -51,13 +45,12 @@ public:
     double to_position(int value);
     bool is_occupied(Vec3Int index, int type);
 
+    int drone_id;
+
     GlobalPlanner* global_planner;
     LocalPlanner* local_planner;
 
     Path path;
-
-    VisualizationRequest request;
-
     Vec3 drone_start_position;
     Vec3 drone_target_position;
 
@@ -80,6 +73,8 @@ private:
     Trigger trigger_srv;
 
     ServiceClient go_to_target_service_client;
+    ServiceClient visualize_path_service;
+    ServiceClient visualize_costmap_service;
 
     ServiceServer request_path_clearance_service;
     ServiceServer request_path_service;

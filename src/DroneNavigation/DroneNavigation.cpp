@@ -16,9 +16,9 @@ DroneNavigation::DroneNavigation()
 
     global_planner = new GlobalPlanner(nh);
 
-    vehicle1_planner = new PathPlanner(nh, global_planner, "/uav1/");
-    vehicle2_planner = new PathPlanner(nh, global_planner, "/uav2/");
-    vehicle3_planner = new PathPlanner(nh, global_planner, "/uav3/");
+    vehicle1_planner = new PathPlanner(nh, global_planner, 1);
+    vehicle2_planner = new PathPlanner(nh, global_planner, 2);
+    vehicle3_planner = new PathPlanner(nh, global_planner, 3);
 
     navigation_visualizer = new NavigationVisualizer(nh);
     navigation_visualizer->AddPathPlanner(vehicle1_planner);
@@ -36,6 +36,7 @@ DroneNavigation::DroneNavigation()
         vehicle2_planner->Update();
         vehicle3_planner->Update();
 
+        /*
         VisualizationRequest request;
         request.path_request = vehicle1_planner->request.path_request || vehicle2_planner->request.path_request || vehicle3_planner->request.path_request;
 
@@ -59,6 +60,7 @@ DroneNavigation::DroneNavigation()
         }
 
         navigation_visualizer->Update(request);
+        */
 
         loop_rate.sleep();
     }

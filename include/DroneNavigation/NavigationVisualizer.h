@@ -15,11 +15,14 @@
 #include <DroneNavigation/Vec3.h>
 #include <DroneNavigation/Vec3Int.h>
 
+#include <atlas_drone/VisualizerMessage.h>
+
 using namespace std;
 using namespace ros;
 using namespace visualization_msgs;
 using namespace geometry_msgs;
 using namespace nav_msgs;
+using namespace atlas_drone;
 
 enum MarkerType
 {
@@ -35,7 +38,7 @@ class NavigationVisualizer
 public:
     NavigationVisualizer(NodeHandle& nh);
 
-    void Update(VisualizationRequest request);
+    void Update();
     void PublishTargetMarkers();
     void PublishPathMarkers();
     void PublishCostmapMarkers(Vec3 origin, MarkerType costmap_type);
@@ -43,6 +46,9 @@ public:
     void SwitchPathPlanner(uint index);
 
 private:
+    bool visualize_path_callback(VisualizerMessageRequest& request, VisualizerMessageResponse& response);
+    bool visualize_costmap_callback(VisualizerMessageRequest& request, VisualizerMessageResponse& response);
+
     Marker create_marker(string frame_id, string ns, int type, int action, Vec3 scale, float alpha, Vec3 color);
     void add_marker(MarkerType marker_type, Point position);
 
@@ -58,6 +64,9 @@ private:
     MarkerArray costmap_marker_array;
     MarkerArray local_costmap_marker_array;
     MarkerArray global_costmap_marker_array;
+
+    ServiceServer visualize_path_service;
+    ServiceServer visualize_costmap_service;
 
     Marker vehicle_path_marker;
     Marker vehicle_target_marker;

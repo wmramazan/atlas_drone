@@ -78,4 +78,5 @@ void MoveTask::Update()
 void MoveTask::End()
 {
     LOG("||-< Ending Move Task.");
+    DRONE->MoveBy(0, 0, 0, 0);
 }

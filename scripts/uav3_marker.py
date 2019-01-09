@@ -154,7 +154,7 @@ if __name__=="__main__":
     menu_handler.insert( "Global Costmap", parent=costmap_sub_menu_handle, callback=processFeedback )
     menu_handler.insert( "Merged Costmap", parent=costmap_sub_menu_handle, callback=processFeedback )
 
-    position = Point( 0, 8, 0)
+    position = Point( 0, 8, 2)
     makedroneMarker( position )
 
     server.applyChanges()

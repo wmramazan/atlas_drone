@@ -1,0 +1,5 @@
+int8 drone_id
+int8 costmap_type
+geometry_msgs/Point origin
+---
+bool success

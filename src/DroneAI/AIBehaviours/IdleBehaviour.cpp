@@ -27,7 +27,7 @@ void IdleBehaviour::Update()
     }
     else if (CurrentTask == nullptr && DRONE->GetPosition().z > 1.9)
     {
-        AddTask(new IdleTask(false));
+        AddTask(new IdleTask(true));
     }
 }
 

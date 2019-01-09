@@ -1,15 +1,19 @@
 #include "DroneNavigation/PathPlanner.h"
 
-PathPlanner::PathPlanner(NodeHandle& nh, GlobalPlanner* global_planner, string ns)
+PathPlanner::PathPlanner(NodeHandle& nh, GlobalPlanner* global_planner, int drone_id)
 {
     generate_path = false;
     go_to_target = false;
+
+    string ns = "/uav" + to_string(drone_id) + "/";
 
     this->drone_start_position = Vec3(
                 nh.param(ns + "start_position_x", 0),
                 nh.param(ns + "start_position_y", 0),
                 nh.param(ns + "start_position_z", 0)
     );
+
+    this->drone_id = drone_id;
 
     size = nh.param("/size", 600);
     half_size = size / 2;
@@ -33,6 +37,8 @@ PathPlanner::PathPlanner(NodeHandle& nh, GlobalPlanner* global_planner, string n
     path_pub                = nh.advertise<Path>(ns + nh.param<string>("/drone_path_topic", "drone_path"), 5);
 
     go_to_target_service_client     = nh.serviceClient<Trigger>(ns + nh.param<string>("/go_to_target_service", "drone_ai/go_to_target"));
+    visualize_path_service          = nh.serviceClient<VisualizerMessage>(nh.param<string>("/visualize_path_service", "visualizer/visualize_path"));
+    visualize_costmap_service       = nh.serviceClient<VisualizerMessage>(nh.param<string>("/visualize_costmap_service", "visualizer/visualize_costmap"));
 
     request_path_service            = nh.advertiseService(ns + nh.param<string>("/generate_path_service", "path_planner/generate_path"), &PathPlanner::generate_path_service_callback, this);
     request_path_clearance_service  = nh.advertiseService(ns + nh.param<string>("/is_path_clear_service", "path_planner/is_path_clear"), &PathPlanner::is_path_clear_service_callback, this);
@@ -40,8 +46,6 @@ PathPlanner::PathPlanner(NodeHandle& nh, GlobalPlanner* global_planner, string n
 
 void PathPlanner::Update()
 {
-    request = VisualizationRequest();
-
     if (generate_path)
     {
         GeneratePath();
@@ -68,6 +72,7 @@ void PathPlanner::GeneratePath()
     ROS_INFO("Execution time: %lf s", ros::Time::now().toSec() - current_timestamp);
     if (found_path.size())
     {
+        ROS_INFO("path_found");
         path.header.frame_id = frame_id;
         PoseStamped pose;
 
@@ -80,11 +85,14 @@ void PathPlanner::GeneratePath()
         }
 
         path_pub.publish(path);
-        request.path_request = true;
+        VisualizerMessage message;
+        ROS_INFO("visualize_path before");
+        visualize_path_service.call(message);
+        ROS_INFO("visualize_path after");
     }
     else
     {
-
+        ROS_INFO("path_not_found");
     }
 }
 
@@ -151,21 +159,27 @@ void PathPlanner::marker_feedback_callback(const InteractiveMarkerFeedbackConstP
 
                 case 7: // Local Costmap
                 {
-                    request.costmap_request = true;
-                    request.costmap_type = 1;
-                    request.origin = Vec3::FromPose(feedback->pose);
+                    VisualizerMessage visualizerMessage;
+                    visualizerMessage.request.drone_id = drone_id;
+                    visualizerMessage.request.costmap_type = 1;
+                    visualizerMessage.request.origin = feedback->pose.position;
+                    visualize_costmap_service.call(visualizerMessage);
                 }
                 case 8: // Global Costmap
                 {
-                    request.costmap_request = true;
-                    request.costmap_type = 2;
-                    request.origin = Vec3::FromPose(feedback->pose);
+                    VisualizerMessage visualizerMessage;
+                    visualizerMessage.request.drone_id = drone_id;
+                    visualizerMessage.request.costmap_type = 2;
+                    visualizerMessage.request.origin = feedback->pose.position;
+                    visualize_costmap_service.call(visualizerMessage);
                 }
                 case 9: // Merged Costmap
                 {
-                    request.costmap_request = true;
-                    request.costmap_type = 0;
-                    request.origin = Vec3::FromPose(feedback->pose);
+                    VisualizerMessage visualizerMessage;
+                    visualizerMessage.request.drone_id = drone_id;
+                    visualizerMessage.request.costmap_type = 0;
+                    visualizerMessage.request.origin = feedback->pose.position;
+                    visualize_costmap_service.call(visualizerMessage);
                 }
             }
 

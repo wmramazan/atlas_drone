@@ -20,10 +20,14 @@ NavigationVisualizer::NavigationVisualizer(NodeHandle& nh)
 
     vehicle_path_marker_array_pub   = nh.advertise<MarkerArray>("drone_path_marker_array", 1);
     vehicle_target_marker_array_pub = nh.advertise<MarkerArray>("drone_target_marker_array", 1);
+
+    visualize_path_service      = nh.advertiseService(nh.param<string>("/visualize_path_service", "visualizer/visualize_path"), &NavigationVisualizer::visualize_path_callback, this);
+    visualize_costmap_service   = nh.advertiseService(nh.param<string>("/is_path_clear_service", "visualizer/visualize_costmap"), &NavigationVisualizer::visualize_costmap_callback, this);
 }
 
-void NavigationVisualizer::Update(VisualizationRequest request)
+void NavigationVisualizer::Update()
 {
+    /*
     if (request.path_request)
     {
         PublishPathMarkers();
@@ -35,6 +39,7 @@ void NavigationVisualizer::Update(VisualizationRequest request)
     }
 
     PublishTargetMarkers();
+    */
 }
 
 void NavigationVisualizer::PublishTargetMarkers()
@@ -219,4 +224,19 @@ void NavigationVisualizer::add_marker(MarkerType marker_type, Point position)
     marker->id = id++;
     marker->pose.position = position;
     marker_array->markers.push_back(*marker);
+}
+
+bool NavigationVisualizer::visualize_path_callback(VisualizerMessageRequest& request, VisualizerMessageResponse& response)
+{
+    ROS_INFO("visualize_path_callback");
+    PublishPathMarkers();
+    PublishTargetMarkers();
+    return true;
+}
+
+bool NavigationVisualizer::visualize_costmap_callback(VisualizerMessageRequest& request, VisualizerMessageResponse& response)
+{
+    SwitchPathPlanner(request.drone_id - 1);
+    PublishCostmapMarkers(Vec3::FromPoint(request.origin), MarkerType(request.costmap_type));
+    return true;
 }

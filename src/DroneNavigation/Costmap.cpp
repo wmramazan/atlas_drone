@@ -117,13 +117,15 @@ void Costmap::Clear()
 
 bool Costmap::IsPathClear(Path* path)
 {
-  for (int i = 0; i < path->poses.size(); i++)
-  {
-    Vec3Int position(ToIndex(path->poses[i].pose.position.x), ToIndex(path->poses[i].pose.position.y), ToIndex(path->poses[i].pose.position.z));
-    if (Get(position) != 0)
-      return false;
-  }
+    for (int i = 0; i < path->poses.size(); i++)
+    {
+        Vec3Int position(ToIndex(path->poses[i].pose.position.x), ToIndex(path->poses[i].pose.position.y), ToIndex(path->poses[i].pose.position.z));
+        if (Get(position) != 0)
+        {
+            return false;
+        }
+    }
 
-  return true;
+    return true;
 }
 

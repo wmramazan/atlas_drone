@@ -67,10 +67,10 @@ add_message_files(
 )
 
 ## Generate services in the 'srv' folder
-#add_service_files(
-#   FILES
-#   MarkerService.srv
-#)
+add_service_files(
+   FILES
+   VisualizerMessage.srv
+)
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -82,7 +82,9 @@ add_message_files(
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
    DEPENDENCIES
-   std_msgs  # Or other packages containing msgs
+   std_msgs
+   geometry_msgs
+   # Or other packages containing msgs
 )
 
 ################################################
