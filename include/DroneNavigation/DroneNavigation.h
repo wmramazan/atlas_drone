@@ -17,8 +17,6 @@ public:
     DroneNavigation();
 
 private:
-    ros::NodeHandle nh;
-
     GlobalPlanner* global_planner;
 
     PathPlanner* vehicle1_planner;

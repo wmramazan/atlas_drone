@@ -2,6 +2,12 @@
 #include <cstdlib>
 #include "atlas_drone/VisualizerMessage.h"
 
+bool test(atlas_drone::VisualizerMessageRequest& req,
+          atlas_drone::VisualizerMessageResponse& res)
+{
+    ROS_INFO("VAY BABANIN KEMUGUNE");
+}
+
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "test_node");
@@ -13,15 +19,18 @@ int main(int argc, char **argv)
 
     ros::NodeHandle nh("uav1");
     ros::ServiceClient client = nh.serviceClient<atlas_drone::VisualizerMessage>("/visualizer/visualize_path");
+    ros::ServiceServer server = nh.advertiseService("/test", &test);
+
     atlas_drone::VisualizerMessage srv;
-    if (client.call(srv))
+
+    ros::Rate loop_rate(40);
+    while(ros::ok())
     {
-        ROS_INFO("Success");
-    }
-    else
-    {
-        ROS_ERROR("Failed to call service add_two_ints");
-        return 1;
+        ros::spinOnce();
+
+        client.call(srv);
+
+        loop_rate.sleep();
     }
 
     return 0;

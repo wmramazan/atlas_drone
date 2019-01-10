@@ -9,37 +9,19 @@ NavigationVisualizer::NavigationVisualizer(NodeHandle& nh)
 
     vehicle_path_marker   = create_marker(frame_id, "drone_path",     Marker::SPHERE, Marker::ADD, Vec3(resolution / 2, resolution / 2, resolution / 2), 1.0f, Vec3(1, 0, 0));
     vehicle_target_marker = create_marker(frame_id, "drone_target",   Marker::SPHERE, Marker::ADD, Vec3(resolution / 2, resolution / 2, resolution / 2), 1.0f, Vec3(0, 0, 0));
-    costmap_marker        = create_marker(frame_id, "costmap",        Marker::SPHERE, Marker::ADD, Vec3(resolution / 2, resolution / 2, resolution / 2), 0.1f, Vec3(1, 1, 0));
-    local_costmap_marker  = create_marker(frame_id, "local_costmap",  Marker::SPHERE, Marker::ADD, Vec3(resolution / 2, resolution / 2, resolution / 2), 0.1f, Vec3(0, 1, 1));
-    global_costmap_marker = create_marker(frame_id, "global_costmap", Marker::SPHERE, Marker::ADD, Vec3(resolution / 2, resolution / 2, resolution / 2), 0.1f, Vec3(1, 0, 1));
+    costmap_marker        = create_marker(frame_id, "costmap",        Marker::CUBE, Marker::ADD, Vec3(resolution, resolution, resolution), 0.5f, Vec3(1, 1, 0));
+    local_costmap_marker  = create_marker(frame_id, "local_costmap",  Marker::CUBE, Marker::ADD, Vec3(resolution, resolution, resolution), 0.5f, Vec3(0, 1, 1));
+    global_costmap_marker = create_marker(frame_id, "global_costmap", Marker::CUBE, Marker::ADD, Vec3(resolution, resolution, resolution), 0.5f, Vec3(1, 0, 1));
     delete_marker         = create_marker(frame_id, "delete",         Marker::SPHERE, Marker::DELETEALL, Vec3(0, 0, 0), 0, Vec3(0, 0, 0));
 
     id = 0;
     path_marker_request = 0;
     costmap_marker_request = 0;
 
+    costmap_marker_array_pub = nh.advertise<MarkerArray>(nh.param<string>("/costmap_marker_array_topic" , "/costmap_markers"), 1);
+
     vehicle_path_marker_array_pub   = nh.advertise<MarkerArray>("drone_path_marker_array", 1);
     vehicle_target_marker_array_pub = nh.advertise<MarkerArray>("drone_target_marker_array", 1);
-
-    visualize_path_service      = nh.advertiseService(nh.param<string>("/visualize_path_service", "/visualizer/visualize_path"), &NavigationVisualizer::visualize_path_callback, this);
-    visualize_costmap_service   = nh.advertiseService(nh.param<string>("/is_path_clear_service", "/visualizer/visualize_costmap"), &NavigationVisualizer::visualize_costmap_callback, this);
-}
-
-void NavigationVisualizer::Update()
-{
-    /*
-    if (request.path_request)
-    {
-        PublishPathMarkers();
-    }
-
-    if (request.costmap_request)
-    {
-        PublishCostmapMarkers(request.origin, MarkerType(request.costmap_type));
-    }
-
-    PublishTargetMarkers();
-    */
 }
 
 void NavigationVisualizer::PublishTargetMarkers()
@@ -78,65 +60,32 @@ void NavigationVisualizer::PublishPathMarkers()
 
 void NavigationVisualizer::PublishCostmapMarkers(Vec3 origin, MarkerType costmap_type)
 {
-    MarkerArray* marker_array;
-    Publisher* marker_array_pub;
-
-    switch (costmap_type)
-    {
-        case MarkerType::COSTMAP_MARKER:
-            marker_array = &costmap_marker_array;
-            marker_array_pub = &costmap_marker_array_pub;
-            break;
-
-        case MarkerType::LOCAL_COSTMAP_MARKER:
-            marker_array = &local_costmap_marker_array;
-            marker_array_pub = &local_costmap_marker_array_pub;
-            break;
-
-        case MarkerType::GLOBAL_COSTMAP_MARKER:
-            marker_array = &global_costmap_marker_array;
-            marker_array_pub = &global_costmap_marker_array_pub;
-            break;
-    }
-
-    marker_array->markers.clear();
-    marker_array->markers.push_back(delete_marker);
-
+    //ROS_INFO("PublishCostmapMarkers");
+    costmap_marker_array.markers.clear();
+    costmap_marker_array.markers.push_back(delete_marker);
 
     Vec3Int origin_index = Vec3Int(path_planner->to_index(origin.x), path_planner->to_index(origin.y), path_planner->to_index(origin.z));
-
-    Vec3Int neighbours[] =
-    {
-        {1, 0, 0},
-        {-1, 0, 0},
-        {0, 1, 0},
-        {0, -1, 0},
-        {0, 0, 1},
-        {0, 0, -1}
-    };
+    //ROS_INFO("origin_index: %d %d %d", origin_index.x, origin_index.y, origin_index.z);
 
     Vec3Int temp_vector;
 
-    for (uint i = -costmap_radius; i <= costmap_radius; i++)
+    for (int i = -costmap_radius; i <= costmap_radius; i++)
     {
-        for (uint j = -costmap_radius; j <= costmap_radius; j++)
+        for (int j = -costmap_radius; j <= costmap_radius; j++)
         {
-            for (uint k = -costmap_radius; k <= costmap_radius; k++)
+            for (int k = -costmap_radius; k <= costmap_radius; k++)
             {
                 temp_vector = origin_index + Vec3Int(i, j, k);
+                //ROS_INFO("temp_vector: %d %d %d", temp_vector.x, temp_vector.y, temp_vector.z);
                 if (path_planner->is_occupied(temp_vector, costmap_type))
                 {
                     bool visible = false;
 
                     for  (int a = 0; a < 6; a++)
                     {
-                        if (!visible && !path_planner->is_occupied(temp_vector + neighbours[a], costmap_type))
+                        if (!path_planner->is_occupied(temp_vector + neighbours[a], costmap_type))
                         {
                             visible = true;
-                        }
-
-                        if (visible)
-                        {
                             break;
                         }
                     }
@@ -154,7 +103,7 @@ void NavigationVisualizer::PublishCostmapMarkers(Vec3 origin, MarkerType costmap
         }
     }
 
-    marker_array_pub->publish(*marker_array);
+    costmap_marker_array_pub.publish(costmap_marker_array);
 }
 
 void NavigationVisualizer::AddPathPlanner(PathPlanner* path_planner)
@@ -212,31 +161,30 @@ void NavigationVisualizer::add_marker(MarkerType marker_type, Point position)
 
         case LOCAL_COSTMAP_MARKER:
             marker = &local_costmap_marker;
-            marker_array = &local_costmap_marker_array;
+            marker_array = &costmap_marker_array;
             break;
 
         case GLOBAL_COSTMAP_MARKER:
             marker = &global_costmap_marker;
-            marker_array = &global_costmap_marker_array;
+            marker_array = &costmap_marker_array;
             break;
     }
 
     marker->id = id++;
     marker->pose.position = position;
-    marker_array->markers.push_back(*marker);
+    costmap_marker_array.markers.push_back(*marker);
 }
 
-bool NavigationVisualizer::visualize_path_callback(VisualizerMessageRequest& request, VisualizerMessageResponse& response)
+void NavigationVisualizer::visualization_request_callback(VisualizationMessage& request)
 {
-    ROS_INFO("visualize_path_callback");
-    PublishPathMarkers();
-    PublishTargetMarkers();
-    return true;
-}
-
-bool NavigationVisualizer::visualize_costmap_callback(VisualizerMessageRequest& request, VisualizerMessageResponse& response)
-{
-    SwitchPathPlanner(request.drone_id - 1);
-    PublishCostmapMarkers(Vec3::FromPoint(request.origin), MarkerType(request.costmap_type));
-    return true;
+    if (request.request.marker_type > 2)
+    {
+        PublishPathMarkers();
+        PublishTargetMarkers();
+    }
+    else
+    {
+        SwitchPathPlanner(request.request.drone_id - 1);
+        PublishCostmapMarkers(Vec3::FromPoint(request.request.origin), MarkerType(request.request.marker_type));
+    }
 }

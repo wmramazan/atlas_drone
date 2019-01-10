@@ -18,7 +18,7 @@
 #include "DroneNavigation/LocalPlanner.h"
 #include "DroneNavigation/Costmap.h"
 #include "DroneNavigation/Pathfinder.h"
-#include "atlas_drone/VisualizerMessage.h"
+#include "atlas_drone/VisualizationMessage.h"
 
 using namespace std;
 using namespace ros;
@@ -29,11 +29,18 @@ using namespace geometry_msgs;
 using namespace visualization_msgs;
 using namespace atlas_drone;
 
+struct VisualizationRequest
+{
+    int drone_id;
+    int costmap_type;
+    Vec3 origin;
+};
+
 class PathPlanner
 {
 
 public:
-    PathPlanner(GlobalPlanner* global_planner, int drone_id);
+    PathPlanner(GlobalPlanner* global_planner, int drone_id, function<void (VisualizationMessage&)> visualization_request_callback);
 
     void Update();
     void GeneratePath();
@@ -58,6 +65,8 @@ private:
     bool is_path_clear_service_callback(TriggerRequest& request, TriggerResponse& response);
     bool generate_path_service_callback(TriggerRequest& request, TriggerResponse& response);
 
+    function<void(VisualizationMessage&)> visualization_request_callback;
+
     void drone_position_callback(const PoseStamped::ConstPtr& msg);
     void marker_feedback_callback(const InteractiveMarkerFeedbackConstPtr &feedback);
     void drone_target_callback(const PositionTarget::ConstPtr& msg);
@@ -73,8 +82,6 @@ private:
     Trigger trigger_srv;
 
     ServiceClient go_to_target_service_client;
-    ServiceClient visualize_path_service;
-    ServiceClient visualize_costmap_service;
 
     ServiceServer request_path_clearance_service;
     ServiceServer request_path_service;

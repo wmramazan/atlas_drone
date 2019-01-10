@@ -38,12 +38,13 @@ class NavigationVisualizer
 public:
     NavigationVisualizer(NodeHandle& nh);
 
-    void Update();
     void PublishTargetMarkers();
     void PublishPathMarkers();
     void PublishCostmapMarkers(Vec3 origin, MarkerType costmap_type);
     void AddPathPlanner(PathPlanner* path_planner);
     void SwitchPathPlanner(uint index);
+
+    void visualization_request_callback(VisualizationMessage& request);
 
 private:
     bool visualize_path_callback(VisualizerMessageRequest& request, VisualizerMessageResponse& response);
@@ -55,18 +56,10 @@ private:
     Publisher vehicle_path_marker_array_pub;
     Publisher vehicle_target_marker_array_pub;
     Publisher costmap_marker_array_pub;
-    Publisher global_costmap_marker_array_pub;
-    Publisher local_costmap_marker_array_pub;
 
-    MarkerArray marker_array;
     MarkerArray vehicle_path_marker_array;
     MarkerArray vehicle_target_marker_array;
     MarkerArray costmap_marker_array;
-    MarkerArray local_costmap_marker_array;
-    MarkerArray global_costmap_marker_array;
-
-    ServiceServer visualize_path_service;
-    ServiceServer visualize_costmap_service;
 
     Marker vehicle_path_marker;
     Marker vehicle_target_marker;
@@ -82,11 +75,21 @@ private:
 
     uint size;
     double resolution;
-    uint costmap_radius;
+    int costmap_radius;
 
     int id;
     int path_marker_request;
     int costmap_marker_request;
+
+    Vec3Int neighbours[6] =
+    {
+        {1, 0, 0},
+        {-1, 0, 0},
+        {0, 1, 0},
+        {0, -1, 0},
+        {0, 0, 1},
+        {0, 0, -1}
+    };
 };
 
 #endif // NAVIGATIONVISUALIZER_H

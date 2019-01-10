@@ -2,60 +2,54 @@
 # Configuration of Atlas Drone
 #
 
-frame_id:                       "world"
-child_frame_id:                 "base_link"
-size:                           600
-resolution:                     0.25
-inflation_radius:               1
+frame_id:                              "world"
+child_frame_id:                        "base_link"
+size:                                  600
+resolution:                            0.25
+inflation_radius:                      1
 
-marker_feedback_topic:          "marker/feedback"
-drone_position_topic:           "mavros/local_position/pose"
+marker_feedback_topic:                 "marker/feedback"
+drone_position_topic:                  "mavros/local_position/pose"
 
-uav1/start_position_x:          0
-uav1/start_position_y:          0
-uav1/start_position_z:          0
+uav1/start_position_x:                 0
+uav1/start_position_y:                 0
+uav1/start_position_z:                 0
 
-uav2/start_position_x:          0
-uav2/start_position_y:          4
-uav2/start_position_z:          0
+uav2/start_position_x:                 0
+uav2/start_position_y:                 4
+uav2/start_position_z:                 0
 
-uav3/start_position_x:          0
-uav3/start_position_y:          8
-uav3/start_position_z:          0
+uav3/start_position_x:                 0
+uav3/start_position_y:                 8
+uav3/start_position_z:                 0
 
 # DroneNavigation
-octomap_topic:                  "/octomap_full"
-throttled_octomap_topic:        "/octomap_throttled"
-pointcloud_topic:               "camera/depth/points"
-throttled_pointcloud_topic:     "pointcloud_throttled"
-filtered_pointcloud_topic:      "pointcloud_filtered"
-local_costmap_topic:            "local_costmap"
-global_costmap_topic:           "/global_costmap"
-path_marker_array_topic:        "path_markers"
-costmap_marker_array_topic:     "costmap_markers"
+octomap_topic:                         "/octomap_full"
+throttled_octomap_topic:               "/octomap_throttled"
+pointcloud_topic:                      "camera/depth/points"
+throttled_pointcloud_topic:            "pointcloud_throttled"
+filtered_pointcloud_topic:             "pointcloud_filtered"
 
 # PathPlanner
-drone_path_topic:               "drone_path"
-current_pose_topic:             "current_pose"
-target_pose_topic:              "target_pose"
-is_path_clear_service:          "path_planner/is_path_clear"
-generate_path_service:          "path_planner/generate_path"
-
-# DroneAI
-navigation_target_pose_topic:   "navigation_target_pose"
-terminal_message_topic:         "drone_ai/terminal_message"
-drone_message_topic:            "drone_ai/drone_message"
-ai_state_topic:                 "drone_ai/ai_state"
-go_to_target_service:           "drone_ai/go_to_target"
+drone_path_topic:                      "drone_path"
+current_pose_topic:                    "current_pose"
+target_pose_topic:                     "target_pose"
+is_path_clear_service:                 "path_planner/is_path_clear"
+generate_path_service:                 "path_planner/generate_path"
 
 # NavigationVisualizer
-path_marker_service:            "/path_marker"
-costmap_marker_service:         "/costmap_marker"
-visualize_path_service:         "/visualizer/visualize_path"
-visualize_costmap_service:      "/visualizer/visualize_costmap"
+path_marker_array_topic:               "/path_markers"
+costmap_marker_array_topic:            "/costmap_markers"
+
+# DroneAI
+navigation_target_pose_topic:          "navigation_target_pose"
+terminal_message_topic:                "drone_ai/terminal_message"
+drone_message_topic:                   "drone_ai/drone_message"
+ai_state_topic:                        "drone_ai/ai_state"
+go_to_target_service:                  "drone_ai/go_to_target"
 
 # Visualization
-costmap_radius:                 1
+costmap_radius:                        5
 
 # Gazebo
-gui:                            false
+gui:                                   false

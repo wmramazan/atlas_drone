@@ -1,5 +1,5 @@
 int64 drone_id
-int64 costmap_type
+int64 marker_type
 geometry_msgs/Point origin
 ---
 bool success

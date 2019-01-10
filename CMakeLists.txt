@@ -69,7 +69,7 @@ add_message_files(
 ## Generate services in the 'srv' folder
 add_service_files(
    DIRECTORY srv
-   FILES VisualizerMessage.srv
+   FILES VisualizationMessage.srv
 )
 
 ## Generate actions in the 'action' folder

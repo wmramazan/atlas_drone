@@ -1,6 +1,6 @@
-#include "DroneNavigation/PathPlanner.h"
+﻿#include "DroneNavigation/PathPlanner.h"
 
-PathPlanner::PathPlanner(GlobalPlanner* global_planner, int drone_id)
+PathPlanner::PathPlanner(GlobalPlanner* global_planner, int drone_id, function<void (VisualizationMessage&)> visualization_request_callback)
 {
     generate_path = false;
     go_to_target = false;
@@ -14,6 +14,9 @@ PathPlanner::PathPlanner(GlobalPlanner* global_planner, int drone_id)
     );
 
     this->drone_id = drone_id;
+
+    this->visualization_request_callback = visualization_request_callback;
+
 
     size = nh.param("/size", 600);
     half_size = size / 2;
@@ -37,8 +40,6 @@ PathPlanner::PathPlanner(GlobalPlanner* global_planner, int drone_id)
     path_pub                = nh.advertise<Path>(nh.param<string>("/drone_path_topic", "drone_path"), 5);
 
     go_to_target_service_client     = nh.serviceClient<Trigger>(nh.param<string>("/go_to_target_service", "drone_ai/go_to_target"));
-    visualize_path_service          = nh.serviceClient<VisualizerMessage>(nh.param<string>("/visualize_path_service", "/visualizer/visualize_path"));
-    visualize_costmap_service       = nh.serviceClient<VisualizerMessage>(nh.param<string>("/visualize_costmap_service", "/visualizer/visualize_costmap"));
 
     request_path_service            = nh.advertiseService(nh.param<string>("/generate_path_service", "path_planner/generate_path"), &PathPlanner::generate_path_service_callback, this);
     request_path_clearance_service  = nh.advertiseService(nh.param<string>("/is_path_clear_service", "path_planner/is_path_clear"), &PathPlanner::is_path_clear_service_callback, this);
@@ -84,11 +85,10 @@ void PathPlanner::GeneratePath()
             path.poses.push_back(pose);
         }
 
+        VisualizationMessage message;
+        message.request.marker_type = 3;
+        visualization_request_callback(message);
         path_pub.publish(path);
-        VisualizerMessage message;
-        ROS_INFO("visualize_path before");
-        //visualize_path_service.call(message);
-        ROS_INFO("visualize_path after");
     }
     else
     {
@@ -159,27 +159,30 @@ void PathPlanner::marker_feedback_callback(const InteractiveMarkerFeedbackConstP
 
                 case 7: // Local Costmap
                 {
-                    VisualizerMessage visualizerMessage;
-                    visualizerMessage.request.drone_id = drone_id;
-                    visualizerMessage.request.costmap_type = 1;
-                    visualizerMessage.request.origin = feedback->pose.position;
-                    visualize_costmap_service.call(visualizerMessage);
+                    VisualizationMessage visualizationMessage;
+                    visualizationMessage.request.drone_id = drone_id;
+                    visualizationMessage.request.marker_type = 1;
+                    visualizationMessage.request.origin = feedback->pose.position;
+                    visualization_request_callback(visualizationMessage);
+                    break;
                 }
                 case 8: // Global Costmap
                 {
-                    VisualizerMessage visualizerMessage;
-                    visualizerMessage.request.drone_id = drone_id;
-                    visualizerMessage.request.costmap_type = 2;
-                    visualizerMessage.request.origin = feedback->pose.position;
-                    visualize_costmap_service.call(visualizerMessage);
+                    VisualizationMessage visualizationMessage;
+                    visualizationMessage.request.drone_id = drone_id;
+                    visualizationMessage.request.marker_type = 2;
+                    visualizationMessage.request.origin = feedback->pose.position;
+                    visualization_request_callback(visualizationMessage);
+                    break;
                 }
                 case 9: // Merged Costmap
                 {
-                    VisualizerMessage visualizerMessage;
-                    visualizerMessage.request.drone_id = drone_id;
-                    visualizerMessage.request.costmap_type = 0;
-                    visualizerMessage.request.origin = feedback->pose.position;
-                    visualize_costmap_service.call(visualizerMessage);
+                    VisualizationMessage visualizationMessage;
+                    visualizationMessage.request.drone_id = drone_id;
+                    visualizationMessage.request.marker_type = 0;
+                    visualizationMessage.request.origin = feedback->pose.position;
+                    visualization_request_callback(visualizationMessage);
+                    break;
                 }
             }
 
