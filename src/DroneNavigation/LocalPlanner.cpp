@@ -4,7 +4,7 @@ LocalPlanner::LocalPlanner(NodeHandle& nh)
 {
     size = nh.param("/size", 600);
     resolution = nh.param("/resolution", 0.1);
-    radius = nh.param("/inflation_radius", 5);
+    inflation_radius = nh.param("/inflation_radius", 5);
     local_costmap = Costmap(size, resolution);
 
     point_cloud_sub = nh.subscribe(nh.param<string>("/filtered_pointcloud_topic", "pointcloud_filtered"), 5, &LocalPlanner::point_cloud_callback, this);
@@ -48,11 +48,11 @@ void LocalPlanner::generate_local_costmap(const PointCloud::ConstPtr& point_clou
             // Inflation
             if (!local_costmap.Get(z, size - x, size - y))
             {
-                for (i = x - radius; i <= x + radius; i++)
+                for (i = x - inflation_radius; i <= x + inflation_radius; i++)
                 {
-                    for (j = y - radius; j <= y + radius; j++)
+                    for (j = y - inflation_radius; j <= y + inflation_radius; j++)
                     {
-                        for (k = z - radius; k <= z + radius; k++)
+                        for (k = z - inflation_radius; k <= z + inflation_radius; k++)
                         {
                             SetOccupancy(Vec3Int(k, size-i, size-j), 1);
                         }

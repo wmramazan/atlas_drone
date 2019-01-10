@@ -6,7 +6,7 @@ frame_id:                              "world"
 child_frame_id:                        "base_link"
 size:                                  600
 resolution:                            0.25
-inflation_radius:                      1
+inflation_radius:                      5
 
 marker_feedback_topic:                 "marker/feedback"
 drone_position_topic:                  "mavros/local_position/pose"
@@ -49,7 +49,7 @@ ai_state_topic:                        "drone_ai/ai_state"
 go_to_target_service:                  "drone_ai/go_to_target"
 
 # Visualization
-costmap_radius:                        5
+costmap_radius:                        10
 
 # Gazebo
 gui:                                   false

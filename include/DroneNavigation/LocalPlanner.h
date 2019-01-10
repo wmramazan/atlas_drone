@@ -34,7 +34,7 @@ private:
     Costmap local_costmap;
     uint size;
     double resolution;
-    uint radius;
+    uint inflation_radius;
 };
 
 #endif // LOCALPLANNER_H

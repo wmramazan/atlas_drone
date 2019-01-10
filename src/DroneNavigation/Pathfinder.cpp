@@ -211,7 +211,7 @@ vector<Vec3Int> Pathfinder::Find(Vec3Int start, Vec3Int end)
 
         if (current->pos == end)
         {
-            while (current->parent)
+            while (current->parent && Time::now() - execution_time < Duration(TimeOut))
             {
                 path.push_back(current->pos);
                 current = current->parent;
@@ -227,7 +227,7 @@ vector<Vec3Int> Pathfinder::Find(Vec3Int start, Vec3Int end)
 
         size_t index = 0;
         const size_t size = nearby_nodes.size();
-        while (index < size)
+        while (index < size && Time::now() - execution_time < Duration(TimeOut))
         {
             Node *next_node = nullptr;
             if (in_open_list(nearby_nodes[index], next_node))

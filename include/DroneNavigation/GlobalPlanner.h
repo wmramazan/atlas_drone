@@ -42,7 +42,7 @@ private:
     Costmap global_costmap;
     uint size;
     double resolution;
-    uint radius;
+    uint inflation_radius;
 };
 
 #endif // GLOBALPLANNER_H

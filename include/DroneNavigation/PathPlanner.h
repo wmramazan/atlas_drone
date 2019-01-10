@@ -98,6 +98,8 @@ private:
     double resolution;
     double half_resolution;
 
+    int inflation_radius;
+
     string frame_id;
 };
 

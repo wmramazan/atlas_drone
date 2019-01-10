@@ -25,6 +25,7 @@ PathPlanner::PathPlanner(GlobalPlanner* global_planner, int drone_id, function<v
     half_resolution = resolution / 2;
 
     frame_id = nh.param<string>("/frame_id", "world");
+    inflation_radius = nh.param("/inflation_radius", 1);
 
     this->global_planner = global_planner;
     local_planner = new LocalPlanner(nh);
@@ -120,11 +121,11 @@ void PathPlanner::drone_position_callback(const PoseStamped::ConstPtr& msg)
     current_position = Vec3::FromPose(msg->pose) + drone_start_position;
 
     Vec3Int current_index(to_index(current_position.x), to_index(current_position.y), to_index(current_position.z));
-    for (int i = current_index.x - 1; i <= current_index.x + 1; i++)
+    for (int i = current_index.x - inflation_radius; i <= current_index.x + inflation_radius; i++)
     {
-        for (int j = current_index.y - 1; j <= current_index.y + 1; j++)
+        for (int j = current_index.y - inflation_radius; j <= current_index.y + inflation_radius; j++)
         {
-            for (int k = current_index.z - 1; k <= current_index.z + 1; k++)
+            for (int k = current_index.z - inflation_radius; k <= current_index.z + inflation_radius; k++)
             {
                 local_planner->SetOccupancy(Vec3Int(i, j, k), 0);
                 global_planner->SetOccupancy(Vec3Int(i, j, k), 0);

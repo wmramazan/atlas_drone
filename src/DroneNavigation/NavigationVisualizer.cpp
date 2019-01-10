@@ -172,7 +172,7 @@ void NavigationVisualizer::add_marker(MarkerType marker_type, Point position)
 
     marker->id = id++;
     marker->pose.position = position;
-    costmap_marker_array.markers.push_back(*marker);
+    marker_array->markers.push_back(*marker);
 }
 
 void NavigationVisualizer::visualization_request_callback(VisualizationMessage& request)

@@ -4,7 +4,7 @@ GlobalPlanner::GlobalPlanner(NodeHandle& nh)
 {
     size = nh.param("/size", 600);
     resolution = nh.param("/resolution", 0.1);
-    radius = nh.param("/inflation_radius", 5);
+    inflation_radius = nh.param("/inflation_radius", 5);
     global_costmap = Costmap(size, resolution);
 
     octomap_sub = nh.subscribe(nh.param<string>("/throttled_octomap_topic", "/octomap_throttled"), 5, &GlobalPlanner::octomap_callback, this);
@@ -50,11 +50,11 @@ void GlobalPlanner::generate_global_costmap(const Octomap::ConstPtr &octomap)
             z = global_costmap.ToIndex(it.getZ());
 
             // Inflation
-            for (i = x - radius; i <= x + radius; i++)
+            for (i = x - inflation_radius; i <= x + inflation_radius; i++)
             {
-                for (j = y - radius; j <= y + radius; j++)
+                for (j = y - inflation_radius; j <= y + inflation_radius; j++)
                 {
-                    for (k = z - radius; k <= z + radius; k++)
+                    for (k = z - inflation_radius; k <= z + inflation_radius; k++)
                     {
                         SetOccupancy(Vec3Int(i, j, k), 1);
                     }
