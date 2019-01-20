@@ -41,12 +41,12 @@
     </node>
 
     <node name="pointcloud_throttler" type="throttle" pkg="topic_tools" args="messages /uav2/camera/depth/points 1 /uav2/pointcloud_throttled" />
-    <node pkg="atlas_drone" type="pointcloud_filter" name="pointcloud_filter_1" output="screen">
+    <node pkg="atlas_drone" type="pointcloud_filter" name="pointcloud_filter_2" output="screen">
         <param name="drone_id" value="2" />
     </node>
 
     <node name="pointcloud_throttler" type="throttle" pkg="topic_tools" args="messages /uav3/camera/depth/points 1 /uav3/pointcloud_throttled" />
-    <node pkg="atlas_drone" type="pointcloud_filter" name="pointcloud_filter_1" output="screen">
+    <node pkg="atlas_drone" type="pointcloud_filter" name="pointcloud_filter_3" output="screen">
         <param name="drone_id" value="3" />
     </node>
 
