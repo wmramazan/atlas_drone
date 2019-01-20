@@ -27,7 +27,9 @@ void pointCloudCallback(const PointCloud::ConstPtr& point_cloud)
 int main(int argc, char **argv)
 {
   ros::init(argc, argv, "point_cloud_filter");
-  ros::NodeHandle nh("uav1");
+  ros::NodeHandle nh("~");
+  int id = nh.param("drone_id", 1);
+  nh = ros::NodeHandle("uav" + to_string(id));
 
   filtered_cloud_pub = nh.advertise<PointCloud>(nh.param<std::string>("/filtered_pointcloud_topic", "pointcloud_filtered"), 10);
   point_cloud_sub = nh.subscribe(nh.param<std::string>("/throttled_pointcloud_topic", "pointcloud_throttled"), 5, pointCloudCallback);
