@@ -5,7 +5,7 @@ PathPlanner::PathPlanner(GlobalPlanner* global_planner, int drone_id, function<v
     generate_path = false;
     go_to_target = false;
 
-    NodeHandle nh("/uav" + to_string(drone_id) + "/");
+    NodeHandle nh("uav" + to_string(drone_id));
 
     this->drone_start_position = Vec3(
                 nh.param("start_position_x", 0),
@@ -25,7 +25,7 @@ PathPlanner::PathPlanner(GlobalPlanner* global_planner, int drone_id, function<v
     half_resolution = resolution / 2;
 
     frame_id = nh.param<string>("/frame_id", "world");
-    inflation_radius = nh.param("/inflation_radius", 1);
+    inflation_radius = nh.param("/inflation_radius", 5);
 
     this->global_planner = global_planner;
     local_planner = new LocalPlanner(nh);
@@ -34,7 +34,7 @@ PathPlanner::PathPlanner(GlobalPlanner* global_planner, int drone_id, function<v
 
     drone_position_sub      = nh.subscribe(nh.param<string>("/drone_position_topic", "mavros/local_position/pose"), 10, &PathPlanner::drone_position_callback, this);
     feedback_marker_sub     = nh.subscribe(nh.param<string>("/marker_feedback_topic", "marker/feedback"), 10, &PathPlanner::marker_feedback_callback, this);
-    drone_target_sub        = nh.subscribe("/mavros/setpoint_raw/local", 10, &PathPlanner::drone_target_callback, this);
+    drone_target_sub        = nh.subscribe("mavros/setpoint_raw/local", 10, &PathPlanner::drone_target_callback, this);
 
     navigation_target_pub   = nh.advertise<Pose>(nh.param<string>("/target_pose_topic", "target_pose"), 10);
     terminal_message_pub    = nh.advertise<String>(nh.param<string>("/terminal_message_topic", "drone_ai/terminal_message"), 100);
@@ -44,19 +44,39 @@ PathPlanner::PathPlanner(GlobalPlanner* global_planner, int drone_id, function<v
 
     request_path_service            = nh.advertiseService(nh.param<string>("/generate_path_service", "path_planner/generate_path"), &PathPlanner::generate_path_service_callback, this);
     request_path_clearance_service  = nh.advertiseService(nh.param<string>("/is_path_clear_service", "path_planner/is_path_clear"), &PathPlanner::is_path_clear_service_callback, this);
+
+    costmapVisualizationMessage.request.drone_id = drone_id;
+    costmapVisualizationMessage.request.marker_type = -1;
+    marker_position.y = 2;
 }
 
 void PathPlanner::Update()
 {
+    if (Time::now() - last_update_time > Duration(0.1))
+    {
+        last_update_time = Time::now();
+        clear_drone_position(inflation_radius + 2);
+
+        if (costmapVisualizationMessage.request.marker_type != -1)
+        {
+            visualization_request_callback(costmapVisualizationMessage);
+        }
+    }
+
     if (generate_path)
     {
         GeneratePath();
         generate_path = false;
     }
+
+    VisualizationMessage message;
+    message.request.marker_type = 3;
+    visualization_request_callback(message);
 }
 
 void PathPlanner::GeneratePath()
 {
+    ROS_INFO("Generating path...");
     path.poses.clear();
 
     Vec3Int start;
@@ -74,7 +94,7 @@ void PathPlanner::GeneratePath()
     ROS_INFO("Execution time: %lf s", ros::Time::now().toSec() - current_timestamp);
     if (found_path.size())
     {
-        ROS_INFO("path_found");
+        ROS_INFO("Path found.");
         path.header.frame_id = frame_id;
         PoseStamped pose;
 
@@ -86,21 +106,17 @@ void PathPlanner::GeneratePath()
             path.poses.push_back(pose);
         }
 
-        VisualizationMessage message;
-        message.request.marker_type = 3;
-        visualization_request_callback(message);
         path_pub.publish(path);
     }
     else
     {
-        ROS_INFO("path_not_found");
+        ROS_INFO("Path not found.");
     }
 }
 
 bool PathPlanner::IsPathClear()
 {
-    bool is_path_clear = local_planner->IsPathClear(&path);
-    ROS_INFO("Path Clear: %d", is_path_clear);
+    bool is_path_clear = local_planner->IsPathClear(&path) && global_planner->IsPathClear(&path);
     return is_path_clear;
 }
 
@@ -119,15 +135,18 @@ bool PathPlanner::generate_path_service_callback(TriggerRequest& request, Trigge
 void PathPlanner::drone_position_callback(const PoseStamped::ConstPtr& msg)
 {
     current_position = Vec3::FromPose(msg->pose) + drone_start_position;
+}
 
+void PathPlanner::clear_drone_position(int radius)
+{
     Vec3Int current_index(to_index(current_position.x), to_index(current_position.y), to_index(current_position.z));
-    for (int i = current_index.x - inflation_radius; i <= current_index.x + inflation_radius; i++)
+    for (int i = current_index.x - radius; i <= current_index.x + radius; i++)
     {
-        for (int j = current_index.y - inflation_radius; j <= current_index.y + inflation_radius; j++)
+        for (int j = current_index.y - radius ; j <= current_index.y + radius; j++)
         {
-            for (int k = current_index.z - inflation_radius; k <= current_index.z + inflation_radius; k++)
+            for (int k = current_index.z - radius; k <= current_index.z + radius; k++)
             {
-                local_planner->SetOccupancy(Vec3Int(i, j, k), 0);
+                //local_planner->SetOccupancy(Vec3Int(i, j, k), 0);
                 global_planner->SetOccupancy(Vec3Int(i, j, k), 0);
             }
         }
@@ -136,6 +155,8 @@ void PathPlanner::drone_position_callback(const PoseStamped::ConstPtr& msg)
 
 void PathPlanner::marker_feedback_callback(const InteractiveMarkerFeedbackConstPtr &feedback)
 {
+    costmapVisualizationMessage.request.origin = feedback->pose.position;
+
     switch (feedback->event_type)
     {
         case InteractiveMarkerFeedback::MENU_SELECT:
@@ -158,31 +179,24 @@ void PathPlanner::marker_feedback_callback(const InteractiveMarkerFeedbackConstP
                     break;
                 }
 
-                case 7: // Local Costmap
+                case 7: // None
                 {
-                    VisualizationMessage visualizationMessage;
-                    visualizationMessage.request.drone_id = drone_id;
-                    visualizationMessage.request.marker_type = 1;
-                    visualizationMessage.request.origin = feedback->pose.position;
-                    visualization_request_callback(visualizationMessage);
+                    costmapVisualizationMessage.request.marker_type = -1;
                     break;
                 }
-                case 8: // Global Costmap
+                case 8: // Local Costmap
                 {
-                    VisualizationMessage visualizationMessage;
-                    visualizationMessage.request.drone_id = drone_id;
-                    visualizationMessage.request.marker_type = 2;
-                    visualizationMessage.request.origin = feedback->pose.position;
-                    visualization_request_callback(visualizationMessage);
+                    costmapVisualizationMessage.request.marker_type = 1;
                     break;
                 }
-                case 9: // Merged Costmap
+                case 9: // Global Costmap
                 {
-                    VisualizationMessage visualizationMessage;
-                    visualizationMessage.request.drone_id = drone_id;
-                    visualizationMessage.request.marker_type = 0;
-                    visualizationMessage.request.origin = feedback->pose.position;
-                    visualization_request_callback(visualizationMessage);
+                    costmapVisualizationMessage.request.marker_type = 2;
+                    break;
+                }
+                case 10: // Merged Costmap
+                {
+                    costmapVisualizationMessage.request.marker_type = 0;
                     break;
                 }
             }
@@ -209,7 +223,7 @@ void PathPlanner::marker_feedback_callback(const InteractiveMarkerFeedbackConstP
     }
 }
 
-void  PathPlanner::drone_target_callback(const PositionTarget::ConstPtr& msg)
+void PathPlanner::drone_target_callback(const PositionTarget::ConstPtr& msg)
 {
     drone_target_position = Vec3(msg->position.x, msg->position.y, msg->position.z) + drone_start_position;
 }

@@ -35,18 +35,22 @@
 
     <node name="octomap_throttler" type="throttle" pkg="topic_tools" args="messages /octomap_full 1 /octomap_throttled" />
 
+
     <node name="pointcloud_throttler_1" type="throttle" pkg="topic_tools" args="messages /uav1/camera/depth/points 1 /uav1/pointcloud_throttled" />
-    <node pkg="atlas_drone" type="pointcloud_filter" name="pointcloud_filter_1" output="screen">
+
+    <node pkg="atlas_drone" type="point_cloud_filter" name="pointcloud_filter_1" output="screen">
         <param name="drone_id" value="1" />
     </node>
 
     <node name="pointcloud_throttler_2" type="throttle" pkg="topic_tools" args="messages /uav2/camera/depth/points 1 /uav2/pointcloud_throttled" />
-    <node pkg="atlas_drone" type="pointcloud_filter" name="pointcloud_filter_2" output="screen">
+
+    <node pkg="atlas_drone" type="point_cloud_filter" name="pointcloud_filter_2" output="screen">
         <param name="drone_id" value="2" />
     </node>
 
     <node name="pointcloud_throttler_3" type="throttle" pkg="topic_tools" args="messages /uav3/camera/depth/points 1 /uav3/pointcloud_throttled" />
-    <node pkg="atlas_drone" type="pointcloud_filter" name="pointcloud_filter_3" output="screen">
+
+    <node pkg="atlas_drone" type="point_cloud_filter" name="pointcloud_filter_3" output="screen">
         <param name="drone_id" value="3" />
     </node>
 

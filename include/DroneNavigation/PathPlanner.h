@@ -71,6 +71,8 @@ private:
     void marker_feedback_callback(const InteractiveMarkerFeedbackConstPtr &feedback);
     void drone_target_callback(const PositionTarget::ConstPtr& msg);
 
+    void clear_drone_position(int radius);
+
     Subscriber drone_position_sub;
     Subscriber feedback_marker_sub;
     Subscriber drone_target_sub;
@@ -101,6 +103,11 @@ private:
     int inflation_radius;
 
     string frame_id;
+
+    Point marker_position;
+    Time last_update_time;
+
+    VisualizationMessage costmapVisualizationMessage;
 };
 
 #endif // PATHPLANNER_H

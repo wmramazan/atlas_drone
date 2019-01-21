@@ -16,7 +16,7 @@ void MoveTask::Update()
     }
 
     double target_position_distance = (target_position - DRONE->GetPosition()).Magnitude();
-    double target_rotation_distance =  (target_rotation - DRONE->GetYaw());
+    double target_rotation_distance = (target_rotation - DRONE->GetYaw());
 
     if (abs(target_rotation_distance) > 5 * DEG2RAD)
     {
@@ -32,24 +32,22 @@ void MoveTask::Update()
         if (!moving_step)
         {
             Vec3 target_direction = (target_position - DRONE->GetPosition()).Normalized();
-            step_position = target_direction * min(move_speed, target_position_distance);
-            step_rotation = target_rotation;
+            step_position = DRONE->GetPosition() + target_direction * min(move_speed, target_position_distance);
 
-            DRONE->MoveBy(step_position, 0);
+            DRONE->MoveTo(step_position, DRONE->GetYaw());
             moving_step = true;
         }
         else
         {
             double step_position_distance = (step_position - DRONE->GetPosition()).Magnitude();
-            double step_rotation_distance = step_rotation - DRONE->GetYaw();
 
-            if (step_position_distance < 0.25 && abs(step_rotation_distance) < 5 * DEG2RAD)
+            LOG("Step Distance %f", step_position_distance);
+
+            if (step_position_distance < 0.25)
             {
                 moving_step = false;
             }
         }
-
-        return;
     }
     else
     {
@@ -61,7 +59,7 @@ void MoveTask::Update()
 
         if (time_set)
         {
-            if (Time::now() - last_try_time < Duration(0.0))
+            if (Time::now() - last_try_time < Duration(3.0))
             {
                 LOG("Waiting %d", (Time::now() - last_try_time).sec);
             }

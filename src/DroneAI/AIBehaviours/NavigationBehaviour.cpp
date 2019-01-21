@@ -42,19 +42,17 @@ void NavigationBehaviour::Update()
         Vec3 current_position = DRONE->GetPosition();
         double distance = current_position.Distance(target_position);
 
-        ROS_INFO("%f", distance);
-        if (distance >= 0.25)
+        if (distance > 0.25)
         {
             if (request_path_clearence())
             {
                 LOG("||-> Adding task with pose: %f - %f - %f", target_pose.position.x, target_pose.position.y, target_pose.position.z);
-                AddTask(new MoveTask(target_position, atan2(path_direction.y, path_direction.x), 10000));
+                AddTask(new MoveTask(target_position, atan2(path_direction.y, path_direction.x), 1));
             }
             else
             {
-                //request_path();
+                request_path();
             }
-
         }
     }
     else
@@ -63,7 +61,10 @@ void NavigationBehaviour::Update()
         {
             LOG("Path is not clear.");
             CurrentTask->Terminate();
-            //request_path();
+        }
+        else
+        {
+            //LOG("Path is clear, moving on.");
         }
     }
 }

@@ -144,15 +144,16 @@ if __name__=="__main__":
 
     server = InteractiveMarkerServer("uav2/marker")
 
-    menu_handler.insert( "Take-off", callback=processFeedback )
-    menu_handler.insert( "Land", callback=processFeedback )
+    menu_handler.insert( "Take-off",    callback=processFeedback )
+    menu_handler.insert( "Land",        callback=processFeedback )
     sub_menu_handle = menu_handler.insert( "Actions" )
-    menu_handler.insert( "Plan path", parent=sub_menu_handle, callback=processFeedback )
-    menu_handler.insert( "Go to target", parent=sub_menu_handle, callback=processFeedback )
+    menu_handler.insert( "Plan path",       parent=sub_menu_handle, callback=processFeedback )
+    menu_handler.insert( "Go to target",    parent=sub_menu_handle, callback=processFeedback )
     costmap_sub_menu_handle = menu_handler.insert( "Costmaps" )
-    menu_handler.insert( "Local Costmap", parent=costmap_sub_menu_handle, callback=processFeedback )
-    menu_handler.insert( "Global Costmap", parent=costmap_sub_menu_handle, callback=processFeedback )
-    menu_handler.insert( "Merged Costmap", parent=costmap_sub_menu_handle, callback=processFeedback )
+    menu_handler.insert( "None",            parent=costmap_sub_menu_handle, callback=processFeedback )
+    menu_handler.insert( "Local Costmap",   parent=costmap_sub_menu_handle, callback=processFeedback )
+    menu_handler.insert( "Global Costmap",  parent=costmap_sub_menu_handle, callback=processFeedback )
+    menu_handler.insert( "Merged Costmap",  parent=costmap_sub_menu_handle, callback=processFeedback )
 
     position = Point( 0, 4, 2)
     makedroneMarker( position )

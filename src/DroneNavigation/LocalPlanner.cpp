@@ -46,7 +46,7 @@ void LocalPlanner::generate_local_costmap(const PointCloud::ConstPtr& point_clou
             z = local_costmap.ToIndex(static_cast<double>(pt.z));
 
             // Inflation
-            if (!local_costmap.Get(z, size - x, size - y))
+            if (!local_costmap.Get(x, y, z))
             {
                 for (i = x - inflation_radius; i <= x + inflation_radius; i++)
                 {
@@ -54,7 +54,8 @@ void LocalPlanner::generate_local_costmap(const PointCloud::ConstPtr& point_clou
                     {
                         for (k = z - inflation_radius; k <= z + inflation_radius; k++)
                         {
-                            SetOccupancy(Vec3Int(k, size-i, size-j), 1);
+                            SetOccupancy(Vec3Int(i, j, k), 1);
+                            //SetOccupancy(Vec3Int(k, size-i, size-j), 1);
                         }
                     }
                 }

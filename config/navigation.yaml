@@ -6,7 +6,7 @@ frame_id:                              "world"
 child_frame_id:                        "base_link"
 size:                                  600
 resolution:                            0.25
-inflation_radius:                      5
+inflation_radius:                      1
 
 marker_feedback_topic:                 "marker/feedback"
 drone_position_topic:                  "mavros/local_position/pose"
